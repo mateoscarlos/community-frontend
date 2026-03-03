@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "home": "Home",
+    "blog": "Blog",
+    "account": "Account",
+    "game": "Play"
+  },
+  "health": {
+    "title": "System Status",
+    "ok": "All systems operational",
+    "error": "Service unavailable",
+    "version": "Version {{version}}",
+    "checking": "Checking status…",
+    "mock": "Mock data (API offline)"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "es": "Español",
+    "da": "Dansk"
+  },
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "retry": "Try again"
+  }
+}

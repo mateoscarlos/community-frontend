@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "home": "Hjem",
+    "blog": "Blog",
+    "account": "Konto",
+    "game": "Spil"
+  },
+  "health": {
+    "title": "Systemstatus",
+    "ok": "Alle systemer fungerer",
+    "error": "Tjenesten utilgængelig",
+    "version": "Version {{version}}",
+    "checking": "Tjekker status…",
+    "mock": "Testdata (API offline)"
+  },
+  "language": {
+    "label": "Sprog",
+    "en": "English",
+    "es": "Español",
+    "da": "Dansk"
+  },
+  "common": {
+    "loading": "Indlæser…",
+    "error": "Noget gik galt",
+    "retry": "Prøv igen"
+  }
+}

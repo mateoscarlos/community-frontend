@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "blog": "Blog",
+    "account": "Cuenta",
+    "game": "Jugar"
+  },
+  "health": {
+    "title": "Estado del sistema",
+    "ok": "Todos los sistemas operativos",
+    "error": "Servicio no disponible",
+    "version": "Versión {{version}}",
+    "checking": "Verificando estado…",
+    "mock": "Datos de prueba (API desconectada)"
+  },
+  "language": {
+    "label": "Idioma",
+    "en": "English",
+    "es": "Español",
+    "da": "Dansk"
+  },
+  "common": {
+    "loading": "Cargando…",
+    "error": "Algo salió mal",
+    "retry": "Intentar de nuevo"
+  }
+}
