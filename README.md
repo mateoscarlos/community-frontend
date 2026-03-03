@@ -4,17 +4,17 @@ A mobile-first collaborative web game. Every day a reference image appears divid
 
 ## Stack
 
-| Concern | Choice |
-|---|---|
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript (strict) |
-| Styling | Tailwind CSS v4 + shadcn/ui |
-| Animations | Framer Motion |
-| Client state | Zustand |
-| Server state | TanStack Query v5 |
-| Localization | i18next + react-i18next (en, es, da) |
-| Package manager | pnpm |
-| Testing | Vitest + React Testing Library |
+| Concern         | Choice                               |
+| --------------- | ------------------------------------ |
+| Framework       | Next.js 16 (App Router)              |
+| Language        | TypeScript (strict)                  |
+| Styling         | Tailwind CSS v4 + shadcn/ui          |
+| Animations      | Framer Motion                        |
+| Client state    | Zustand                              |
+| Server state    | TanStack Query v5                    |
+| Localization    | i18next + react-i18next (en, es, da) |
+| Package manager | pnpm                                 |
+| Testing         | Vitest + React Testing Library       |
 
 ## Getting started
 
@@ -30,10 +30,10 @@ Open http://localhost:3000 — redirects automatically to your browser locale (`
 
 ## Environment variables
 
-| Variable | Description |
-|---|---|
-| `NEXT_PUBLIC_API_URL` | Backend API base URL |
-| `NEXT_PUBLIC_APP_ENV` | `development` / `staging` / `production` |
+| Variable              | Description                                |
+| --------------------- | ------------------------------------------ |
+| `NEXT_PUBLIC_API_URL` | Backend API base URL                       |
+| `NEXT_PUBLIC_APP_ENV` | `development` / `staging` / `production`   |
 | `NEXT_PUBLIC_APP_URL` | Public URL of this frontend (for metadata) |
 
 See `.env.example` for defaults. Set these in Railway for deployed environments.
@@ -73,9 +73,9 @@ public/
 
 ## Branching
 
-| Branch | Deploys to |
-|---|---|
-| `master` | Production (Railway) |
+| Branch    | Deploys to              |
+| --------- | ----------------------- |
+| `master`  | Production (Railway)    |
 | `develop` | Dev / staging (Railway) |
 
 PRs require 1 approval and passing CI. Signed commits required.

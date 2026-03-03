@@ -26,9 +26,7 @@ export function HealthStatus({ initialData }: HealthStatusProps) {
     >
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-sm font-medium">
-            {t('health.title')}
-          </CardTitle>
+          <CardTitle className="text-sm font-medium">{t('health.title')}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
           {isLoading ? (

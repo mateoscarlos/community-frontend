@@ -12,10 +12,7 @@ export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params
   if (!isValidLocale(locale)) notFound()
 
-  const [health, { t }] = await Promise.all([
-    fetchHealth(),
-    getTranslations(locale),
-  ])
+  const [health, { t }] = await Promise.all([fetchHealth(), getTranslations(locale)])
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-16">
@@ -24,7 +21,8 @@ export default async function HomePage({ params }: HomePageProps) {
           {t('nav.game')}
         </h1>
         <p className="text-muted-foreground max-w-md text-lg">
-          A daily collaborative photo challenge. Claim a tile. Take a photo. Complete the picture.
+          A daily collaborative photo challenge. Claim a tile. Take a photo. Complete the
+          picture.
         </p>
 
         <HealthStatus initialData={health} />

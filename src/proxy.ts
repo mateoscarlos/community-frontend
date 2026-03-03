@@ -38,9 +38,7 @@ export function proxy(request: NextRequest) {
   if (cookieLocale && isValidLocale(cookieLocale)) {
     detectedLocale = cookieLocale
   } else {
-    const headerLocale = acceptLanguage.get(
-      request.headers.get('Accept-Language')
-    )
+    const headerLocale = acceptLanguage.get(request.headers.get('Accept-Language'))
     if (headerLocale && isValidLocale(headerLocale)) {
       detectedLocale = headerLocale
     }

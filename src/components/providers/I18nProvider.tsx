@@ -12,9 +12,6 @@ interface I18nProviderProps {
 }
 
 export function I18nProvider({ locale, resources, children }: I18nProviderProps) {
-  const instance = useMemo(
-    () => createClientI18n(locale, resources),
-    [locale, resources]
-  )
+  const instance = useMemo(() => createClientI18n(locale, resources), [locale, resources])
   return <I18nextProvider i18n={instance}>{children}</I18nextProvider>
 }

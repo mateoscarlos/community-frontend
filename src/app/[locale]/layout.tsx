@@ -19,9 +19,9 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   }
 
   // Load translations server-side and pass to client
-  const resources = await import(
-    `../../../public/locales/${locale}/common.json`
-  ).then((m) => ({ common: m.default }))
+  const resources = await import(`../../../public/locales/${locale}/common.json`).then(
+    (m) => ({ common: m.default })
+  )
 
   return (
     <I18nProvider locale={locale as Locale} resources={resources}>
