@@ -1,12 +1,20 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { Suspense, useState, useRef, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { getPresignedUploadUrl, uploadFile, submitTile } from '@/lib/api/submission'
 
 type Step = 'ready' | 'uploading' | 'done' | 'error'
 
 export default function UploadPage() {
+  return (
+    <Suspense fallback={null}>
+      <UploadView />
+    </Suspense>
+  )
+}
+
+function UploadView() {
   const searchParams = useSearchParams()
   const tileId = searchParams.get('tile')
   const sessionId = searchParams.get('session')
