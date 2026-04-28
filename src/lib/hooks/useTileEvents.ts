@@ -36,7 +36,9 @@ export interface PhaseCompleteInfo {
  */
 export function useTileEvents(onPhaseComplete?: (info: PhaseCompleteInfo) => void) {
   const onPhaseCompleteRef = useRef(onPhaseComplete)
-  onPhaseCompleteRef.current = onPhaseComplete
+  useEffect(() => {
+    onPhaseCompleteRef.current = onPhaseComplete
+  })
   const queryClient = useQueryClient()
   const unclaimTile = useGameStore((s) => s.unclaimTile)
   const eventSourceRef = useRef<EventSource | null>(null)

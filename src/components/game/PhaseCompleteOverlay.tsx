@@ -28,24 +28,28 @@ export function PhaseCompleteOverlay({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4 }}
         >
-          {Array.from({ length: 16 }).map((_, i) => (
-            <motion.div
-              key={i}
-              className="bg-foreground absolute h-1 w-1"
-              initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
-              animate={{
-                opacity: [0, 1, 0],
-                scale: [0, 1, 0.5],
-                x: Math.cos((i / 16) * Math.PI * 2) * (120 + Math.random() * 80),
-                y: Math.sin((i / 16) * Math.PI * 2) * (120 + Math.random() * 80),
-              }}
-              transition={{
-                duration: 1.6,
-                delay: 0.2 + i * 0.04,
-                ease: 'easeOut',
-              }}
-            />
-          ))}
+          {Array.from({ length: 16 }).map((_, i) => {
+            const angle = (i / 16) * Math.PI * 2
+            const radius = 120 + ((i * 11) % 80)
+            return (
+              <motion.div
+                key={i}
+                className="bg-foreground absolute h-1 w-1"
+                initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
+                animate={{
+                  opacity: [0, 1, 0],
+                  scale: [0, 1, 0.5],
+                  x: Math.cos(angle) * radius,
+                  y: Math.sin(angle) * radius,
+                }}
+                transition={{
+                  duration: 1.6,
+                  delay: 0.2 + i * 0.04,
+                  ease: 'easeOut',
+                }}
+              />
+            )
+          })}
 
           <motion.div
             className="relative z-10 flex flex-col items-center gap-6 px-8 text-center"

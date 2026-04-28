@@ -39,31 +39,15 @@ const TABS = [
   },
 ] as const
 
-export function Sidebar() {
+interface NavItemsProps {
+  pathname: string
+  locale: string
+  onItemClick?: () => void
+}
+
+function NavItems({ pathname, locale, onItemClick }: NavItemsProps) {
   const { t } = useTranslation()
-  const pathname = usePathname()
-  const params = useParams()
-  const locale = (params?.locale as string) ?? 'en'
-  const [open, setOpen] = useState(false)
-
-  useEffect(() => {
-    setOpen(false)
-  }, [pathname])
-
-  useEffect(() => {
-    if (!open) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false)
-    }
-    document.body.style.overflow = 'hidden'
-    window.addEventListener('keydown', onKey)
-    return () => {
-      document.body.style.overflow = ''
-      window.removeEventListener('keydown', onKey)
-    }
-  }, [open])
-
-  const NavItems = ({ onClick }: { onClick?: () => void }) => (
+  return (
     <nav className="flex flex-col" aria-label="Main navigation">
       {TABS.map(({ key, icon: Icon, href, isActive }) => {
         const active = isActive(pathname, locale)
@@ -71,7 +55,7 @@ export function Sidebar() {
           <Link
             key={key}
             href={href(locale)}
-            onClick={onClick}
+            onClick={onItemClick}
             aria-current={active ? 'page' : undefined}
             className={`border-foreground/10 flex min-h-[64px] items-center gap-4 border-b px-6 transition-colors ${
               active
@@ -88,6 +72,28 @@ export function Sidebar() {
       })}
     </nav>
   )
+}
+
+export function Sidebar() {
+  const params = useParams()
+  const locale = (params?.locale as string) ?? 'en'
+  const pathname = usePathname() ?? ''
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = ''
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  const close = () => setOpen(false)
 
   return (
     <>
@@ -127,7 +133,7 @@ export function Sidebar() {
             Daily Tile Game
           </p>
         </div>
-        <NavItems />
+        <NavItems pathname={pathname} locale={locale} />
         <div className="border-foreground/10 mt-auto border-t px-6 py-4">
           <LanguageSwitcher />
         </div>
@@ -143,7 +149,7 @@ export function Sidebar() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setOpen(false)}
+              onClick={close}
               aria-hidden
             />
             <motion.aside
@@ -168,14 +174,14 @@ export function Sidebar() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setOpen(false)}
+                  onClick={close}
                   aria-label="Close navigation"
                   className="hover:bg-foreground/5 -mr-2 flex h-12 w-12 items-center justify-center transition-colors"
                 >
                   <X className="h-6 w-6" strokeWidth={2} />
                 </button>
               </div>
-              <NavItems onClick={() => setOpen(false)} />
+              <NavItems pathname={pathname} locale={locale} onItemClick={close} />
               <div className="border-foreground/10 mt-auto border-t px-6 py-4">
                 <LanguageSwitcher />
               </div>

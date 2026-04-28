@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { Lock, Check, Pencil } from 'lucide-react'
@@ -66,11 +66,10 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
 
   const [selectedTile, setSelectedTile] = useState<TileResponse | null>(null)
   const [uploadTile, setUploadTile] = useState<TileResponse | null>(null)
-  const imgRef = useRef<HTMLImageElement>(null)
 
-  useEffect(() => {
-    if (imgRef.current?.complete) setImageLoaded(true)
-  }, [data?.period?.image?.image_url])
+  const setImgRef = useCallback((node: HTMLImageElement | null) => {
+    if (node?.complete && node.naturalWidth > 0) setImageLoaded(true)
+  }, [])
 
   const grid = data?.grid
   const cols = grid?.columns ?? 3
@@ -161,7 +160,8 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
 
           {imageUrl && (
             <motion.img
-              ref={imgRef}
+              key={imageUrl}
+              ref={setImgRef}
               src={imageUrl}
               alt={t('game.today')}
               className="absolute inset-0 h-full w-full object-cover"
@@ -226,6 +226,7 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
       />
 
       <UploadSheet
+        key={uploadTile?.id ?? 'closed'}
         tile={uploadTile}
         imageUrl={imageUrl}
         gridColumns={cols}

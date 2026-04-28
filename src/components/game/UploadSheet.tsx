@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
@@ -36,15 +36,6 @@ export function UploadSheet({
   const [step, setStep] = useState<UploadStep>('choose')
   const [preview, setPreview] = useState<string | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
-
-  useEffect(() => {
-    setStep('choose')
-    setPreview(null)
-    setErrorMsg(null)
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
-  }, [tile?.id])
 
   if (!tile) return null
 
