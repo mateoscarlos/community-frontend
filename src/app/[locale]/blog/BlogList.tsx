@@ -8,7 +8,8 @@ const MOCK_POSTS = [
     title: 'Round 1 is complete — look what you built',
     date: '2026-03-08',
     readTime: 3,
-    excerpt: 'Thirty-six strangers, one image, and a shared instinct to make something together.',
+    excerpt:
+      'Thirty-six strangers, one image, and a shared instinct to make something together.',
     tag: 'Milestone',
   },
   {
@@ -40,7 +41,7 @@ export function BlogList() {
         <h1 className="text-foreground text-4xl font-black tracking-tight uppercase">
           {t('blog.title')}
         </h1>
-        <p className="text-muted-foreground mt-2 text-xs uppercase tracking-[0.2em]">
+        <p className="text-muted-foreground mt-2 text-xs tracking-[0.2em] uppercase">
           {t('blog.subtitle')}
         </p>
       </header>
@@ -53,11 +54,11 @@ export function BlogList() {
               i < MOCK_POSTS.length - 1 ? 'border-foreground/20 border-b' : ''
             }`}
           >
-            <p className="text-muted-foreground group-hover:text-background/70 mb-3 text-[10px] font-bold uppercase tracking-[0.2em]">
+            <p className="text-muted-foreground group-hover:text-background/70 mb-3 text-[10px] font-bold tracking-[0.2em] uppercase">
               {post.tag}
             </p>
 
-            <h2 className="text-foreground group-hover:text-background mb-3 text-xl font-black uppercase leading-tight tracking-tight">
+            <h2 className="text-foreground group-hover:text-background mb-3 text-xl leading-tight font-black tracking-tight uppercase">
               {post.title}
             </h2>
 
@@ -65,7 +66,7 @@ export function BlogList() {
               {post.excerpt}
             </p>
 
-            <div className="text-muted-foreground group-hover:text-background/70 flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.2em]">
+            <div className="text-muted-foreground group-hover:text-background/70 flex items-center gap-3 text-[10px] font-bold tracking-[0.2em] uppercase">
               <span>
                 {new Date(post.date).toLocaleDateString(undefined, {
                   month: 'short',
@@ -80,7 +81,7 @@ export function BlogList() {
         ))}
       </div>
 
-      <p className="text-muted-foreground text-center text-[10px] uppercase tracking-[0.2em]">
+      <p className="text-muted-foreground text-center text-[10px] tracking-[0.2em] uppercase">
         {t('blog.coming_soon')}
       </p>
     </div>

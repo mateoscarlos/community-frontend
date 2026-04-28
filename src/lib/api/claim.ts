@@ -1,7 +1,10 @@
 import type { ClaimRequest, ClaimResponse } from '@/types/api'
 import { apiFetch } from './client'
 
-export async function claimTile(tileId: string, body: ClaimRequest): Promise<ClaimResponse> {
+export async function claimTile(
+  tileId: string,
+  body: ClaimRequest
+): Promise<ClaimResponse> {
   return apiFetch<ClaimResponse>(`/api/v1/tiles/${tileId}/claim`, {
     method: 'POST',
     body: JSON.stringify(body),

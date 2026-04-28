@@ -6,7 +6,9 @@ import type { DailyImageResponse } from '@/types/api'
 
 export const dailyImageQueryKey = ['daily-image'] as const
 
-export function useDailyImageQuery(initialData?: DailyImageResponse & { isMock?: boolean }) {
+export function useDailyImageQuery(
+  initialData?: DailyImageResponse & { isMock?: boolean }
+) {
   return useQuery({
     queryKey: dailyImageQueryKey,
     queryFn: fetchDailyImage,

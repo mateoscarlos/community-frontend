@@ -20,19 +20,22 @@ const TABS = [
     key: 'archive',
     icon: Archive,
     href: (locale: string) => `/${locale}/archive`,
-    isActive: (pathname: string, locale: string) => pathname.startsWith(`/${locale}/archive`),
+    isActive: (pathname: string, locale: string) =>
+      pathname.startsWith(`/${locale}/archive`),
   },
   {
     key: 'feedback',
     icon: MessageSquare,
     href: (locale: string) => `/${locale}/feedback`,
-    isActive: (pathname: string, locale: string) => pathname.startsWith(`/${locale}/feedback`),
+    isActive: (pathname: string, locale: string) =>
+      pathname.startsWith(`/${locale}/feedback`),
   },
   {
     key: 'account',
     icon: User,
     href: (locale: string) => `/${locale}/account`,
-    isActive: (pathname: string, locale: string) => pathname.startsWith(`/${locale}/account`),
+    isActive: (pathname: string, locale: string) =>
+      pathname.startsWith(`/${locale}/account`),
   },
 ] as const
 
@@ -77,7 +80,7 @@ export function Sidebar() {
             }`}
           >
             <Icon className="h-5 w-5" strokeWidth={active ? 2.5 : 1.75} aria-hidden />
-            <span className="text-sm font-bold uppercase tracking-[0.2em]">
+            <span className="text-sm font-bold tracking-[0.2em] uppercase">
               {t(`nav.${key}`)}
             </span>
           </Link>
@@ -101,7 +104,7 @@ export function Sidebar() {
         </button>
         <Link
           href={`/${locale}`}
-          className="text-foreground text-sm font-black uppercase tracking-[0.2em]"
+          className="text-foreground text-sm font-black tracking-[0.2em] uppercase"
         >
           Community
         </Link>
@@ -110,17 +113,17 @@ export function Sidebar() {
 
       {/* Desktop sidebar */}
       <aside
-        className="border-foreground bg-background fixed bottom-0 left-0 top-0 z-30 hidden w-64 flex-col border-r md:flex"
+        className="border-foreground bg-background fixed top-0 bottom-0 left-0 z-30 hidden w-64 flex-col border-r md:flex"
         aria-label="Sidebar navigation"
       >
         <div className="border-foreground/10 border-b px-6 py-6">
           <Link
             href={`/${locale}`}
-            className="text-foreground text-lg font-black uppercase tracking-[0.2em]"
+            className="text-foreground text-lg font-black tracking-[0.2em] uppercase"
           >
             Community
           </Link>
-          <p className="text-muted-foreground mt-1 text-[10px] uppercase tracking-[0.2em]">
+          <p className="text-muted-foreground mt-1 text-[10px] tracking-[0.2em] uppercase">
             Daily Tile Game
           </p>
         </div>
@@ -145,7 +148,7 @@ export function Sidebar() {
             />
             <motion.aside
               key="drawer"
-              className="border-foreground bg-background fixed bottom-0 left-0 top-0 z-50 flex w-[85%] max-w-sm flex-col border-r md:hidden"
+              className="border-foreground bg-background fixed top-0 bottom-0 left-0 z-50 flex w-[85%] max-w-sm flex-col border-r md:hidden"
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
@@ -156,10 +159,10 @@ export function Sidebar() {
             >
               <div className="border-foreground/10 flex items-start justify-between border-b px-6 py-6">
                 <div>
-                  <p className="text-foreground text-lg font-black uppercase tracking-[0.2em]">
+                  <p className="text-foreground text-lg font-black tracking-[0.2em] uppercase">
                     Community
                   </p>
-                  <p className="text-muted-foreground mt-1 text-[10px] uppercase tracking-[0.2em]">
+                  <p className="text-muted-foreground mt-1 text-[10px] tracking-[0.2em] uppercase">
                     Daily Tile Game
                   </p>
                 </div>

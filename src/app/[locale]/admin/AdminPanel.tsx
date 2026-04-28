@@ -30,7 +30,7 @@ export function AdminPanel() {
     <div className="mx-auto max-w-xl space-y-10 px-6 py-12">
       <header className="border-foreground border-b pb-6">
         <h1 className="text-foreground text-4xl font-black tracking-tight">ADMIN</h1>
-        <p className="text-muted-foreground mt-2 text-xs uppercase tracking-[0.2em]">
+        <p className="text-muted-foreground mt-2 text-xs tracking-[0.2em] uppercase">
           Debug Panel
         </p>
       </header>
@@ -92,7 +92,7 @@ export function AdminPanel() {
         <Section title="Tiles">
           {(lockedTiles.length > 0 || drawnTiles.length > 0) && (
             <div className="space-y-3">
-              <p className="text-muted-foreground text-[10px] uppercase tracking-[0.2em]">
+              <p className="text-muted-foreground text-[10px] tracking-[0.2em] uppercase">
                 Reset individual tile
               </p>
               <div className="flex flex-wrap gap-1.5">
@@ -120,7 +120,7 @@ export function AdminPanel() {
 
       <button
         onClick={() => refetch()}
-        className="text-muted-foreground hover:text-foreground flex w-full items-center justify-center gap-2 py-3 text-[10px] uppercase tracking-[0.2em] transition-colors"
+        className="text-muted-foreground hover:text-foreground flex w-full items-center justify-center gap-2 py-3 text-[10px] tracking-[0.2em] uppercase transition-colors"
       >
         <RefreshCw className="h-3 w-3" />
         Refresh
@@ -134,7 +134,9 @@ export function AdminPanel() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="space-y-4">
-      <h2 className="text-muted-foreground text-[10px] uppercase tracking-[0.2em]">{title}</h2>
+      <h2 className="text-muted-foreground text-[10px] tracking-[0.2em] uppercase">
+        {title}
+      </h2>
       <div className="space-y-3">{children}</div>
     </section>
   )
@@ -142,8 +144,10 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-foreground border-b border-r p-4 last:border-r-0 [&:nth-child(3n)]:border-r-0 [&:nth-child(n+4)]:border-b-0">
-      <p className="text-muted-foreground text-[9px] uppercase tracking-[0.2em]">{label}</p>
+    <div className="border-foreground border-r border-b p-4 last:border-r-0 [&:nth-child(3n)]:border-r-0 [&:nth-child(n+4)]:border-b-0">
+      <p className="text-muted-foreground text-[9px] tracking-[0.2em] uppercase">
+        {label}
+      </p>
       <p className="text-foreground mt-1 truncate text-xl font-black">{value}</p>
     </div>
   )
@@ -183,12 +187,20 @@ function BigButton({
     'flex h-14 w-full items-center justify-center text-sm font-bold uppercase tracking-[0.2em] transition-all disabled:cursor-not-allowed disabled:opacity-30'
   const styles = {
     default: 'bg-foreground text-background hover:bg-foreground/90',
-    outline: 'border-foreground text-foreground hover:bg-foreground hover:text-background border',
-    danger: 'border-foreground text-foreground hover:bg-foreground hover:text-background border border-dashed',
+    outline:
+      'border-foreground text-foreground hover:bg-foreground hover:text-background border',
+    danger:
+      'border-foreground text-foreground hover:bg-foreground hover:text-background border border-dashed',
   }[variant]
 
   const text =
-    status === 'loading' ? '...' : status === 'done' ? 'Done' : status === 'error' ? 'Error' : label
+    status === 'loading'
+      ? '...'
+      : status === 'done'
+        ? 'Done'
+        : status === 'error'
+          ? 'Error'
+          : label
 
   return (
     <button
@@ -258,7 +270,7 @@ function ImageUploadSection({ onDone }: { onDone: () => void }) {
         className="hidden"
         disabled={status === 'uploading'}
       />
-      <div className="border-foreground hover:bg-foreground hover:text-background flex h-14 w-full items-center justify-center border border-dashed text-sm font-bold uppercase tracking-[0.2em] transition-all">
+      <div className="border-foreground hover:bg-foreground hover:text-background flex h-14 w-full items-center justify-center border border-dashed text-sm font-bold tracking-[0.2em] uppercase transition-all">
         {text}
       </div>
     </label>

@@ -7,7 +7,9 @@ import type { CurrentPeriodResponse } from '@/types/api'
 export const periodQueryKey = ['period', 'current'] as const
 export const archiveQueryKey = ['period', 'archive'] as const
 
-export function useCurrentPeriodQuery(initialData?: CurrentPeriodResponse & { isMock?: boolean }) {
+export function useCurrentPeriodQuery(
+  initialData?: CurrentPeriodResponse & { isMock?: boolean }
+) {
   return useQuery({
     queryKey: periodQueryKey,
     queryFn: fetchCurrentPeriod,

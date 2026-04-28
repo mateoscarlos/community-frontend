@@ -25,7 +25,7 @@ export function LanguageSwitcher() {
           key={l}
           onClick={() => switchLocale(l)}
           aria-label={t(`language.${l}`)}
-          className={`h-7 w-7 text-[10px] font-bold uppercase tracking-widest transition-colors ${
+          className={`h-7 w-7 text-[10px] font-bold tracking-widest uppercase transition-colors ${
             locale === l
               ? 'bg-foreground text-background'
               : 'text-muted-foreground hover:text-foreground'

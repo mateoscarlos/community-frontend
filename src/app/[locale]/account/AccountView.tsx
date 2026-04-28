@@ -16,7 +16,7 @@ export function AccountView() {
         <h1 className="text-foreground text-4xl font-black tracking-tight uppercase">
           {t('account.title')}
         </h1>
-        <p className="text-muted-foreground mt-2 text-xs uppercase tracking-[0.2em]">
+        <p className="text-muted-foreground mt-2 text-xs tracking-[0.2em] uppercase">
           {t('account.subtitle')}
         </p>
       </header>
@@ -24,13 +24,13 @@ export function AccountView() {
       <div className="space-y-3">
         <button
           disabled
-          className="bg-foreground text-background flex h-14 w-full items-center justify-center text-sm font-bold uppercase tracking-[0.2em] transition-all disabled:cursor-not-allowed disabled:opacity-30"
+          className="bg-foreground text-background flex h-14 w-full items-center justify-center text-sm font-bold tracking-[0.2em] uppercase transition-all disabled:cursor-not-allowed disabled:opacity-30"
         >
           {t('account.sign_up')}
         </button>
         <button
           disabled
-          className="border-foreground text-foreground flex h-14 w-full items-center justify-center border text-sm font-bold uppercase tracking-[0.2em] transition-all disabled:cursor-not-allowed disabled:opacity-30"
+          className="border-foreground text-foreground flex h-14 w-full items-center justify-center border text-sm font-bold tracking-[0.2em] uppercase transition-all disabled:cursor-not-allowed disabled:opacity-30"
         >
           {t('account.sign_in')}
         </button>
@@ -38,7 +38,7 @@ export function AccountView() {
 
       <div className="flex items-center gap-3">
         <div className="bg-foreground/20 h-px flex-1" />
-        <span className="text-muted-foreground text-[10px] font-bold uppercase tracking-[0.2em]">
+        <span className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
           {t('account.or')}
         </span>
         <div className="bg-foreground/20 h-px flex-1" />
@@ -47,17 +47,19 @@ export function AccountView() {
       <div className="space-y-2">
         <button
           disabled
-          className="border-foreground border border-dashed text-foreground flex h-14 w-full items-center justify-center text-sm font-bold uppercase tracking-[0.2em] transition-all disabled:cursor-not-allowed disabled:opacity-30"
+          className="border-foreground text-foreground flex h-14 w-full items-center justify-center border border-dashed text-sm font-bold tracking-[0.2em] uppercase transition-all disabled:cursor-not-allowed disabled:opacity-30"
         >
           {t('account.play_as_guest')}
         </button>
-        <p className="text-muted-foreground text-center text-[10px] uppercase tracking-[0.15em] leading-relaxed">
+        <p className="text-muted-foreground text-center text-[10px] leading-relaxed tracking-[0.15em] uppercase">
           {t('account.guest_note')}
         </p>
       </div>
 
       <section className="space-y-4">
-        <h2 className="text-muted-foreground text-[10px] uppercase tracking-[0.2em]">Stats</h2>
+        <h2 className="text-muted-foreground text-[10px] tracking-[0.2em] uppercase">
+          Stats
+        </h2>
         <div className="border-foreground border">
           {STATS.map(({ label, value }, i) => (
             <div
@@ -66,14 +68,16 @@ export function AccountView() {
                 i < STATS.length - 1 ? 'border-foreground/20 border-b' : ''
               }`}
             >
-              <span className="text-muted-foreground text-[10px] font-bold uppercase tracking-[0.2em]">
+              <span className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
                 {label}
               </span>
-              <span className="text-foreground font-mono text-2xl font-black">{value}</span>
+              <span className="text-foreground font-mono text-2xl font-black">
+                {value}
+              </span>
             </div>
           ))}
         </div>
-        <p className="text-muted-foreground text-center text-[10px] uppercase tracking-[0.2em]">
+        <p className="text-muted-foreground text-center text-[10px] tracking-[0.2em] uppercase">
           {t('account.coming_soon')}
         </p>
       </section>

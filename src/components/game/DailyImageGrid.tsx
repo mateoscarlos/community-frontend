@@ -80,7 +80,10 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
   const drawnCount = grid?.drawn_count ?? 0
   const totalTiles = grid?.total_tiles ?? 0
 
-  const today = new Date().toLocaleDateString(i18n.language, { month: 'long', day: 'numeric' })
+  const today = new Date().toLocaleDateString(i18n.language, {
+    month: 'long',
+    day: 'numeric',
+  })
 
   const handleTileClick = (tile: TileResponse) => {
     if (tile.status === 'free') {
@@ -95,14 +98,16 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
       {/* Header strip */}
       <div className="border-foreground flex items-end justify-between border-b px-6 py-5">
         <div>
-          <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-[0.2em]">
+          <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
             {t('game.today')}
           </p>
-          <p className="text-foreground mt-1 text-2xl font-black tracking-tight">{today}</p>
+          <p className="text-foreground mt-1 text-2xl font-black tracking-tight">
+            {today}
+          </p>
         </div>
         {totalTiles > 0 && (
           <div className="text-right">
-            <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-[0.2em]">
+            <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
               Drawn
             </p>
             <p className="text-foreground mt-1 font-mono text-2xl font-black tracking-tight">
@@ -142,12 +147,12 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              <p className="text-foreground text-sm font-bold uppercase tracking-[0.2em]">
+              <p className="text-foreground text-sm font-bold tracking-[0.2em] uppercase">
                 {t('game.error')}
               </p>
               <button
                 onClick={() => refetch()}
-                className="border-foreground hover:bg-foreground hover:text-background border px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] transition-all"
+                className="border-foreground hover:bg-foreground hover:text-background border px-4 py-2 text-xs font-bold tracking-[0.2em] uppercase transition-all"
               >
                 {t('common.retry')}
               </button>
@@ -195,7 +200,7 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
       <AnimatePresence>
         {imageLoaded && (
           <motion.p
-            className="text-muted-foreground px-6 pt-4 text-center text-[10px] font-bold uppercase tracking-[0.2em]"
+            className="text-muted-foreground px-6 pt-4 text-center text-[10px] font-bold tracking-[0.2em] uppercase"
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.4 }}

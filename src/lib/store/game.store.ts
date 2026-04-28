@@ -35,7 +35,10 @@ export const useGameStore = create<GameState>()(
         claimTile: (tileId, expiresAt) =>
           set(
             (state) => ({
-              claimedTiles: [...state.claimedTiles.filter((c) => c.tileId !== tileId), { tileId, expiresAt }],
+              claimedTiles: [
+                ...state.claimedTiles.filter((c) => c.tileId !== tileId),
+                { tileId, expiresAt },
+              ],
               selectedTileId: null,
             }),
             false,
@@ -43,13 +46,22 @@ export const useGameStore = create<GameState>()(
           ),
         unclaimTile: (tileId) =>
           set(
-            (state) => ({ claimedTiles: state.claimedTiles.filter((c) => c.tileId !== tileId) }),
+            (state) => ({
+              claimedTiles: state.claimedTiles.filter((c) => c.tileId !== tileId),
+            }),
             false,
             'unclaimTile'
           ),
         clearAllClaims: () => set({ claimedTiles: [] }, false, 'clearAllClaims'),
       }),
-      { name: 'community-game', partialize: (state) => ({ sessionId: state.sessionId, nickname: state.nickname, claimedTiles: state.claimedTiles }) }
+      {
+        name: 'community-game',
+        partialize: (state) => ({
+          sessionId: state.sessionId,
+          nickname: state.nickname,
+          claimedTiles: state.claimedTiles,
+        }),
+      }
     ),
     { name: 'game-store' }
   )

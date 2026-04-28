@@ -25,10 +25,10 @@ export default function UploadPage() {
     return (
       <div className="bg-background flex min-h-svh items-center justify-center p-6">
         <div className="border-foreground border p-8 text-center">
-          <p className="text-foreground text-sm font-bold uppercase tracking-[0.2em]">
+          <p className="text-foreground text-sm font-bold tracking-[0.2em] uppercase">
             Invalid Upload Link
           </p>
-          <p className="text-muted-foreground mt-2 text-[10px] uppercase tracking-[0.15em]">
+          <p className="text-muted-foreground mt-2 text-[10px] tracking-[0.15em] uppercase">
             Scan the QR code from the game page
           </p>
         </div>
@@ -89,12 +89,12 @@ export default function UploadPage() {
 
       {step === 'ready' && (
         <div className="w-full max-w-sm space-y-6 text-center">
-          <p className="text-foreground text-2xl font-black uppercase tracking-tight">
+          <p className="text-foreground text-2xl font-black tracking-tight uppercase">
             Take a Photo
           </p>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="bg-foreground text-background hover:bg-foreground/90 flex h-14 w-full items-center justify-center text-sm font-bold uppercase tracking-[0.2em] transition-all"
+            className="bg-foreground text-background hover:bg-foreground/90 flex h-14 w-full items-center justify-center text-sm font-bold tracking-[0.2em] uppercase transition-all"
           >
             Open Camera
           </button>
@@ -110,7 +110,7 @@ export default function UploadPage() {
               className="border-foreground h-48 w-48 border object-cover"
             />
           )}
-          <p className="text-foreground text-xs font-bold uppercase tracking-[0.2em]">
+          <p className="text-foreground text-xs font-bold tracking-[0.2em] uppercase">
             Uploading...
           </p>
         </div>
@@ -125,10 +125,10 @@ export default function UploadPage() {
               className="border-foreground h-48 w-48 border-2 object-cover"
             />
           )}
-          <p className="text-foreground text-xs font-bold uppercase tracking-[0.2em]">
+          <p className="text-foreground text-xs font-bold tracking-[0.2em] uppercase">
             ✓ Submitted
           </p>
-          <p className="text-muted-foreground text-[10px] uppercase tracking-[0.15em]">
+          <p className="text-muted-foreground text-[10px] tracking-[0.15em] uppercase">
             You can close this tab
           </p>
         </div>
@@ -137,11 +137,13 @@ export default function UploadPage() {
       {step === 'error' && (
         <div className="w-full max-w-sm space-y-4">
           <div className="border-foreground border border-dashed p-4 text-center">
-            <p className="text-foreground text-xs uppercase tracking-[0.15em]">{errorMsg}</p>
+            <p className="text-foreground text-xs tracking-[0.15em] uppercase">
+              {errorMsg}
+            </p>
           </div>
           <button
             onClick={handleRetry}
-            className="border-foreground text-foreground hover:bg-foreground hover:text-background flex h-14 w-full items-center justify-center border text-sm font-bold uppercase tracking-[0.2em] transition-all"
+            className="border-foreground text-foreground hover:bg-foreground hover:text-background flex h-14 w-full items-center justify-center border text-sm font-bold tracking-[0.2em] uppercase transition-all"
           >
             Try Again
           </button>

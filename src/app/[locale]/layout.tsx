@@ -17,9 +17,11 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
     notFound()
   }
 
-  const resources = await import(`../../../public/locales/${locale}/common.json`).then((m) => ({
-    common: m.default,
-  }))
+  const resources = await import(`../../../public/locales/${locale}/common.json`).then(
+    (m) => ({
+      common: m.default,
+    })
+  )
 
   return (
     <I18nProvider locale={locale as Locale} resources={resources}>

@@ -9,8 +9,15 @@ export function useClaimTileMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ tileId, nickname, sessionId }: { tileId: string; nickname: string; sessionId: string }) =>
-      claimTile(tileId, { nickname, session_id: sessionId }),
+    mutationFn: ({
+      tileId,
+      nickname,
+      sessionId,
+    }: {
+      tileId: string
+      nickname: string
+      sessionId: string
+    }) => claimTile(tileId, { nickname, session_id: sessionId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: periodQueryKey })
     },

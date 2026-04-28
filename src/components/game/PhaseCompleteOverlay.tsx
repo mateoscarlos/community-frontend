@@ -55,7 +55,7 @@ export function PhaseCompleteOverlay({
             transition={{ type: 'spring', damping: 20, stiffness: 200, delay: 0.15 }}
           >
             <motion.p
-              className="text-muted-foreground text-[10px] font-bold uppercase tracking-[0.3em]"
+              className="text-muted-foreground text-[10px] font-bold tracking-[0.3em] uppercase"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
@@ -64,7 +64,7 @@ export function PhaseCompleteOverlay({
             </motion.p>
 
             <motion.h2
-              className="text-foreground text-5xl font-black uppercase tracking-tight"
+              className="text-foreground text-5xl font-black tracking-tight uppercase"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}

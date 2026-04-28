@@ -14,7 +14,7 @@ export function ArchiveList() {
         <h1 className="text-foreground text-4xl font-black tracking-tight uppercase">
           {t('archive.title')}
         </h1>
-        <p className="text-muted-foreground mt-2 text-xs uppercase tracking-[0.2em]">
+        <p className="text-muted-foreground mt-2 text-xs tracking-[0.2em] uppercase">
           {t('archive.subtitle')}
         </p>
       </header>
@@ -27,7 +27,7 @@ export function ArchiveList() {
 
         {data?.periods.length === 0 && (
           <div className="border-foreground border p-12 text-center">
-            <p className="text-muted-foreground text-sm uppercase tracking-[0.15em]">
+            <p className="text-muted-foreground text-sm tracking-[0.15em] uppercase">
               {t('archive.empty')}
             </p>
           </div>
@@ -43,17 +43,17 @@ export function ArchiveList() {
                 }`}
               >
                 <div>
-                  <p className="text-foreground group-hover:text-background text-lg font-black uppercase tracking-tight">
+                  <p className="text-foreground group-hover:text-background text-lg font-black tracking-tight uppercase">
                     {new Date(period.started_at).toLocaleDateString(undefined, {
                       month: 'long',
                       day: 'numeric',
                     })}
                   </p>
-                  <p className="text-muted-foreground group-hover:text-background/70 mt-1 text-[10px] font-bold uppercase tracking-[0.2em]">
+                  <p className="text-muted-foreground group-hover:text-background/70 mt-1 text-[10px] font-bold tracking-[0.2em] uppercase">
                     {new Date(period.started_at).getFullYear()}
                   </p>
                 </div>
-                <span className="text-muted-foreground group-hover:text-background/80 font-mono text-[10px] uppercase tracking-[0.2em]">
+                <span className="text-muted-foreground group-hover:text-background/80 font-mono text-[10px] tracking-[0.2em] uppercase">
                   {t('archive.phases', { count: period.phase })}
                 </span>
               </div>

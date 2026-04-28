@@ -30,27 +30,27 @@ export function FeedbackForm() {
         <h1 className="text-foreground text-4xl font-black tracking-tight uppercase">
           {t('feedback.title')}
         </h1>
-        <p className="text-muted-foreground mt-2 text-xs uppercase tracking-[0.2em]">
+        <p className="text-muted-foreground mt-2 text-xs tracking-[0.2em] uppercase">
           {t('feedback.subtitle')}
         </p>
       </header>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <label className="text-muted-foreground block text-[10px] font-bold uppercase tracking-[0.2em]">
+          <label className="text-muted-foreground block text-[10px] font-bold tracking-[0.2em] uppercase">
             Message
           </label>
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder={t('feedback.placeholder')}
-            className="bg-background border-foreground text-foreground placeholder:text-muted-foreground focus:ring-foreground min-h-[140px] w-full border px-4 py-3 text-sm focus:outline-none focus:ring-1"
+            className="bg-background border-foreground text-foreground placeholder:text-muted-foreground focus:ring-foreground min-h-[140px] w-full border px-4 py-3 text-sm focus:ring-1 focus:outline-none"
             required
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-muted-foreground block text-[10px] font-bold uppercase tracking-[0.2em]">
+          <label className="text-muted-foreground block text-[10px] font-bold tracking-[0.2em] uppercase">
             Contact (optional)
           </label>
           <input
@@ -58,21 +58,21 @@ export function FeedbackForm() {
             value={contact}
             onChange={(e) => setContact(e.target.value)}
             placeholder={t('feedback.contact_placeholder')}
-            className="bg-background border-foreground text-foreground placeholder:text-muted-foreground focus:ring-foreground w-full border px-4 py-3 text-sm focus:outline-none focus:ring-1"
+            className="bg-background border-foreground text-foreground placeholder:text-muted-foreground focus:ring-foreground w-full border px-4 py-3 text-sm focus:ring-1 focus:outline-none"
           />
         </div>
 
         <button
           type="submit"
           disabled={mutation.isPending || !message.trim()}
-          className="bg-foreground text-background hover:bg-foreground/90 flex h-14 w-full items-center justify-center text-sm font-bold uppercase tracking-[0.2em] transition-all disabled:cursor-not-allowed disabled:opacity-30"
+          className="bg-foreground text-background hover:bg-foreground/90 flex h-14 w-full items-center justify-center text-sm font-bold tracking-[0.2em] uppercase transition-all disabled:cursor-not-allowed disabled:opacity-30"
         >
           {mutation.isPending ? '...' : t('feedback.submit')}
         </button>
 
         {mutation.isSuccess && (
           <div className="border-foreground border border-dashed p-4 text-center">
-            <p className="text-foreground text-xs font-bold uppercase tracking-[0.2em]">
+            <p className="text-foreground text-xs font-bold tracking-[0.2em] uppercase">
               ✓ {t('feedback.success')}
             </p>
           </div>
