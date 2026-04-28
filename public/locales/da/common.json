@@ -3,7 +3,9 @@
     "home": "Hjem",
     "blog": "Blog",
     "account": "Konto",
-    "game": "Spil"
+    "game": "Spil",
+    "archive": "Arkiv",
+    "feedback": "Feedback"
   },
   "health": {
     "title": "Systemstatus",
@@ -23,5 +25,99 @@
     "loading": "Indlæser…",
     "error": "Noget gik galt",
     "retry": "Prøv igen"
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Historier fra fællesskabet",
+    "min_read": "{{count}} min læsning",
+    "coming_soon": "Flere indlæg kommer snart"
+  },
+  "account": {
+    "title": "Din konto",
+    "subtitle": "Følg dine felter og bidrag",
+    "sign_in": "Log ind",
+    "sign_up": "Opret konto",
+    "or": "eller",
+    "play_as_guest": "Fortsæt som gæst",
+    "guest_note": "Du behøver ikke en konto for at spille. Tilmeld dig for at gemme din historik.",
+    "coming_soon": "Konti kommer snart"
+  },
+  "game": {
+    "today": "Dagens udfordring",
+    "loading": "Indlæser dagens billede…",
+    "error": "Dagens billede kunne ikke indlæses",
+    "tiles_remaining": "{{count}} felter ledige",
+    "claim_tile": "Tryk på et felt for at tage det",
+    "mock_badge": "Forhåndsvisning",
+    "legend_free": "Ledig",
+    "legend_locked": "Taget",
+    "legend_yours": "Dit",
+    "legend_drawn": "Færdig"
+  },
+  "claim": {
+    "title": "Tag dette felt",
+    "position": "Række {{row}}, Kolonne {{col}}",
+    "ttl": "30 min til at tegne",
+    "nickname_label": "Dit kaldenavn",
+    "nickname_placeholder": "Indtast et kaldenavn…",
+    "button": "Tag felt",
+    "conflict": "Nogen tog lige dette felt!",
+    "conflict_hint": "Vælg et andet — gitteret opdateres…",
+    "error": "Kunne ikke tage feltet. Prøv igen."
+  },
+  "upload": {
+    "title": "Upload din tegning",
+    "hint": "Tegn dette felt og upload et billede",
+    "take_photo": "Tag et billede",
+    "choose_file": "Upload en fil",
+    "scan_qr": "Scan med din telefon",
+    "scan_qr_hint": "Åbner kameraet på din telefon",
+    "uploading": "Uploader...",
+    "success": "Tegning indsendt!"
+  },
+  "phase": {
+    "advance_title": "Fase fuldført!",
+    "advance_subtitle": "Gitteret opdeles nu i fase {{phase}}",
+    "completed_title": "Mesterværk fuldført!",
+    "completed_subtitle": "Alle felter er tegnet. Fantastisk arbejde, alle sammen!"
+  },
+  "archive": {
+    "title": "Arkiv",
+    "subtitle": "Tidligere færdige billeder",
+    "empty": "Ingen færdige billeder endnu",
+    "phases": "{{count}} faser"
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "subtitle": "Fejlsøgningsværktøjer til udvikling",
+    "section_image": "Dagens Billede",
+    "section_period": "Periode",
+    "section_tiles": "Felter",
+    "section_god": "Gud-Tilstand",
+    "upload_image": "Upload Billede",
+    "upload_image_hint": "Vælg et JPG-billede til dagens billede",
+    "set_daily_image": "Sæt Dagligt Billede",
+    "create_period": "Opret Periode",
+    "create_period_hint": "Opretter en aktiv periode fra det aktuelle daglige billede",
+    "reset_period": "Nulstil Periode",
+    "reset_period_hint": "Nulstiller til fase 1: sletter alle claims, indsendelser og felter",
+    "delete_period": "Slet Periode",
+    "delete_period_hint": "Sletter permanent den aktive periode og alle dens data",
+    "reset_tile": "Nulstil Felt",
+    "draw_all": "Tegn Alle Felter",
+    "draw_all_hint": "Markerer alle felter som tegnet — udløser fasefuldførelse",
+    "no_period": "Ingen aktiv periode",
+    "success": "Færdig!",
+    "error": "Noget gik galt",
+    "confirm_delete": "Er du sikker? Dette kan ikke fortrydes.",
+    "confirm_draw_all": "Dette vil fuldføre den aktuelle fase. Fortsæt?"
+  },
+  "feedback": {
+    "title": "Feedback",
+    "subtitle": "Fortæl os hvad du synes — ingen konto nødvendig",
+    "placeholder": "Din besked…",
+    "contact_placeholder": "Email eller social (valgfrit)",
+    "submit": "Send feedback",
+    "success": "Tak for din feedback!"
   }
 }

@@ -3,7 +3,9 @@
     "home": "Inicio",
     "blog": "Blog",
     "account": "Cuenta",
-    "game": "Jugar"
+    "game": "Jugar",
+    "archive": "Archivo",
+    "feedback": "Comentarios"
   },
   "health": {
     "title": "Estado del sistema",
@@ -23,5 +25,99 @@
     "loading": "Cargando…",
     "error": "Algo salió mal",
     "retry": "Intentar de nuevo"
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Historias de la comunidad",
+    "min_read": "{{count}} min de lectura",
+    "coming_soon": "Más artículos próximamente"
+  },
+  "account": {
+    "title": "Tu cuenta",
+    "subtitle": "Sigue tus fichas y contribuciones",
+    "sign_in": "Iniciar sesión",
+    "sign_up": "Crear cuenta",
+    "or": "o",
+    "play_as_guest": "Continuar como invitado",
+    "guest_note": "No necesitas cuenta para jugar. Regístrate para guardar tu historial.",
+    "coming_soon": "Cuentas próximamente"
+  },
+  "game": {
+    "today": "El reto de hoy",
+    "loading": "Cargando la imagen de hoy…",
+    "error": "No se pudo cargar la imagen de hoy",
+    "tiles_remaining": "{{count}} casillas disponibles",
+    "claim_tile": "Toca una casilla para reclamarla",
+    "mock_badge": "Vista previa",
+    "legend_free": "Libre",
+    "legend_locked": "Reclamada",
+    "legend_yours": "Tuya",
+    "legend_drawn": "Hecha"
+  },
+  "claim": {
+    "title": "Reclamar esta casilla",
+    "position": "Fila {{row}}, Columna {{col}}",
+    "ttl": "30 min para dibujar",
+    "nickname_label": "Tu apodo",
+    "nickname_placeholder": "Introduce un apodo…",
+    "button": "Reclamar casilla",
+    "conflict": "¡Alguien acaba de reclamar esta casilla!",
+    "conflict_hint": "Elige otra — la cuadrícula se está actualizando…",
+    "error": "No se pudo reclamar. Inténtalo de nuevo."
+  },
+  "upload": {
+    "title": "Sube tu dibujo",
+    "hint": "Dibuja esta casilla y sube una foto",
+    "take_photo": "Tomar foto",
+    "choose_file": "Subir archivo",
+    "scan_qr": "Escanea con tu móvil",
+    "scan_qr_hint": "Abre la cámara en tu móvil",
+    "uploading": "Subiendo...",
+    "success": "¡Dibujo enviado!"
+  },
+  "phase": {
+    "advance_title": "¡Fase completada!",
+    "advance_subtitle": "La cuadrícula se subdivide en la fase {{phase}}",
+    "completed_title": "¡Obra maestra completada!",
+    "completed_subtitle": "Todas las casillas han sido dibujadas. ¡Increíble trabajo!"
+  },
+  "archive": {
+    "title": "Archivo",
+    "subtitle": "Imágenes completadas anteriores",
+    "empty": "Aún no hay imágenes completadas",
+    "phases": "{{count}} fases"
+  },
+  "admin": {
+    "title": "Panel de Admin",
+    "subtitle": "Herramientas de depuración para desarrollo",
+    "section_image": "Imagen del Día",
+    "section_period": "Período",
+    "section_tiles": "Casillas",
+    "section_god": "Modo Dios",
+    "upload_image": "Subir Imagen",
+    "upload_image_hint": "Selecciona una imagen JPG para la imagen del día",
+    "set_daily_image": "Establecer Imagen",
+    "create_period": "Crear Período",
+    "create_period_hint": "Crea un período activo con la imagen del día actual",
+    "reset_period": "Reiniciar Período",
+    "reset_period_hint": "Reinicia a fase 1: borra claims, envíos y casillas",
+    "delete_period": "Eliminar Período",
+    "delete_period_hint": "Elimina permanentemente el período activo y todos sus datos",
+    "reset_tile": "Reiniciar Casilla",
+    "draw_all": "Dibujar Todas",
+    "draw_all_hint": "Marca todas las casillas como dibujadas — activa completar fase",
+    "no_period": "No hay período activo",
+    "success": "¡Hecho!",
+    "error": "Algo salió mal",
+    "confirm_delete": "¿Estás seguro? Esto no se puede deshacer.",
+    "confirm_draw_all": "Esto completará la fase actual. ¿Continuar?"
+  },
+  "feedback": {
+    "title": "Comentarios",
+    "subtitle": "Dinos qué piensas — no necesitas cuenta",
+    "placeholder": "Tu mensaje…",
+    "contact_placeholder": "Email o red social (opcional)",
+    "submit": "Enviar comentario",
+    "success": "¡Gracias por tu comentario!"
   }
 }

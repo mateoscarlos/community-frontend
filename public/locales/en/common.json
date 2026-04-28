@@ -3,7 +3,9 @@
     "home": "Home",
     "blog": "Blog",
     "account": "Account",
-    "game": "Play"
+    "game": "Play",
+    "archive": "Archive",
+    "feedback": "Feedback"
   },
   "health": {
     "title": "System Status",
@@ -23,5 +25,99 @@
     "loading": "Loading…",
     "error": "Something went wrong",
     "retry": "Try again"
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Stories from the community",
+    "min_read": "{{count}} min read",
+    "coming_soon": "More posts coming soon"
+  },
+  "account": {
+    "title": "Your Account",
+    "subtitle": "Track your tiles and contributions",
+    "sign_in": "Sign in",
+    "sign_up": "Create account",
+    "or": "or",
+    "play_as_guest": "Continue as guest",
+    "guest_note": "No account needed to play. Sign up to track your history.",
+    "coming_soon": "Accounts coming soon"
+  },
+  "game": {
+    "today": "Today's challenge",
+    "loading": "Loading today's image…",
+    "error": "Could not load today's image",
+    "tiles_remaining": "{{count}} tiles still open",
+    "claim_tile": "Tap a tile to claim it",
+    "mock_badge": "Preview",
+    "legend_free": "Free",
+    "legend_locked": "Claimed",
+    "legend_yours": "Yours",
+    "legend_drawn": "Done"
+  },
+  "claim": {
+    "title": "Claim this tile",
+    "position": "Row {{row}}, Column {{col}}",
+    "ttl": "30 min to draw",
+    "nickname_label": "Your nickname",
+    "nickname_placeholder": "Enter a nickname…",
+    "button": "Claim tile",
+    "conflict": "Someone just claimed this tile!",
+    "conflict_hint": "Pick another one — the grid is refreshing…",
+    "error": "Could not claim tile. Please try again."
+  },
+  "upload": {
+    "title": "Upload your drawing",
+    "hint": "Draw this tile, then upload a photo",
+    "take_photo": "Take a photo",
+    "choose_file": "Upload a file",
+    "scan_qr": "Scan with your phone",
+    "scan_qr_hint": "Opens the camera on your phone",
+    "uploading": "Uploading...",
+    "success": "Drawing submitted!"
+  },
+  "phase": {
+    "advance_title": "Phase complete!",
+    "advance_subtitle": "The grid is now subdividing into phase {{phase}}",
+    "completed_title": "Masterpiece complete!",
+    "completed_subtitle": "Every tile has been drawn. Amazing work, everyone!"
+  },
+  "archive": {
+    "title": "Archive",
+    "subtitle": "Past completed images",
+    "empty": "No completed images yet",
+    "phases": "{{count}} phases"
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "subtitle": "Debug tools for development",
+    "section_image": "Daily Image",
+    "section_period": "Period",
+    "section_tiles": "Tiles",
+    "section_god": "God Mode",
+    "upload_image": "Upload Image",
+    "upload_image_hint": "Select a JPG image to set as today's daily image",
+    "set_daily_image": "Set Daily Image",
+    "create_period": "Create Period",
+    "create_period_hint": "Creates an active period from the current daily image",
+    "reset_period": "Reset Period",
+    "reset_period_hint": "Resets to phase 1: clears all claims, submissions, and tiles",
+    "delete_period": "Delete Period",
+    "delete_period_hint": "Permanently deletes the active period and all its data",
+    "reset_tile": "Reset Tile",
+    "draw_all": "Draw All Tiles",
+    "draw_all_hint": "Marks all tiles as drawn — triggers phase completion",
+    "no_period": "No active period",
+    "success": "Done!",
+    "error": "Something went wrong",
+    "confirm_delete": "Are you sure? This cannot be undone.",
+    "confirm_draw_all": "This will complete the current phase. Continue?"
+  },
+  "feedback": {
+    "title": "Feedback",
+    "subtitle": "Let us know what you think — no account needed",
+    "placeholder": "Your message…",
+    "contact_placeholder": "Email or social (optional)",
+    "submit": "Send feedback",
+    "success": "Thanks for your feedback!"
   }
 }

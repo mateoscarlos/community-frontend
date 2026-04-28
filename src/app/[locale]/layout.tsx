@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation'
 import { Toaster } from '@/components/ui/sonner'
-import { Header } from '@/components/layout/Header'
-import { Footer } from '@/components/layout/Footer'
+import { Sidebar } from '@/components/layout/Sidebar'
 import { I18nProvider } from '@/components/providers/I18nProvider'
 import { QueryProvider } from '@/components/providers/QueryProvider'
 import { isValidLocale, type Locale } from '@/lib/i18n/config'
@@ -18,18 +17,16 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
     notFound()
   }
 
-  // Load translations server-side and pass to client
-  const resources = await import(`../../../public/locales/${locale}/common.json`).then(
-    (m) => ({ common: m.default })
-  )
+  const resources = await import(`../../../public/locales/${locale}/common.json`).then((m) => ({
+    common: m.default,
+  }))
 
   return (
     <I18nProvider locale={locale as Locale} resources={resources}>
       <QueryProvider>
-        <div className="flex min-h-dvh flex-col">
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
+        <div className="bg-background min-h-dvh">
+          <Sidebar />
+          <main className="md:pl-64">{children}</main>
         </div>
         <Toaster richColors position="bottom-right" />
       </QueryProvider>
