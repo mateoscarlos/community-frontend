@@ -1,11 +1,12 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { fetchCurrentPeriod, fetchArchive } from '@/lib/api/period'
+import { fetchCurrentPeriod, fetchArchive, fetchPeriod } from '@/lib/api/period'
 import type { CurrentPeriodResponse } from '@/types/api'
 
 export const periodQueryKey = ['period', 'current'] as const
 export const archiveQueryKey = ['period', 'archive'] as const
+export const periodByIdQueryKey = (id: string) => ['period', 'byId', id] as const
 
 export function useCurrentPeriodQuery(
   initialData?: CurrentPeriodResponse & { isMock?: boolean }
@@ -24,6 +25,15 @@ export function useArchiveQuery(page = 1, perPage = 20) {
   return useQuery({
     queryKey: [...archiveQueryKey, page, perPage],
     queryFn: () => fetchArchive(page, perPage),
+    retry: 1,
+  })
+}
+
+export function usePeriodByIdQuery(id: string) {
+  return useQuery({
+    queryKey: periodByIdQueryKey(id),
+    queryFn: () => fetchPeriod(id),
+    enabled: !!id,
     retry: 1,
   })
 }

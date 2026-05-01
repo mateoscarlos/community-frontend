@@ -55,14 +55,7 @@
     "legend_drawn": "Hecha"
   },
   "claim": {
-    "title": "Reclamar esta casilla",
-    "position": "Fila {{row}}, Columna {{col}}",
-    "ttl": "30 min para dibujar",
-    "nickname_label": "Tu apodo",
-    "nickname_placeholder": "Introduce un apodo…",
-    "button": "Reclamar casilla",
     "conflict": "¡Alguien acaba de reclamar esta casilla!",
-    "conflict_hint": "Elige otra — la cuadrícula se está actualizando…",
     "error": "No se pudo reclamar. Inténtalo de nuevo."
   },
   "upload": {
@@ -85,7 +78,15 @@
     "title": "Archivo",
     "subtitle": "Imágenes completadas anteriores",
     "empty": "Aún no hay imágenes completadas",
-    "phases": "{{count}} fases"
+    "phases": "{{count}} fases",
+    "tap_hint": "Toca un día para ver todos los dibujos",
+    "back": "Volver al calendario",
+    "detail_error": "No se pudo cargar este día",
+    "detail_count": "{{count}} dibujos de la imagen",
+    "original": "Imagen original",
+    "draws": "Dibujos de la comunidad",
+    "phase_label": "Fase {{phase}}",
+    "no_draws_yet": "Aún no hay dibujos para este día"
   },
   "admin": {
     "title": "Panel de Admin",

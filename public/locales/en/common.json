@@ -55,14 +55,7 @@
     "legend_drawn": "Done"
   },
   "claim": {
-    "title": "Claim this tile",
-    "position": "Row {{row}}, Column {{col}}",
-    "ttl": "30 min to draw",
-    "nickname_label": "Your nickname",
-    "nickname_placeholder": "Enter a nickname…",
-    "button": "Claim tile",
     "conflict": "Someone just claimed this tile!",
-    "conflict_hint": "Pick another one — the grid is refreshing…",
     "error": "Could not claim tile. Please try again."
   },
   "upload": {
@@ -85,7 +78,15 @@
     "title": "Archive",
     "subtitle": "Past completed images",
     "empty": "No completed images yet",
-    "phases": "{{count}} phases"
+    "phases": "{{count}} phases",
+    "tap_hint": "Tap a day to see all the drawings",
+    "back": "Back to calendar",
+    "detail_error": "Could not load this day",
+    "detail_count": "{{count}} draws of the picture",
+    "original": "Original picture",
+    "draws": "Community draws",
+    "phase_label": "Phase {{phase}}",
+    "no_draws_yet": "No draws composed yet for this day"
   },
   "admin": {
     "title": "Admin Panel",

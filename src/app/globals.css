@@ -200,9 +200,32 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scroll-behavior: smooth;
+    cursor:
+      url('/cursors/default.svg') 2 2,
+      default;
   }
   ::selection {
     background: var(--foreground);
     color: var(--background);
+  }
+}
+
+/* ─── Custom Cursors ─────────────────────────────────────────────────────── */
+
+@media (pointer: fine) {
+  .cur-pencil {
+    cursor:
+      url('/cursors/pencil.svg') 4 4,
+      crosshair;
+  }
+  .cur-lock {
+    cursor:
+      url('/cursors/lock.svg') 16 18,
+      not-allowed;
+  }
+  .cur-no-pencil {
+    cursor:
+      url('/cursors/no-pencil.svg') 4 4,
+      not-allowed;
   }
 }

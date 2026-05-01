@@ -55,14 +55,7 @@
     "legend_drawn": "Færdig"
   },
   "claim": {
-    "title": "Tag dette felt",
-    "position": "Række {{row}}, Kolonne {{col}}",
-    "ttl": "30 min til at tegne",
-    "nickname_label": "Dit kaldenavn",
-    "nickname_placeholder": "Indtast et kaldenavn…",
-    "button": "Tag felt",
     "conflict": "Nogen tog lige dette felt!",
-    "conflict_hint": "Vælg et andet — gitteret opdateres…",
     "error": "Kunne ikke tage feltet. Prøv igen."
   },
   "upload": {
@@ -85,7 +78,15 @@
     "title": "Arkiv",
     "subtitle": "Tidligere færdige billeder",
     "empty": "Ingen færdige billeder endnu",
-    "phases": "{{count}} faser"
+    "phases": "{{count}} faser",
+    "tap_hint": "Tryk på en dag for at se alle tegningerne",
+    "back": "Tilbage til kalenderen",
+    "detail_error": "Kunne ikke indlæse denne dag",
+    "detail_count": "{{count}} tegninger af billedet",
+    "original": "Originalbillede",
+    "draws": "Fællesskabets tegninger",
+    "phase_label": "Fase {{phase}}",
+    "no_draws_yet": "Ingen tegninger for denne dag endnu"
   },
   "admin": {
     "title": "Admin Panel",

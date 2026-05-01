@@ -9,8 +9,8 @@ import { useTileEvents } from '@/lib/hooks/useTileEvents'
 import { PhaseCompleteOverlay } from '@/components/game/PhaseCompleteOverlay'
 import { useGameStore } from '@/lib/store/game.store'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ClaimSheet } from '@/components/game/ClaimSheet'
 import { UploadSheet } from '@/components/game/UploadSheet'
+import { useClaimTileMutation, isClaimConflict } from '@/lib/query/claim.queries'
 import type { CurrentPeriodResponse, TileResponse } from '@/types/api'
 
 interface DailyImageGridProps {
@@ -38,6 +38,10 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
   const claimedTiles = useGameStore((s) => s.claimedTiles)
   const unclaimTile = useGameStore((s) => s.unclaimTile)
   const clearAllClaims = useGameStore((s) => s.clearAllClaims)
+  const sessionId = useGameStore((s) => s.sessionId)
+  const claimTileLocal = useGameStore((s) => s.claimTile)
+  const claimMutation = useClaimTileMutation()
+  const [claimError, setClaimError] = useState<string | null>(null)
   useTileEvents((info) => {
     setPhaseInfo(info)
     clearAllClaims()
@@ -58,14 +62,14 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
         continue
       }
       const tile = data?.grid?.tiles?.find((t) => t.id === claim.tileId)
-      if (tile && tile.status !== 'locked') {
+      if (tile && tile.status === 'drawn') {
         unclaimTile(claim.tileId)
       }
     }
   }, [claimedTiles, data, unclaimTile])
 
-  const [selectedTile, setSelectedTile] = useState<TileResponse | null>(null)
   const [uploadTile, setUploadTile] = useState<TileResponse | null>(null)
+  const hasActiveClaim = claimedTiles.length > 0
 
   const setImgRef = useCallback((node: HTMLImageElement | null) => {
     if (node?.complete && node.naturalWidth > 0) setImageLoaded(true)
@@ -85,11 +89,30 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
   })
 
   const handleTileClick = (tile: TileResponse) => {
-    if (tile.status === 'free') {
-      setSelectedTile(tile)
-    } else if (myTileIds.has(tile.id) && tile.status === 'locked') {
+    if (myTileIds.has(tile.id) && tile.status === 'locked') {
       setUploadTile(tile)
+      return
     }
+    if (tile.status !== 'free' || hasActiveClaim || claimMutation.isPending) return
+
+    setClaimError(null)
+    claimMutation.mutate(
+      { tileId: tile.id, sessionId },
+      {
+        onSuccess: (claim) => {
+          claimTileLocal(tile.id, claim.expires_at)
+          setUploadTile({ ...tile, status: 'locked' })
+        },
+        onError: (err) => {
+          if (isClaimConflict(err)) {
+            setClaimError(t('claim.conflict'))
+          } else {
+            setClaimError(t('claim.error'))
+          }
+          setTimeout(() => setClaimError(null), 2500)
+        },
+      }
+    )
   }
 
   return (
@@ -187,6 +210,10 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
                     key={tile.id}
                     tile={tile}
                     isMine={myTileIds.has(tile.id)}
+                    disabled={
+                      tile.status === 'free' &&
+                      (hasActiveClaim || claimMutation.isPending)
+                    }
                     onClick={() => handleTileClick(tile)}
                   />
                 ))}
@@ -210,13 +237,21 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
         )}
       </AnimatePresence>
 
-      <ClaimSheet
-        tile={selectedTile}
-        imageUrl={imageUrl}
-        gridColumns={cols}
-        gridRows={rows}
-        onClose={() => setSelectedTile(null)}
-      />
+      <AnimatePresence>
+        {claimError && (
+          <motion.div
+            key="claim-error"
+            className="border-foreground bg-background fixed inset-x-6 bottom-24 z-40 mx-auto max-w-sm border p-4 text-center"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+          >
+            <p className="text-foreground text-xs font-bold tracking-[0.15em] uppercase">
+              {claimError}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <PhaseCompleteOverlay
         visible={phaseInfo !== null}
@@ -241,27 +276,41 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
 function TileCell({
   tile,
   isMine,
+  disabled = false,
   onClick,
 }: {
   tile: TileResponse
   isMine: boolean
+  disabled?: boolean
   onClick: () => void
 }) {
   const isFree = tile.status === 'free'
   const isLocked = tile.status === 'locked'
   const isDrawn = tile.status === 'drawn'
-  const clickable = isFree || (isMine && isLocked)
+  const clickable = (isFree && !disabled) || (isMine && isLocked)
+
+  const cursorClass = isFree
+    ? disabled
+      ? 'cur-no-pencil'
+      : 'cur-pencil'
+    : isMine && isLocked
+      ? 'cur-pencil'
+      : isLocked
+        ? 'cur-lock'
+        : ''
 
   return (
     <motion.button
-      className={`relative border transition-colors focus:outline-none ${
+      className={`relative border transition-colors focus:outline-none ${cursorClass} ${
         isFree
-          ? 'border-foreground/20 cursor-pointer'
+          ? disabled
+            ? 'border-foreground/10'
+            : 'border-foreground/20'
           : isMine && isLocked
-            ? 'border-foreground cursor-pointer border-2'
+            ? 'border-foreground border-2'
             : isLocked
-              ? 'border-foreground/40 cursor-default'
-              : 'border-foreground/30 cursor-default'
+              ? 'border-foreground/40'
+              : 'border-foreground/30'
       }`}
       variants={tileVariants}
       transition={{ type: 'spring', stiffness: 300, damping: 22 }}
@@ -277,7 +326,7 @@ function TileCell({
       }
       whileTap={clickable ? { scale: 0.97 } : undefined}
       onClick={onClick}
-      disabled={!isFree && !isMine}
+      disabled={(!isFree && !isMine) || (isFree && disabled)}
       aria-label={`Tile ${tile.row + 1},${tile.col + 1} — ${isMine ? 'yours' : tile.status}`}
     >
       {isMine && isLocked && (

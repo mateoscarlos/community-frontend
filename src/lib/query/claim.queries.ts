@@ -11,13 +11,13 @@ export function useClaimTileMutation() {
   return useMutation({
     mutationFn: ({
       tileId,
-      nickname,
       sessionId,
+      nickname,
     }: {
       tileId: string
-      nickname: string
       sessionId: string
-    }) => claimTile(tileId, { nickname, session_id: sessionId }),
+      nickname?: string
+    }) => claimTile(tileId, { session_id: sessionId, nickname }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: periodQueryKey })
     },

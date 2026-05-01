@@ -9,10 +9,8 @@ interface ClaimedTile {
 interface GameState {
   sessionId: string
   nickname: string
-  selectedTileId: string | null
   claimedTiles: ClaimedTile[]
   setNickname: (nickname: string) => void
-  selectTile: (tileId: string | null) => void
   claimTile: (tileId: string, expiresAt: string) => void
   unclaimTile: (tileId: string) => void
   clearAllClaims: () => void
@@ -28,10 +26,8 @@ export const useGameStore = create<GameState>()(
       (set) => ({
         sessionId: generateSessionId(),
         nickname: '',
-        selectedTileId: null,
         claimedTiles: [],
         setNickname: (nickname) => set({ nickname }, false, 'setNickname'),
-        selectTile: (tileId) => set({ selectedTileId: tileId }, false, 'selectTile'),
         claimTile: (tileId, expiresAt) =>
           set(
             (state) => ({
@@ -39,7 +35,6 @@ export const useGameStore = create<GameState>()(
                 ...state.claimedTiles.filter((c) => c.tileId !== tileId),
                 { tileId, expiresAt },
               ],
-              selectedTileId: null,
             }),
             false,
             'claimTile'

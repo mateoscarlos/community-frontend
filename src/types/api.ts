@@ -45,6 +45,12 @@ export interface GridResponse {
   tiles: TileResponse[]
 }
 
+export interface PhaseMosaicResponse {
+  phase: number
+  image_url: string
+  composed_at: string
+}
+
 export interface PeriodInfo {
   id: string
   game_type: string
@@ -52,6 +58,7 @@ export interface PeriodInfo {
   phase: number
   started_at: string
   image?: PeriodImageResponse
+  phase_mosaics?: PhaseMosaicResponse[]
 }
 
 export interface CurrentPeriodResponse {
@@ -65,6 +72,7 @@ export interface ArchivePeriodResponse {
   phase: number
   started_at: string
   ended_at?: string
+  final_image_url?: string
 }
 
 export interface ArchiveListResponse {
@@ -76,8 +84,8 @@ export interface ArchiveListResponse {
 // --- Claims ---
 
 export interface ClaimRequest {
-  nickname: string
   session_id: string
+  nickname?: string
 }
 
 export interface ClaimResponse {
