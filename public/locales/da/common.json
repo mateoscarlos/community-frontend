@@ -58,6 +58,17 @@
     "conflict": "Nogen tog lige dette felt!",
     "error": "Kunne ikke tage feltet. Prøv igen."
   },
+  "preview": {
+    "title": "Forhåndsvisning",
+    "ttl": "10 min til at tegne efter du tager feltet",
+    "claim": "Tag felt",
+    "blocked": "Færdiggør dit nuværende felt først"
+  },
+  "idle": {
+    "title": "Er du der stadig?",
+    "body": "Tryk nedenfor eller dit felt frigives om {{count}}s",
+    "still_here": "Jeg er her"
+  },
   "upload": {
     "title": "Upload din tegning",
     "hint": "Tegn dette felt og upload et billede",
@@ -66,7 +77,9 @@
     "scan_qr": "Scan med din telefon",
     "scan_qr_hint": "Åbner kameraet på din telefon",
     "uploading": "Uploader...",
-    "success": "Tegning indsendt!"
+    "success": "Tegning indsendt!",
+    "extend": "Jeg har brug for 2 minutter til",
+    "expired": "Tiden er gået — feltet er frigivet"
   },
   "phase": {
     "advance_title": "Fase fuldført!",

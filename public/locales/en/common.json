@@ -58,6 +58,17 @@
     "conflict": "Someone just claimed this tile!",
     "error": "Could not claim tile. Please try again."
   },
+  "preview": {
+    "title": "Preview",
+    "ttl": "10 min to draw once claimed",
+    "claim": "Claim tile",
+    "blocked": "Finish your current tile first"
+  },
+  "idle": {
+    "title": "Are you still there?",
+    "body": "Tap below or your tile will be released in {{count}}s",
+    "still_here": "I'm still here"
+  },
   "upload": {
     "title": "Upload your drawing",
     "hint": "Draw this tile, then upload a photo",
@@ -66,7 +77,9 @@
     "scan_qr": "Scan with your phone",
     "scan_qr_hint": "Opens the camera on your phone",
     "uploading": "Uploading...",
-    "success": "Drawing submitted!"
+    "success": "Drawing submitted!",
+    "extend": "Need 2 more minutes",
+    "expired": "Time's up — claim released"
   },
   "phase": {
     "advance_title": "Phase complete!",

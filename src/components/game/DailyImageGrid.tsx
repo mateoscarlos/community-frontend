@@ -10,7 +10,14 @@ import { PhaseCompleteOverlay } from '@/components/game/PhaseCompleteOverlay'
 import { useGameStore } from '@/lib/store/game.store'
 import { Skeleton } from '@/components/ui/skeleton'
 import { UploadSheet } from '@/components/game/UploadSheet'
-import { useClaimTileMutation, isClaimConflict } from '@/lib/query/claim.queries'
+import { PreviewSheet } from '@/components/game/PreviewSheet'
+import { IdlePrompt } from '@/components/game/IdlePrompt'
+import {
+  useClaimTileMutation,
+  isClaimConflict,
+  useReleaseClaimMutation,
+} from '@/lib/query/claim.queries'
+import { useClaimHeartbeat } from '@/lib/hooks/useClaimHeartbeat'
 import type { CurrentPeriodResponse, TileResponse } from '@/types/api'
 
 interface DailyImageGridProps {
@@ -55,21 +62,49 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
   const myTileIds = new Set(claimedTiles.map((c) => c.tileId))
 
   useEffect(() => {
-    const now = new Date()
+    if (!data?.grid?.tiles) return
+    const now = Date.now()
+    const tileById = new Map(data.grid.tiles.map((t) => [t.id, t]))
+    // Grace window so a freshly-claimed tile isn't dropped before the period
+    // query has a chance to refetch and report status='locked'.
+    const RECENT_CLAIM_MS = 15_000
+
     for (const claim of claimedTiles) {
-      if (new Date(claim.expiresAt) < now) {
+      if (new Date(claim.expiresAt).getTime() < now) {
         unclaimTile(claim.tileId)
         continue
       }
-      const tile = data?.grid?.tiles?.find((t) => t.id === claim.tileId)
-      if (tile && tile.status === 'drawn') {
+      // legacy local entries may not have claimedAt — assume "old" so cleanup runs
+      const ageMs = claim.claimedAt
+        ? now - new Date(claim.claimedAt).getTime()
+        : RECENT_CLAIM_MS + 1
+      if (ageMs < RECENT_CLAIM_MS) continue
+
+      const tile = tileById.get(claim.tileId)
+      // Tile not in current period (period rolled over) or backend disagrees
+      // → drop the local claim so the user isn't stuck.
+      if (!tile || tile.status !== 'locked') {
         unclaimTile(claim.tileId)
       }
     }
   }, [claimedTiles, data, unclaimTile])
 
+  const [previewTile, setPreviewTile] = useState<TileResponse | null>(null)
   const [uploadTile, setUploadTile] = useState<TileResponse | null>(null)
   const hasActiveClaim = claimedTiles.length > 0
+  const uploadClaim = claimedTiles.find((c) => c.tileId === uploadTile?.id)
+
+  // Page-level heartbeat: runs as long as the user holds a claim, regardless
+  // of whether the upload sheet is open. If they go idle for IDLE_PROMPT_MS
+  // we surface the "are you still there?" modal; failing to respond stops
+  // heartbeats and the backend sweeps the tile.
+  const activeClaim = claimedTiles[0]
+  const releaseMutation = useReleaseClaimMutation()
+  const { isIdle, dismissIdle } = useClaimHeartbeat(
+    activeClaim?.tileId ?? null,
+    sessionId,
+    !!activeClaim
+  )
 
   const setImgRef = useCallback((node: HTMLImageElement | null) => {
     if (node?.complete && node.naturalWidth > 0) setImageLoaded(true)
@@ -89,21 +124,32 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
   })
 
   const handleTileClick = (tile: TileResponse) => {
+    // Already-mine tile → straight to upload sheet (resume drawing).
     if (myTileIds.has(tile.id) && tile.status === 'locked') {
       setUploadTile(tile)
       return
     }
-    if (tile.status !== 'free' || hasActiveClaim || claimMutation.isPending) return
+    // Free tile → open preview first; the timer doesn't start until they
+    // explicitly click Claim inside the preview sheet.
+    if (tile.status === 'free') {
+      setPreviewTile(tile)
+    }
+  }
 
+  const handleClaim = () => {
+    if (!previewTile) return
     setClaimError(null)
+    const tile = previewTile
     claimMutation.mutate(
       { tileId: tile.id, sessionId },
       {
         onSuccess: (claim) => {
           claimTileLocal(tile.id, claim.expires_at)
+          setPreviewTile(null)
           setUploadTile({ ...tile, status: 'locked' })
         },
         onError: (err) => {
+          setPreviewTile(null)
           if (isClaimConflict(err)) {
             setClaimError(t('claim.conflict'))
           } else {
@@ -260,12 +306,40 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
         periodCompleted={phaseInfo?.periodCompleted ?? false}
       />
 
+      <IdlePrompt
+        open={isIdle && !!activeClaim}
+        onStillHere={dismissIdle}
+        onTimeout={() => {
+          if (!activeClaim) return
+          // Drop the local claim immediately; the network call frees the
+          // tile on the backend a touch later.
+          const tileId = activeClaim.tileId
+          unclaimTile(tileId)
+          releaseMutation.mutate({ tileId, sessionId })
+          // If the upload sheet was open, close it — the user no longer owns this tile.
+          if (uploadTile?.id === tileId) setUploadTile(null)
+          dismissIdle()
+        }}
+      />
+
+      <PreviewSheet
+        tile={previewTile}
+        imageUrl={imageUrl}
+        gridColumns={cols}
+        gridRows={rows}
+        claiming={claimMutation.isPending}
+        blocked={hasActiveClaim && !myTileIds.has(previewTile?.id ?? '')}
+        onClose={() => setPreviewTile(null)}
+        onClaim={handleClaim}
+      />
+
       <UploadSheet
         key={uploadTile?.id ?? 'closed'}
         tile={uploadTile}
         imageUrl={imageUrl}
         gridColumns={cols}
         gridRows={rows}
+        expiresAt={uploadClaim?.expiresAt ?? null}
         onClose={() => setUploadTile(null)}
         onSubmitted={() => refetch()}
       />

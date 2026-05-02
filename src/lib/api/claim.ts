@@ -1,4 +1,4 @@
-import type { ClaimRequest, ClaimResponse } from '@/types/api'
+import type { ClaimRequest, ClaimResponse, ExpiresAtResponse } from '@/types/api'
 import { apiFetch } from './client'
 
 export async function claimTile(
@@ -14,6 +14,26 @@ export async function claimTile(
 export async function releaseClaim(tileId: string, sessionId: string): Promise<void> {
   await apiFetch(`/api/v1/tiles/${tileId}/claim`, {
     method: 'DELETE',
+    body: JSON.stringify({ session_id: sessionId }),
+  })
+}
+
+export async function heartbeatClaim(
+  tileId: string,
+  sessionId: string
+): Promise<ExpiresAtResponse> {
+  return apiFetch<ExpiresAtResponse>(`/api/v1/tiles/${tileId}/heartbeat`, {
+    method: 'POST',
+    body: JSON.stringify({ session_id: sessionId }),
+  })
+}
+
+export async function extendClaim(
+  tileId: string,
+  sessionId: string
+): Promise<ExpiresAtResponse> {
+  return apiFetch<ExpiresAtResponse>(`/api/v1/tiles/${tileId}/extend`, {
+    method: 'POST',
     body: JSON.stringify({ session_id: sessionId }),
   })
 }

@@ -58,6 +58,17 @@
     "conflict": "¡Alguien acaba de reclamar esta casilla!",
     "error": "No se pudo reclamar. Inténtalo de nuevo."
   },
+  "preview": {
+    "title": "Vista previa",
+    "ttl": "10 min para dibujar al reclamar",
+    "claim": "Reclamar casilla",
+    "blocked": "Termina primero tu casilla actual"
+  },
+  "idle": {
+    "title": "¿Sigues ahí?",
+    "body": "Toca abajo o tu casilla se liberará en {{count}}s",
+    "still_here": "Sigo aquí"
+  },
   "upload": {
     "title": "Sube tu dibujo",
     "hint": "Dibuja esta casilla y sube una foto",
@@ -66,7 +77,9 @@
     "scan_qr": "Escanea con tu móvil",
     "scan_qr_hint": "Abre la cámara en tu móvil",
     "uploading": "Subiendo...",
-    "success": "¡Dibujo enviado!"
+    "success": "¡Dibujo enviado!",
+    "extend": "Necesito 2 minutos más",
+    "expired": "Tiempo agotado — casilla liberada"
   },
   "phase": {
     "advance_title": "¡Fase completada!",

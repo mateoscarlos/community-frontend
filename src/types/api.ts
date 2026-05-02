@@ -94,6 +94,11 @@ export interface ClaimResponse {
   expires_at: string
 }
 
+export interface ExpiresAtResponse {
+  tile_id: string
+  expires_at: string
+}
+
 // --- Submissions ---
 
 export interface PresignRequest {

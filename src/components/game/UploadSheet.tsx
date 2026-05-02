@@ -3,11 +3,14 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { X } from 'lucide-react'
+import { X, Clock } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useGameStore } from '@/lib/store/game.store'
 import { useIsMobile } from '@/lib/hooks/useIsMobile'
+import { useCountdown, formatCountdown } from '@/lib/hooks/useCountdown'
+import { useExtendClaimMutation } from '@/lib/query/claim.queries'
 import { getPresignedUploadUrl, uploadFile, submitTile } from '@/lib/api/submission'
+import { TilePreview } from '@/components/game/TilePreview'
 import type { TileResponse } from '@/types/api'
 
 interface UploadSheetProps {
@@ -15,29 +18,59 @@ interface UploadSheetProps {
   imageUrl?: string
   gridColumns: number
   gridRows: number
+  /** ISO timestamp from the claim — used for the countdown. */
+  expiresAt?: string | null
   onClose: () => void
   onSubmitted: () => void
 }
 
 type UploadStep = 'choose' | 'uploading' | 'done' | 'error'
 
+// Show the "give me 2 more minutes" button when the countdown drops below this.
+const EXTEND_THRESHOLD_SECONDS = 120
+
 export function UploadSheet({
   tile,
   imageUrl,
   gridColumns,
   gridRows,
+  expiresAt,
   onClose,
   onSubmitted,
 }: UploadSheetProps) {
   const { t } = useTranslation()
-  const { sessionId, unclaimTile } = useGameStore()
+  const { sessionId, unclaimTile, updateClaimExpiry } = useGameStore()
   const isMobile = useIsMobile()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [step, setStep] = useState<UploadStep>('choose')
   const [preview, setPreview] = useState<string | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
+  // Countdown derived from claim expiry. Heartbeats are page-level (see
+  // DailyImageGrid) so closing this sheet doesn't kill the claim — the user
+  // can come back to it as long as they're still active in the app.
+  const secondsLeft = useCountdown(tile && step !== 'done' ? (expiresAt ?? null) : null)
+  const extendMutation = useExtendClaimMutation()
+
   if (!tile) return null
+
+  const handleExtend = () => {
+    extendMutation.mutate(
+      { tileId: tile.id, sessionId },
+      {
+        onSuccess: (data) => {
+          updateClaimExpiry(tile.id, data.expires_at)
+        },
+      }
+    )
+  }
+
+  // Closing the sheet keeps the claim alive — the page-level heartbeat keeps
+  // the tile reserved for this session. The user can reopen the sheet by
+  // tapping their tile in the grid (it shows the pencil icon).
+  const handleClose = () => {
+    onClose()
+  }
 
   const uploadUrl =
     typeof window !== 'undefined'
@@ -99,56 +132,78 @@ export function UploadSheet({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={handleClose}
           />
 
           <motion.div
-            className="border-foreground bg-background fixed inset-x-0 bottom-0 z-50 border-t px-6 pt-6 pb-8 md:inset-x-auto md:bottom-8 md:left-1/2 md:w-full md:max-w-md md:-translate-x-1/2 md:border"
+            className="border-foreground bg-background fixed inset-x-0 bottom-0 z-50 flex max-h-[95svh] flex-col overflow-y-auto border-t px-6 pt-6 pb-8 md:inset-x-auto md:bottom-4 md:left-1/2 md:w-full md:max-w-lg md:-translate-x-1/2 md:border"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
           >
             <button
-              onClick={onClose}
-              className="text-muted-foreground hover:text-foreground absolute top-4 right-4 transition-colors"
+              onClick={handleClose}
+              className="text-muted-foreground hover:text-foreground absolute top-4 right-4 z-10 transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
 
-            <div className="mb-6 flex items-start gap-4">
-              {imageUrl && (
-                <div className="border-foreground relative h-20 w-20 flex-shrink-0 overflow-hidden border">
-                  <div
-                    className="absolute"
-                    style={{
-                      width: `${gridColumns * 100}%`,
-                      height: `${gridRows * 100}%`,
-                      left: `-${tile.col * 100}%`,
-                      top: `-${tile.row * 100}%`,
-                    }}
-                  >
-                    <img
-                      src={imageUrl}
-                      alt=""
-                      className="h-full w-full object-cover"
-                      draggable={false}
-                    />
-                  </div>
-                </div>
-              )}
-              <div className="flex-1 pt-1">
-                <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
-                  {t('upload.title')}
-                </p>
-                <p className="text-foreground mt-1 font-mono text-2xl font-black">
+            <div className="mb-4">
+              <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
+                {t('upload.title')}
+              </p>
+              <div className="mt-1 flex items-baseline justify-between">
+                <p className="text-foreground font-mono text-xl font-black">
                   {tile.row + 1},{tile.col + 1}
                 </p>
-                <p className="text-muted-foreground mt-2 text-[10px] tracking-[0.15em] uppercase">
-                  {t('upload.hint')}
-                </p>
+                {step === 'choose' && expiresAt && (
+                  <div className="text-foreground flex items-center gap-1.5 font-mono text-sm font-bold tracking-tight">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span
+                      className={
+                        secondsLeft <= EXTEND_THRESHOLD_SECONDS ? 'text-foreground' : ''
+                      }
+                    >
+                      {formatCountdown(secondsLeft)}
+                    </span>
+                  </div>
+                )}
               </div>
+
+              {step === 'choose' &&
+                expiresAt &&
+                secondsLeft > 0 &&
+                secondsLeft <= EXTEND_THRESHOLD_SECONDS && (
+                  <button
+                    onClick={handleExtend}
+                    disabled={extendMutation.isPending}
+                    className="border-foreground text-foreground hover:bg-foreground hover:text-background mt-3 flex h-10 w-full items-center justify-center border text-[11px] font-bold tracking-[0.2em] uppercase transition-all disabled:opacity-30"
+                  >
+                    {extendMutation.isPending ? '...' : t('upload.extend')}
+                  </button>
+                )}
+
+              {step === 'choose' && expiresAt && secondsLeft === 0 && (
+                <div className="border-foreground mt-3 border border-dashed p-3 text-center">
+                  <p className="text-foreground text-[11px] font-bold tracking-[0.15em] uppercase">
+                    {t('upload.expired')}
+                  </p>
+                </div>
+              )}
             </div>
+
+            {/* Big tile preview — what the user is meant to copy. */}
+            {step === 'choose' && imageUrl && (
+              <TilePreview
+                imageUrl={imageUrl}
+                gridColumns={gridColumns}
+                gridRows={gridRows}
+                row={tile.row}
+                col={tile.col}
+                className="border-foreground mb-6 aspect-square w-full border"
+              />
+            )}
 
             <input
               ref={fileInputRef}
@@ -202,12 +257,13 @@ export function UploadSheet({
             )}
 
             {step === 'uploading' && (
-              <div className="flex flex-col items-center gap-4 py-4">
+              <div className="flex flex-col items-center gap-4 py-2">
                 {preview && (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={preview}
                     alt=""
-                    className="border-foreground h-32 w-32 border object-cover"
+                    className="border-foreground aspect-square w-full border object-cover"
                   />
                 )}
                 <p className="text-foreground text-xs font-bold tracking-[0.2em] uppercase">
@@ -217,12 +273,13 @@ export function UploadSheet({
             )}
 
             {step === 'done' && (
-              <div className="flex flex-col items-center gap-4 py-4">
+              <div className="flex flex-col items-center gap-4 py-2">
                 {preview && (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={preview}
                     alt=""
-                    className="border-foreground h-32 w-32 border-2 object-cover"
+                    className="border-foreground aspect-square w-full border-2 object-cover"
                   />
                 )}
                 <p className="text-foreground text-xs font-bold tracking-[0.2em] uppercase">

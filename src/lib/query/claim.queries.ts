@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { claimTile, releaseClaim } from '@/lib/api/claim'
+import { claimTile, releaseClaim, heartbeatClaim, extendClaim } from '@/lib/api/claim'
 import { ApiError } from '@/lib/api/client'
 import { periodQueryKey } from './period.queries'
 
@@ -47,5 +47,19 @@ export function useReleaseClaimMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: periodQueryKey })
     },
+  })
+}
+
+export function useHeartbeatClaimMutation() {
+  return useMutation({
+    mutationFn: ({ tileId, sessionId }: { tileId: string; sessionId: string }) =>
+      heartbeatClaim(tileId, sessionId),
+  })
+}
+
+export function useExtendClaimMutation() {
+  return useMutation({
+    mutationFn: ({ tileId, sessionId }: { tileId: string; sessionId: string }) =>
+      extendClaim(tileId, sessionId),
   })
 }
