@@ -51,3 +51,86 @@ export function drawAllTiles() {
     method: 'POST',
   })
 }
+
+// --- Daily image schedule ---
+
+export interface ScheduleItem {
+  date: string // YYYY-MM-DD
+  storage_key: string
+  width: number
+  height: number
+  image_url?: string
+}
+
+export interface ScheduleListResponse {
+  from: string
+  to: string
+  items: ScheduleItem[]
+}
+
+export function listSchedule(): Promise<ScheduleListResponse> {
+  return apiFetch<ScheduleListResponse>('/debug/schedule')
+}
+
+export function upsertSchedule(body: {
+  date: string
+  storage_key: string
+  width: number
+  height: number
+}): Promise<ScheduleItem> {
+  return apiFetch<ScheduleItem>('/debug/schedule', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+}
+
+export function deleteSchedule(date: string): Promise<void> {
+  return apiFetch(`/debug/schedule/${date}`, { method: 'DELETE' })
+}
+
+// --- Sessions ---
+
+export interface SessionItem {
+  session_id: string
+  latest_nickname: string
+  total_claims: number
+  drawn_count: number
+  released_count: number
+  first_seen: string
+  last_seen: string
+}
+
+export interface SessionsListResponse {
+  sessions: SessionItem[]
+  limit: number
+}
+
+export interface SessionClaimItem {
+  claim_id: string
+  tile_id: string
+  nickname: string
+  claimed_at: string
+  expires_at: string
+  released_at?: string
+  submission_id?: string
+  submitted_at?: string
+  image_url?: string
+  period_id: string
+  phase: number
+  row: number
+  col: number
+  tile_status: string
+}
+
+export interface SessionDetailResponse {
+  session_id: string
+  claims: SessionClaimItem[]
+}
+
+export function listSessions(): Promise<SessionsListResponse> {
+  return apiFetch<SessionsListResponse>('/debug/sessions')
+}
+
+export function getSession(id: string): Promise<SessionDetailResponse> {
+  return apiFetch<SessionDetailResponse>(`/debug/sessions/${id}`)
+}

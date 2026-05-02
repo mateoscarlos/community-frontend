@@ -13,6 +13,8 @@ import {
   drawAllTiles,
 } from '@/lib/api/debug'
 import { RefreshCw } from 'lucide-react'
+import { ScheduleSection } from './ScheduleSection'
+import { SessionsSection } from './SessionsSection'
 
 export function AdminPanel() {
   const queryClient = useQueryClient()
@@ -54,6 +56,10 @@ export function AdminPanel() {
 
       <Section title="Image">
         <ImageUploadSection onDone={refetch} />
+      </Section>
+
+      <Section title="Schedule">
+        <ScheduleSection />
       </Section>
 
       <Section title="Period">
@@ -117,6 +123,10 @@ export function AdminPanel() {
           />
         </Section>
       )}
+
+      <Section title="Players">
+        <SessionsSection />
+      </Section>
 
       <button
         onClick={() => refetch()}
