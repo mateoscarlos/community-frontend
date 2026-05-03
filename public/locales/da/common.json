@@ -26,6 +26,12 @@
     "error": "Noget gik galt",
     "retry": "Prøv igen"
   },
+  "landing": {
+    "title": "Community",
+    "description": "Hver dag, et nyt billede. Fællesskabet tegner det sammen — felt for felt. Tag et felt, tegn din del, og se mesterværket tage form.",
+    "play": "Spil",
+    "tagline": "En daglig fælles tegning"
+  },
   "blog": {
     "title": "Blog",
     "subtitle": "Historier fra fællesskabet",
@@ -80,6 +86,23 @@
     "success": "Tegning indsendt!",
     "extend": "Jeg har brug for 2 minutter til",
     "expired": "Tiden er gået — feltet er frigivet"
+  },
+  "crop": {
+    "reference": "Reference",
+    "your_photo": "Dit foto",
+    "compare": "Sammenlign",
+    "adjust": "Juster dit foto",
+    "zoom": "Zoom",
+    "overlay": "Overlejr reference",
+    "retake": "Tag igen",
+    "confirm": "Brug denne"
+  },
+  "perspective": {
+    "title": "Juster hjørner",
+    "hint": "Træk hvert hjørne for at markere kanterne af din tegning.",
+    "cancel": "Tag igen",
+    "skip": "Spring over",
+    "apply": "Anvend"
   },
   "phase": {
     "advance_title": "Fase fuldført!",

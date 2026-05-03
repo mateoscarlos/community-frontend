@@ -12,9 +12,9 @@ const TABS = [
   {
     key: 'game',
     icon: Grid3x3,
-    href: (locale: string) => `/${locale}`,
+    href: (locale: string) => `/${locale}/play`,
     isActive: (pathname: string, locale: string) =>
-      pathname === `/${locale}` || pathname === `/${locale}/`,
+      pathname.startsWith(`/${locale}/play`),
   },
   {
     key: 'archive',

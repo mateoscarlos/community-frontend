@@ -26,6 +26,12 @@
     "error": "Algo salió mal",
     "retry": "Intentar de nuevo"
   },
+  "landing": {
+    "title": "Community",
+    "description": "Cada día, una nueva imagen. La comunidad la dibuja en equipo — casilla a casilla. Reclama una casilla, dibuja tu parte y mira cómo cobra forma la obra.",
+    "play": "Jugar",
+    "tagline": "Un dibujo colaborativo diario"
+  },
   "blog": {
     "title": "Blog",
     "subtitle": "Historias de la comunidad",
@@ -80,6 +86,23 @@
     "success": "¡Dibujo enviado!",
     "extend": "Necesito 2 minutos más",
     "expired": "Tiempo agotado — casilla liberada"
+  },
+  "crop": {
+    "reference": "Referencia",
+    "your_photo": "Tu foto",
+    "compare": "Comparar",
+    "adjust": "Ajusta tu foto",
+    "zoom": "Zoom",
+    "overlay": "Superponer referencia",
+    "retake": "Repetir",
+    "confirm": "Usar esta"
+  },
+  "perspective": {
+    "title": "Ajustar esquinas",
+    "hint": "Arrastra cada esquina para marcar los bordes de tu dibujo.",
+    "cancel": "Repetir",
+    "skip": "Saltar",
+    "apply": "Aplicar"
   },
   "phase": {
     "advance_title": "¡Fase completada!",

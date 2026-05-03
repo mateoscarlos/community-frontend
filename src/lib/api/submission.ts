@@ -15,11 +15,11 @@ export async function getPresignedUploadUrl(
   })
 }
 
-export async function uploadFile(url: string, file: File): Promise<void> {
+export async function uploadFile(url: string, file: Blob): Promise<void> {
   const res = await fetch(url, {
     method: 'PUT',
     body: file,
-    headers: { 'Content-Type': file.type },
+    headers: { 'Content-Type': file.type || 'application/octet-stream' },
   })
   if (!res.ok) {
     throw new Error(`Upload failed: ${res.status}`)

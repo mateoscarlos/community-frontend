@@ -3,11 +3,15 @@
 import { Suspense, useState, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
+import type { Area } from 'react-easy-crop'
 import { getPresignedUploadUrl, uploadFile, submitTile } from '@/lib/api/submission'
 import { fetchCurrentPeriod } from '@/lib/api/period'
 import { TilePreview } from '@/components/game/TilePreview'
+import { CropEditor } from '@/components/game/CropEditor'
+import { PerspectiveEditor } from '@/components/game/PerspectiveEditor'
+import { cropImageToBlob } from '@/lib/cropImage'
 
-type Step = 'ready' | 'uploading' | 'done' | 'error'
+type Step = 'ready' | 'perspective' | 'cropping' | 'uploading' | 'done' | 'error'
 
 export default function UploadPage() {
   return (
@@ -54,43 +58,57 @@ function UploadView() {
     )
   }
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-
+    if (preview) URL.revokeObjectURL(preview)
     const objectUrl = URL.createObjectURL(file)
     setPreview(objectUrl)
+    setErrorMsg(null)
+    setStep('perspective')
+  }
+
+  const handlePerspectiveApplied = (blob: Blob) => {
+    if (preview) URL.revokeObjectURL(preview)
+    setPreview(URL.createObjectURL(blob))
+    setStep('cropping')
+  }
+
+  const handleCancelCrop = () => {
+    if (preview) URL.revokeObjectURL(preview)
+    setPreview(null)
+    setStep('ready')
+  }
+
+  const handleConfirmCrop = async (area: Area) => {
+    if (!preview || !tileId || !sessionId) return
     setStep('uploading')
     setErrorMsg(null)
-
     try {
+      const blob = await cropImageToBlob(preview, area)
       const presign = await getPresignedUploadUrl({
         tile_id: tileId,
         session_id: sessionId,
-        content_type: file.type || 'image/jpeg',
+        content_type: 'image/jpeg',
       })
-
-      await uploadFile(presign.upload_url, file)
-
+      await uploadFile(presign.upload_url, blob)
       await submitTile(tileId, {
         session_id: sessionId,
         storage_key: presign.storage_key,
         crop: { x: 0, y: 0, width: 1, height: 1 },
       })
-
       setStep('done')
     } catch (err) {
       setStep('error')
       setErrorMsg(err instanceof Error ? err.message : 'Something went wrong')
-      URL.revokeObjectURL(objectUrl)
-      setPreview(null)
     }
   }
 
   const handleRetry = () => {
-    setStep('ready')
+    if (preview) URL.revokeObjectURL(preview)
     setPreview(null)
     setErrorMsg(null)
+    setStep('ready')
     setTimeout(() => fileInputRef.current?.click(), 100)
   }
 
@@ -141,6 +159,37 @@ function UploadView() {
           >
             Open Camera
           </button>
+        </div>
+      )}
+
+      {step === 'perspective' && preview && tile && (
+        <div className="w-full max-w-md">
+          <PerspectiveEditor
+            imageSrc={preview}
+            imageUrl={imageUrl}
+            gridColumns={gridColumns}
+            gridRows={gridRows}
+            row={tile.row}
+            col={tile.col}
+            onCancel={handleCancelCrop}
+            onSkip={() => setStep('cropping')}
+            onConfirm={handlePerspectiveApplied}
+          />
+        </div>
+      )}
+
+      {step === 'cropping' && preview && tile && (
+        <div className="w-full max-w-md">
+          <CropEditor
+            imageSrc={preview}
+            imageUrl={imageUrl}
+            gridColumns={gridColumns}
+            gridRows={gridRows}
+            row={tile.row}
+            col={tile.col}
+            onCancel={handleCancelCrop}
+            onConfirm={handleConfirmCrop}
+          />
         </div>
       )}
 

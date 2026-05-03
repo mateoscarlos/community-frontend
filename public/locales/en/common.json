@@ -26,6 +26,12 @@
     "error": "Something went wrong",
     "retry": "Try again"
   },
+  "landing": {
+    "title": "Community",
+    "description": "Every day, a new picture. The community draws it together — one tile at a time. Claim a tile, draw your part, watch the masterpiece take shape.",
+    "play": "Play",
+    "tagline": "A daily collaborative drawing"
+  },
   "blog": {
     "title": "Blog",
     "subtitle": "Stories from the community",
@@ -80,6 +86,23 @@
     "success": "Drawing submitted!",
     "extend": "Need 2 more minutes",
     "expired": "Time's up — claim released"
+  },
+  "crop": {
+    "reference": "Reference",
+    "your_photo": "Your photo",
+    "compare": "Compare",
+    "adjust": "Adjust your photo",
+    "zoom": "Zoom",
+    "overlay": "Overlay reference",
+    "retake": "Retake",
+    "confirm": "Use this"
+  },
+  "perspective": {
+    "title": "Adjust corners",
+    "hint": "Drag each corner to outline the edges of your drawing.",
+    "cancel": "Retake",
+    "skip": "Skip",
+    "apply": "Apply"
   },
   "phase": {
     "advance_title": "Phase complete!",
