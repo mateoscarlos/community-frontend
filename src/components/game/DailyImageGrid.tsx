@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -63,7 +63,7 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
       refetch()
     }, 3500)
   })
-  const [imageLoaded, setImageLoaded] = useState(false)
+  const [imageReady, setImageReady] = useState(false)
 
   const myTileIds = new Set(claimedTiles.map((c) => c.tileId))
 
@@ -112,9 +112,9 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
     !!activeClaim
   )
 
-  const setImgRef = useCallback((node: HTMLImageElement | null) => {
-    if (node?.complete && node.naturalWidth > 0) setImageLoaded(true)
-  }, [])
+  const setImgRef = (node: HTMLImageElement | null) => {
+    if (node?.complete && node.naturalWidth > 0) setImageReady(true)
+  }
 
   const grid = data?.grid
   const cols = grid?.columns ?? 3
@@ -126,11 +126,10 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
   const drawnCount = grid?.drawn_count ?? 0
   const totalTiles = grid?.total_tiles ?? 0
 
-  // Prompt game has no source image, so the canvas-load gate doesn't apply —
-  // mark it loaded so the grid mounts immediately.
-  useEffect(() => {
-    if (isPromptGame && !imageLoaded) setImageLoaded(true)
-  }, [isPromptGame, imageLoaded])
+  // Prompt game has no source image, so the canvas-load gate doesn't apply.
+  // Derive the gate as truthy whenever there's no image to wait for —
+  // sidestepping a setState-in-effect lint violation.
+  const imageLoaded = isPromptGame || imageReady
 
   const today = new Date().toLocaleDateString(i18n.language, {
     month: 'long',
@@ -273,7 +272,7 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
               src={imageUrl}
               alt={t('game.today')}
               className="absolute inset-0 h-full w-full object-cover"
-              onLoad={() => setImageLoaded(true)}
+              onLoad={() => setImageReady(true)}
               animate={{ opacity: imageLoaded ? 1 : 0 }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
               draggable={false}

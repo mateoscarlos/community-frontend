@@ -1,16 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 import { useTheme } from 'next-themes'
 import { Sun, Moon } from 'lucide-react'
 
+// Subscribes to nothing — the snapshot is `true` on the client and `false`
+// during the server render. Lets us swap the icon without flashing the wrong
+// theme on hydration, without the classic `useEffect(() => setMounted)`
+// pattern that the react-hooks/set-state-in-effect rule blocks.
+const subscribe = () => () => {}
+const getClientSnapshot = () => true
+const getServerSnapshot = () => false
+
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-
-  // Avoid hydration mismatch — `resolvedTheme` is undefined until the
-  // client picks up the persisted preference.
-  useEffect(() => setMounted(true), [])
+  const mounted = useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot)
 
   const isDark = mounted ? resolvedTheme === 'dark' : true
   const next = isDark ? 'light' : 'dark'

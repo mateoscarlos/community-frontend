@@ -151,5 +151,5 @@ export function useTileEvents(
       // Restore polling on unmount
       enablePolling(true)
     }
-  }, [updateTileInCache, enablePolling])
+  }, [updateTileInCache, enablePolling, gameType, unclaimTile])
 }
