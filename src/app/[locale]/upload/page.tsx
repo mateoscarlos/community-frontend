@@ -26,8 +26,7 @@ function UploadView() {
   const searchParams = useSearchParams()
   const tileId = searchParams.get('tile')
   const sessionId = searchParams.get('session')
-  const gameType: GameType =
-    searchParams.get('game') === 'prompt' ? 'prompt' : 'photo'
+  const gameType: GameType = searchParams.get('game') === 'prompt' ? 'prompt' : 'photo'
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [step, setStep] = useState<Step>('ready')
   const [preview, setPreview] = useState<string | null>(null)

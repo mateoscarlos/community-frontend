@@ -2,15 +2,8 @@
 
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import {
-  useCurrentPeriodQuery,
-  periodQueryKey,
-} from '@/lib/query/period.queries'
-import {
-  resetPeriod,
-  resetTile,
-  drawAllTiles,
-} from '@/lib/api/debug'
+import { useCurrentPeriodQuery, periodQueryKey } from '@/lib/query/period.queries'
+import { resetPeriod, resetTile, drawAllTiles } from '@/lib/api/debug'
 import { RefreshCw } from 'lucide-react'
 import { ScheduleSection } from './ScheduleSection'
 import { PromptScheduleSection } from './PromptScheduleSection'
@@ -71,10 +64,7 @@ function GamesTable() {
   return (
     <div className="border-foreground space-y-0 border">
       {GAMES.map((g, i) => (
-        <div
-          key={g.type}
-          className={i > 0 ? 'border-foreground/20 border-t' : ''}
-        >
+        <div key={g.type} className={i > 0 ? 'border-foreground/20 border-t' : ''}>
           <GameRow gameType={g.type} label={g.label} />
         </div>
       ))}

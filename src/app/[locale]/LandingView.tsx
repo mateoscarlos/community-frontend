@@ -23,7 +23,7 @@ export function LandingView({ locale }: { locale: string }) {
             className="bg-foreground text-background hover:bg-foreground/90 flex h-16 w-full flex-col items-center justify-center text-base font-bold tracking-[0.25em] uppercase transition-all"
           >
             {t('landing.play_photo')}
-            <span className="text-[10px] font-normal tracking-[0.15em] opacity-70 normal-case">
+            <span className="text-[10px] font-normal tracking-[0.15em] normal-case opacity-70">
               {t('landing.play_photo_sub')}
             </span>
           </Link>
@@ -32,7 +32,7 @@ export function LandingView({ locale }: { locale: string }) {
             className="border-foreground text-foreground hover:bg-foreground hover:text-background flex h-16 w-full flex-col items-center justify-center border-2 text-base font-bold tracking-[0.25em] uppercase transition-all"
           >
             {t('landing.play_prompt')}
-            <span className="text-[10px] font-normal tracking-[0.15em] opacity-70 normal-case">
+            <span className="text-[10px] font-normal tracking-[0.15em] normal-case opacity-70">
               {t('landing.play_prompt_sub')}
             </span>
           </Link>

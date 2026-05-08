@@ -41,7 +41,10 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
   const { t, i18n } = useTranslation()
   const params = useParams()
   const locale = (params?.locale as string) ?? 'en'
-  const { data, isLoading, isError, refetch } = useCurrentPeriodQuery(gameType, initialData)
+  const { data, isLoading, isError, refetch } = useCurrentPeriodQuery(
+    gameType,
+    initialData
+  )
   const [phaseInfo, setPhaseInfo] = useState<{
     completedPhase: number
     nextPhase: number

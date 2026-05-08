@@ -26,11 +26,7 @@ export function useCurrentPeriodQuery(
   })
 }
 
-export function useArchiveQuery(
-  gameType: GameType = 'photo',
-  page = 1,
-  perPage = 20
-) {
+export function useArchiveQuery(gameType: GameType = 'photo', page = 1, perPage = 20) {
   return useQuery({
     queryKey: [...archiveQueryKey, gameType, page, perPage],
     queryFn: () => fetchArchive(gameType, page, perPage),

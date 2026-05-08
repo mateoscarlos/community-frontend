@@ -52,8 +52,7 @@ export function LanguageSwitcher({ direction = 'down' }: LanguageSwitcherProps) 
   }
 
   const others = locales.filter((l) => l !== locale)
-  const popoverPos =
-    direction === 'up' ? 'bottom-full mb-1' : 'top-full mt-1'
+  const popoverPos = direction === 'up' ? 'bottom-full mb-1' : 'top-full mt-1'
   const slideFrom = direction === 'up' ? 6 : -6
 
   return (
