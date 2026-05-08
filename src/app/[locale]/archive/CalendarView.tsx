@@ -1,11 +1,16 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { useArchiveQuery } from '@/lib/query/period.queries'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { ArchivePeriodResponse } from '@/types/api'
+import type { ArchivePeriodResponse, GameType } from '@/types/api'
+
+function parseGameParam(raw: string | null): GameType {
+  return raw === 'prompt' ? 'prompt' : 'photo'
+}
 
 type MonthBucket = {
   year: number
@@ -17,7 +22,11 @@ const WEEK_START = 1 // Monday
 
 export function CalendarView() {
   const { t, i18n } = useTranslation()
-  const { data, isLoading } = useArchiveQuery()
+  const searchParams = useSearchParams()
+  const [gameType, setGameType] = useState<GameType>(() =>
+    parseGameParam(searchParams?.get('game') ?? null)
+  )
+  const { data, isLoading } = useArchiveQuery(gameType)
 
   const months = useMemo<MonthBucket[]>(() => {
     if (!data?.periods?.length) return []
@@ -55,6 +64,27 @@ export function CalendarView() {
           {t('archive.subtitle')}
         </p>
       </header>
+
+      <div className="border-foreground flex border" role="tablist" aria-label="Game">
+        {(['photo', 'prompt'] as GameType[]).map((g) => {
+          const active = gameType === g
+          return (
+            <button
+              key={g}
+              role="tab"
+              aria-selected={active}
+              onClick={() => setGameType(g)}
+              className={`flex-1 px-4 py-3 text-xs font-bold tracking-[0.2em] uppercase transition-colors ${
+                active
+                  ? 'bg-foreground text-background'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-foreground/5'
+              }`}
+            >
+              {t(`archive.tab_${g}`)}
+            </button>
+          )
+        })}
+      </div>
 
       {isLoading && (
         <div className="space-y-6">

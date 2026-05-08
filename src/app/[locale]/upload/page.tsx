@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { Area } from 'react-easy-crop'
 import { getPresignedUploadUrl, uploadFile, submitTile } from '@/lib/api/submission'
 import { fetchCurrentPeriod } from '@/lib/api/period'
+import type { GameType } from '@/types/api'
 import { TilePreview } from '@/components/game/TilePreview'
 import { CropEditor } from '@/components/game/CropEditor'
 import { PerspectiveEditor } from '@/components/game/PerspectiveEditor'
@@ -25,6 +26,8 @@ function UploadView() {
   const searchParams = useSearchParams()
   const tileId = searchParams.get('tile')
   const sessionId = searchParams.get('session')
+  const gameType: GameType =
+    searchParams.get('game') === 'prompt' ? 'prompt' : 'photo'
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [step, setStep] = useState<Step>('ready')
   const [preview, setPreview] = useState<string | null>(null)
@@ -33,8 +36,8 @@ function UploadView() {
   // Fetch the current period so we can show the user the exact tile crop
   // they're meant to draw — without it the QR target was a black box.
   const { data: period } = useQuery({
-    queryKey: ['period', 'current', 'upload-page'],
-    queryFn: fetchCurrentPeriod,
+    queryKey: ['period', 'current', 'upload-page', gameType],
+    queryFn: () => fetchCurrentPeriod(gameType),
     enabled: !!tileId && !!sessionId,
     retry: 1,
   })

@@ -23,21 +23,18 @@ export function setActiveDailyImage(body: {
   })
 }
 
-export function createPeriod(gameType = 'photo') {
+export function createPeriod(gameType: 'photo' | 'prompt' = 'photo', prompt = '') {
   return apiFetch('/debug/period', {
     method: 'POST',
-    body: JSON.stringify({ game_type: gameType }),
+    body: JSON.stringify({ game_type: gameType, prompt }),
   })
 }
 
-export function deletePeriod() {
-  return apiFetch<{ deleted: string }>('/debug/period', { method: 'DELETE' })
-}
-
-export function resetPeriod() {
-  return apiFetch<{ reset: string; message: string }>('/debug/period/reset', {
-    method: 'POST',
-  })
+export function resetPeriod(gameType: 'photo' | 'prompt' = 'photo') {
+  return apiFetch<{ reset: string; message: string }>(
+    `/debug/period/reset?game_type=${gameType}`,
+    { method: 'POST' }
+  )
 }
 
 export function resetTile(tileId: string) {
@@ -46,10 +43,11 @@ export function resetTile(tileId: string) {
   })
 }
 
-export function drawAllTiles() {
-  return apiFetch<{ drawn: number; message: string }>('/debug/tiles/draw-all', {
-    method: 'POST',
-  })
+export function drawAllTiles(gameType: 'photo' | 'prompt' = 'photo') {
+  return apiFetch<{ drawn: number; message: string }>(
+    `/debug/tiles/draw-all?game_type=${gameType}`,
+    { method: 'POST' }
+  )
 }
 
 // --- Daily image schedule ---
@@ -86,6 +84,37 @@ export function upsertSchedule(body: {
 
 export function deleteSchedule(date: string): Promise<void> {
   return apiFetch(`/debug/schedule/${date}`, { method: 'DELETE' })
+}
+
+// --- Prompt schedule (parallel prompt-based game) ---
+
+export interface PromptScheduleItem {
+  date: string // YYYY-MM-DD
+  prompt: string
+}
+
+export interface PromptScheduleListResponse {
+  from: string
+  to: string
+  items: PromptScheduleItem[]
+}
+
+export function listPromptSchedule(): Promise<PromptScheduleListResponse> {
+  return apiFetch<PromptScheduleListResponse>('/debug/prompt-schedule')
+}
+
+export function upsertPromptSchedule(body: {
+  date: string
+  prompt: string
+}): Promise<PromptScheduleItem> {
+  return apiFetch<PromptScheduleItem>('/debug/prompt-schedule', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+}
+
+export function deletePromptSchedule(date: string): Promise<void> {
+  return apiFetch(`/debug/prompt-schedule/${date}`, { method: 'DELETE' })
 }
 
 // --- Sessions ---

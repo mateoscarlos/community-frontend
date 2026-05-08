@@ -2,7 +2,6 @@
   "nav": {
     "home": "Inicio",
     "blog": "Blog",
-    "account": "Cuenta",
     "game": "Jugar",
     "archive": "Archivo",
     "feedback": "Comentarios"
@@ -24,12 +23,17 @@
   "common": {
     "loading": "Cargando…",
     "error": "Algo salió mal",
-    "retry": "Intentar de nuevo"
+    "retry": "Intentar de nuevo",
+    "or": "o"
   },
   "landing": {
     "title": "Community",
     "description": "Cada día, una nueva imagen. La comunidad la dibuja en equipo — casilla a casilla. Reclama una casilla, dibuja tu parte y mira cómo cobra forma la obra.",
     "play": "Jugar",
+    "play_photo": "Modo foto",
+    "play_photo_sub": "copia una foto diaria",
+    "play_prompt": "Modo idea",
+    "play_prompt_sub": "dibuja a partir de una idea",
     "tagline": "Un dibujo colaborativo diario"
   },
   "blog": {
@@ -37,16 +41,6 @@
     "subtitle": "Historias de la comunidad",
     "min_read": "{{count}} min de lectura",
     "coming_soon": "Más artículos próximamente"
-  },
-  "account": {
-    "title": "Tu cuenta",
-    "subtitle": "Sigue tus fichas y contribuciones",
-    "sign_in": "Iniciar sesión",
-    "sign_up": "Crear cuenta",
-    "or": "o",
-    "play_as_guest": "Continuar como invitado",
-    "guest_note": "No necesitas cuenta para jugar. Regístrate para guardar tu historial.",
-    "coming_soon": "Cuentas próximamente"
   },
   "game": {
     "today": "El reto de hoy",
@@ -113,6 +107,8 @@
   "archive": {
     "title": "Archivo",
     "subtitle": "Imágenes completadas anteriores",
+    "tab_photo": "Foto",
+    "tab_prompt": "Idea",
     "empty": "Aún no hay imágenes completadas",
     "phases": "{{count}} fases",
     "tap_hint": "Toca un día para ver todos los dibujos",

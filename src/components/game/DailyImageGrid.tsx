@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { Lock, Check, Pencil } from 'lucide-react'
+import { Lock, Check, Pencil, Archive } from 'lucide-react'
 import { useCurrentPeriodQuery } from '@/lib/query/period.queries'
 import { useTileEvents } from '@/lib/hooks/useTileEvents'
 import { PhaseCompleteOverlay } from '@/components/game/PhaseCompleteOverlay'
@@ -18,9 +20,10 @@ import {
   useReleaseClaimMutation,
 } from '@/lib/query/claim.queries'
 import { useClaimHeartbeat } from '@/lib/hooks/useClaimHeartbeat'
-import type { CurrentPeriodResponse, TileResponse } from '@/types/api'
+import type { CurrentPeriodResponse, GameType, TileResponse } from '@/types/api'
 
 interface DailyImageGridProps {
+  gameType?: GameType
   initialData?: CurrentPeriodResponse & { isMock?: boolean }
 }
 
@@ -34,24 +37,27 @@ const gridVariants = {
   visible: { transition: { staggerChildren: 0.035, delayChildren: 0.05 } },
 }
 
-export function DailyImageGrid({ initialData }: DailyImageGridProps) {
+export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGridProps) {
   const { t, i18n } = useTranslation()
-  const { data, isLoading, isError, refetch } = useCurrentPeriodQuery(initialData)
+  const params = useParams()
+  const locale = (params?.locale as string) ?? 'en'
+  const { data, isLoading, isError, refetch } = useCurrentPeriodQuery(gameType, initialData)
   const [phaseInfo, setPhaseInfo] = useState<{
     completedPhase: number
     nextPhase: number
     periodCompleted: boolean
   } | null>(null)
-  const claimedTiles = useGameStore((s) => s.claimedTiles)
+  const allClaimedTiles = useGameStore((s) => s.claimedTiles)
+  const claimedTiles = allClaimedTiles.filter((c) => c.gameType === gameType)
   const unclaimTile = useGameStore((s) => s.unclaimTile)
   const clearAllClaims = useGameStore((s) => s.clearAllClaims)
   const sessionId = useGameStore((s) => s.sessionId)
   const claimTileLocal = useGameStore((s) => s.claimTile)
   const claimMutation = useClaimTileMutation()
   const [claimError, setClaimError] = useState<string | null>(null)
-  useTileEvents((info) => {
+  useTileEvents(gameType, (info) => {
     setPhaseInfo(info)
-    clearAllClaims()
+    clearAllClaims(gameType)
     setTimeout(() => {
       setPhaseInfo(null)
       refetch()
@@ -115,8 +121,16 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
   const rows = grid?.rows ?? 3
   const tiles = grid?.tiles ?? []
   const imageUrl = data?.period?.image?.image_url
+  const promptText = data?.period?.prompt ?? ''
+  const isPromptGame = gameType === 'prompt'
   const drawnCount = grid?.drawn_count ?? 0
   const totalTiles = grid?.total_tiles ?? 0
+
+  // Prompt game has no source image, so the canvas-load gate doesn't apply —
+  // mark it loaded so the grid mounts immediately.
+  useEffect(() => {
+    if (isPromptGame && !imageLoaded) setImageLoaded(true)
+  }, [isPromptGame, imageLoaded])
 
   const today = new Date().toLocaleDateString(i18n.language, {
     month: 'long',
@@ -144,7 +158,7 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
       { tileId: tile.id, sessionId },
       {
         onSuccess: (claim) => {
-          claimTileLocal(tile.id, claim.expires_at)
+          claimTileLocal(tile.id, claim.expires_at, gameType)
           setPreviewTile(null)
           setUploadTile({ ...tile, status: 'locked' })
         },
@@ -164,7 +178,7 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col">
       {/* Header strip */}
-      <div className="border-foreground flex items-end justify-between border-b px-6 py-5">
+      <div className="border-foreground flex items-end justify-between gap-4 border-b px-6 py-5">
         <div>
           <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
             {t('game.today')}
@@ -173,21 +187,46 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
             {today}
           </p>
         </div>
-        {totalTiles > 0 && (
-          <div className="text-right">
-            <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
-              Drawn
-            </p>
-            <p className="text-foreground mt-1 font-mono text-2xl font-black tracking-tight">
-              {drawnCount}/{totalTiles}
-            </p>
-          </div>
-        )}
+        <div className="flex items-end gap-3">
+          {totalTiles > 0 && (
+            <div className="text-right">
+              <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
+                Drawn
+              </p>
+              <p className="text-foreground mt-1 font-mono text-2xl font-black tracking-tight">
+                {drawnCount}/{totalTiles}
+              </p>
+            </div>
+          )}
+          <Link
+            href={`/${locale}/archive?game=${gameType}`}
+            aria-label={t('nav.archive')}
+            className="border-foreground text-foreground hover:bg-foreground hover:text-background flex h-10 w-10 shrink-0 items-center justify-center border transition-colors"
+          >
+            <Archive className="h-4 w-4" strokeWidth={2} />
+          </Link>
+        </div>
       </div>
+
+      {/* Prompt callout — only for the prompt game. */}
+      {isPromptGame && promptText && (
+        <div className="border-foreground/40 mx-6 mt-6 border-2 border-dashed p-5 text-center">
+          <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
+            Today&apos;s prompt
+          </p>
+          <p className="text-foreground mt-2 text-xl font-bold tracking-tight">
+            “{promptText}”
+          </p>
+        </div>
+      )}
 
       {/* Image + grid */}
       <div className="px-6 pt-6">
-        <div className="border-foreground relative aspect-square w-full overflow-hidden border">
+        <div
+          className={`border-foreground relative aspect-square w-full overflow-hidden border ${
+            isPromptGame ? 'bg-background' : ''
+          }`}
+        >
           <AnimatePresence>
             {(!imageLoaded || isLoading) && !isError && (
               <motion.div
@@ -337,6 +376,8 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
         key={uploadTile?.id ?? 'closed'}
         tile={uploadTile}
         imageUrl={imageUrl}
+        prompt={promptText}
+        gameType={gameType}
         gridColumns={cols}
         gridRows={rows}
         expiresAt={uploadClaim?.expiresAt ?? null}

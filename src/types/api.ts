@@ -20,6 +20,8 @@ export interface ApiError {
 
 // --- Period / Grid ---
 
+export type GameType = 'photo' | 'prompt'
+
 export interface PeriodImageResponse {
   id: string
   date: string
@@ -53,11 +55,12 @@ export interface PhaseMosaicResponse {
 
 export interface PeriodInfo {
   id: string
-  game_type: string
+  game_type: GameType
   status: 'active' | 'completed' | 'archived'
   phase: number
   started_at: string
   image?: PeriodImageResponse
+  prompt?: string
   phase_mosaics?: PhaseMosaicResponse[]
 }
 
@@ -68,7 +71,7 @@ export interface CurrentPeriodResponse {
 
 export interface ArchivePeriodResponse {
   id: string
-  game_type: string
+  game_type: GameType
   phase: number
   started_at: string
   ended_at?: string

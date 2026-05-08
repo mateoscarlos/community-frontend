@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { Toaster } from '@/components/ui/sonner'
-import { Sidebar } from '@/components/layout/Sidebar'
+import { AppShell } from '@/components/layout/AppShell'
 import { I18nProvider } from '@/components/providers/I18nProvider'
 import { QueryProvider } from '@/components/providers/QueryProvider'
 import { isValidLocale, type Locale } from '@/lib/i18n/config'
@@ -26,10 +26,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   return (
     <I18nProvider locale={locale as Locale} resources={resources}>
       <QueryProvider>
-        <div className="bg-background min-h-dvh">
-          <Sidebar />
-          <main className="md:pl-64">{children}</main>
-        </div>
+        <AppShell>{children}</AppShell>
         <Toaster richColors position="bottom-right" />
       </QueryProvider>
     </I18nProvider>

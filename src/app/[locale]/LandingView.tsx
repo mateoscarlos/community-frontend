@@ -17,12 +17,26 @@ export function LandingView({ locale }: { locale: string }) {
           {t('landing.description')}
         </p>
 
-        <Link
-          href={`/${locale}/play`}
-          className="bg-foreground text-background hover:bg-foreground/90 flex h-16 w-full items-center justify-center text-base font-bold tracking-[0.25em] uppercase transition-all"
-        >
-          {t('landing.play')}
-        </Link>
+        <div className="space-y-3">
+          <Link
+            href={`/${locale}/play/photo`}
+            className="bg-foreground text-background hover:bg-foreground/90 flex h-16 w-full flex-col items-center justify-center text-base font-bold tracking-[0.25em] uppercase transition-all"
+          >
+            {t('landing.play_photo')}
+            <span className="text-[10px] font-normal tracking-[0.15em] opacity-70 normal-case">
+              {t('landing.play_photo_sub')}
+            </span>
+          </Link>
+          <Link
+            href={`/${locale}/play/prompt`}
+            className="border-foreground text-foreground hover:bg-foreground hover:text-background flex h-16 w-full flex-col items-center justify-center border-2 text-base font-bold tracking-[0.25em] uppercase transition-all"
+          >
+            {t('landing.play_prompt')}
+            <span className="text-[10px] font-normal tracking-[0.15em] opacity-70 normal-case">
+              {t('landing.play_prompt_sub')}
+            </span>
+          </Link>
+        </div>
 
         <p className="text-muted-foreground text-[10px] tracking-[0.2em] uppercase">
           {t('landing.tagline')}

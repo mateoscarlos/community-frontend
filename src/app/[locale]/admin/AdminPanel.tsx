@@ -2,31 +2,32 @@
 
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useCurrentPeriodQuery, periodQueryKey } from '@/lib/query/period.queries'
 import {
-  getDebugUploadURL,
-  setActiveDailyImage,
-  createPeriod,
-  deletePeriod,
+  useCurrentPeriodQuery,
+  periodQueryKey,
+} from '@/lib/query/period.queries'
+import {
   resetPeriod,
   resetTile,
   drawAllTiles,
 } from '@/lib/api/debug'
 import { RefreshCw } from 'lucide-react'
 import { ScheduleSection } from './ScheduleSection'
+import { PromptScheduleSection } from './PromptScheduleSection'
 import { SessionsSection } from './SessionsSection'
+import type { GameType, TileResponse } from '@/types/api'
+
+const GAMES: { type: GameType; label: string }[] = [
+  { type: 'photo', label: 'Photo' },
+  { type: 'prompt', label: 'Prompt' },
+]
 
 export function AdminPanel() {
   const queryClient = useQueryClient()
-  const { data, refetch } = useCurrentPeriodQuery()
 
-  const isMock = data?.isMock
-  const period = isMock ? undefined : data?.period
-  const grid = isMock ? undefined : data?.grid
-  const tiles = grid?.tiles ?? []
-  const freeTiles = tiles.filter((t) => t.status === 'free')
-  const lockedTiles = tiles.filter((t) => t.status === 'locked')
-  const drawnTiles = tiles.filter((t) => t.status === 'drawn')
+  const refreshAll = () => {
+    queryClient.invalidateQueries({ queryKey: periodQueryKey })
+  }
 
   return (
     <div className="mx-auto max-w-xl space-y-10 px-6 py-12">
@@ -37,67 +38,84 @@ export function AdminPanel() {
         </p>
       </header>
 
-      <Section title="State">
-        {period ? (
-          <div className="border-foreground grid grid-cols-3 border">
-            <Stat label="Phase" value={`${period.phase}`} />
-            <Stat label="Status" value={period.status} />
-            <Stat label="Grid" value={`${grid?.columns}×${grid?.rows}`} />
-            <Stat label="Free" value={`${freeTiles.length}`} />
-            <Stat label="Locked" value={`${lockedTiles.length}`} />
-            <Stat label="Drawn" value={`${drawnTiles.length}`} />
-          </div>
-        ) : (
-          <div className="border-foreground border p-8 text-center">
-            <p className="text-foreground text-lg font-medium">No active period</p>
-          </div>
-        )}
-      </Section>
-
-      <Section title="Image">
-        <ImageUploadSection onDone={refetch} />
+      <Section title="Games">
+        <GamesTable />
       </Section>
 
       <Section title="Schedule">
         <ScheduleSection />
       </Section>
 
-      <Section title="Period">
-        <BigButton
-          label="Create Period"
-          disabled={!!period}
-          onClick={async () => {
-            await createPeriod()
-            refetch()
-          }}
-        />
-        <BigButton
-          label="Reset Period"
-          variant="outline"
-          confirm="Reset the current period? All claims and submissions will be cleared."
-          disabled={!period}
-          onClick={async () => {
-            await resetPeriod()
-            refetch()
-          }}
-        />
-        <BigButton
-          label="Delete Period"
-          variant="danger"
-          confirm="Delete the current period? This cannot be undone."
-          disabled={!period}
-          onClick={async () => {
-            await deletePeriod()
-            queryClient.setQueryData(periodQueryKey, null)
-            refetch()
-          }}
-        />
+      <Section title="Prompt Schedule">
+        <PromptScheduleSection />
       </Section>
 
-      {period && (
-        <Section title="Tiles">
+      <Section title="Players">
+        <SessionsSection />
+      </Section>
+
+      <button
+        onClick={refreshAll}
+        className="text-muted-foreground hover:text-foreground flex w-full items-center justify-center gap-2 py-3 text-[10px] tracking-[0.2em] uppercase transition-colors"
+      >
+        <RefreshCw className="h-3 w-3" />
+        Refresh
+      </button>
+    </div>
+  )
+}
+
+// --- Games Table ---
+
+function GamesTable() {
+  return (
+    <div className="border-foreground space-y-0 border">
+      {GAMES.map((g, i) => (
+        <div
+          key={g.type}
+          className={i > 0 ? 'border-foreground/20 border-t' : ''}
+        >
+          <GameRow gameType={g.type} label={g.label} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function GameRow({ gameType, label }: { gameType: GameType; label: string }) {
+  const { data, refetch } = useCurrentPeriodQuery(gameType)
+
+  const isMock = data?.isMock
+  const period = isMock ? undefined : data?.period
+  const grid = isMock ? undefined : data?.grid
+  const tiles: TileResponse[] = grid?.tiles ?? []
+  const lockedTiles = tiles.filter((t) => t.status === 'locked')
+  const drawnTiles = tiles.filter((t) => t.status === 'drawn')
+
+  return (
+    <div className="space-y-3 p-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-foreground text-lg font-black tracking-tight uppercase">
+          {label}
+        </h3>
+        {!period && (
+          <span className="text-muted-foreground text-[10px] tracking-[0.2em] uppercase">
+            no active period
+          </span>
+        )}
+      </div>
+
+      {period && grid && (
+        <>
+          <div className="border-foreground/30 grid grid-cols-4 border">
+            <Stat label="Phase" value={`${period.phase}`} />
+            <Stat label="Grid" value={`${grid.columns}×${grid.rows}`} />
+            <Stat label="Drawn" value={`${grid.drawn_count}/${grid.total_tiles}`} />
+            <Stat label="Status" value={period.status} />
+          </div>
+
           {(lockedTiles.length > 0 || drawnTiles.length > 0) && (
-            <div className="space-y-3">
+            <div className="space-y-2">
               <p className="text-muted-foreground text-[10px] tracking-[0.2em] uppercase">
                 Reset individual tile
               </p>
@@ -111,30 +129,29 @@ export function AdminPanel() {
             </div>
           )}
 
-          <BigButton
-            label="Draw All Tiles"
-            variant="outline"
-            confirm="Draw all remaining tiles?"
-            disabled={freeTiles.length === 0 && lockedTiles.length === 0}
-            onClick={async () => {
-              await drawAllTiles()
-              refetch()
-            }}
-          />
-        </Section>
+          <div className="grid grid-cols-2 gap-2">
+            <SmallButton
+              label="Reset"
+              variant="outline"
+              confirm={`Reset the ${label.toLowerCase()} period? All claims and submissions will be cleared.`}
+              onClick={async () => {
+                await resetPeriod(gameType)
+                refetch()
+              }}
+            />
+            <SmallButton
+              label="Draw All"
+              variant="outline"
+              confirm={`Draw all remaining ${label.toLowerCase()} tiles?`}
+              disabled={tiles.every((t) => t.status === 'drawn')}
+              onClick={async () => {
+                await drawAllTiles(gameType)
+                refetch()
+              }}
+            />
+          </div>
+        </>
       )}
-
-      <Section title="Players">
-        <SessionsSection />
-      </Section>
-
-      <button
-        onClick={() => refetch()}
-        className="text-muted-foreground hover:text-foreground flex w-full items-center justify-center gap-2 py-3 text-[10px] tracking-[0.2em] uppercase transition-colors"
-      >
-        <RefreshCw className="h-3 w-3" />
-        Refresh
-      </button>
     </div>
   )
 }
@@ -154,18 +171,18 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-foreground border-r border-b p-4 last:border-r-0 [&:nth-child(3n)]:border-r-0 [&:nth-child(n+4)]:border-b-0">
+    <div className="border-foreground/30 border-r px-3 py-2 last:border-r-0">
       <p className="text-muted-foreground text-[9px] tracking-[0.2em] uppercase">
         {label}
       </p>
-      <p className="text-foreground mt-1 truncate text-xl font-black">{value}</p>
+      <p className="text-foreground mt-0.5 truncate text-base font-black">{value}</p>
     </div>
   )
 }
 
-// --- Big Button ---
+// --- Buttons ---
 
-function BigButton({
+function SmallButton({
   label,
   variant = 'default',
   confirm,
@@ -173,7 +190,7 @@ function BigButton({
   onClick,
 }: {
   label: string
-  variant?: 'default' | 'outline' | 'danger'
+  variant?: 'default' | 'outline'
   confirm?: string
   disabled?: boolean
   onClick: () => Promise<void>
@@ -194,14 +211,11 @@ function BigButton({
   }
 
   const base =
-    'flex h-14 w-full items-center justify-center text-sm font-bold uppercase tracking-[0.2em] transition-all disabled:cursor-not-allowed disabled:opacity-30'
-  const styles = {
-    default: 'bg-foreground text-background hover:bg-foreground/90',
-    outline:
-      'border-foreground text-foreground hover:bg-foreground hover:text-background border',
-    danger:
-      'border-foreground text-foreground hover:bg-foreground hover:text-background border border-dashed',
-  }[variant]
+    'flex h-10 w-full items-center justify-center text-xs font-bold uppercase tracking-[0.2em] transition-all disabled:cursor-not-allowed disabled:opacity-30'
+  const styles =
+    variant === 'outline'
+      ? 'border-foreground text-foreground hover:bg-foreground hover:text-background border'
+      : 'bg-foreground text-background hover:bg-foreground/90'
 
   const text =
     status === 'loading'
@@ -224,81 +238,6 @@ function BigButton({
   )
 }
 
-// --- Image Upload ---
-
-function ImageUploadSection({ onDone }: { onDone: () => void }) {
-  const [status, setStatus] = useState<'idle' | 'uploading' | 'done' | 'error'>('idle')
-  const [fileName, setFileName] = useState('')
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    setFileName(file.name)
-    setStatus('uploading')
-
-    try {
-      const key = `photos/${Date.now()}-${file.name}`
-      const { upload_url } = await getDebugUploadURL(key)
-
-      await fetch(upload_url, {
-        method: 'PUT',
-        body: file,
-        headers: { 'Content-Type': file.type },
-      })
-
-      const dimensions = await getImageDimensions(file)
-
-      await setActiveDailyImage({
-        storage_key: key,
-        width: dimensions.width,
-        height: dimensions.height,
-      })
-
-      setStatus('done')
-      onDone()
-    } catch {
-      setStatus('error')
-    }
-  }
-
-  const text =
-    status === 'uploading'
-      ? 'Uploading...'
-      : status === 'done'
-        ? `✓ ${fileName}`
-        : status === 'error'
-          ? 'Upload failed'
-          : 'Choose Image'
-
-  return (
-    <label className="block cursor-pointer">
-      <input
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        onChange={handleFileChange}
-        className="hidden"
-        disabled={status === 'uploading'}
-      />
-      <div className="border-foreground hover:bg-foreground hover:text-background flex h-14 w-full items-center justify-center border border-dashed text-sm font-bold tracking-[0.2em] uppercase transition-all">
-        {text}
-      </div>
-    </label>
-  )
-}
-
-function getImageDimensions(file: File): Promise<{ width: number; height: number }> {
-  return new Promise((resolve, reject) => {
-    const img = document.createElement('img')
-    img.onload = () => {
-      resolve({ width: img.naturalWidth, height: img.naturalHeight })
-      URL.revokeObjectURL(img.src)
-    }
-    img.onerror = reject
-    img.src = URL.createObjectURL(file)
-  })
-}
-
 // --- Tile Reset Button ---
 
 function TileResetButton({
@@ -315,7 +254,7 @@ function TileResetButton({
     try {
       await resetTile(tile.id)
     } catch {
-      // Tile may already be gone after a reset — ignore
+      // Tile may already be gone after a reset — ignore.
     } finally {
       setLoading(false)
       onDone()

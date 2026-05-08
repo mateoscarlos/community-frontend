@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useCallback } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { periodQueryKey } from '@/lib/query/period.queries'
+import { periodQueryKeyFor } from '@/lib/query/period.queries'
 import { useGameStore } from '@/lib/store/game.store'
-import type { CurrentPeriodResponse } from '@/types/api'
+import type { CurrentPeriodResponse, GameType } from '@/types/api'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
 const SSE_URL = `${API_URL}/api/v1/periods/current/events`
@@ -16,6 +16,7 @@ interface TileEvent {
 }
 
 interface PhaseCompleteEvent {
+  game_type: string
   phase: number
   next_phase: number
   completed: boolean
@@ -34,7 +35,10 @@ export interface PhaseCompleteInfo {
  *
  * Returns `onPhaseComplete` callback ref — set it to handle phase transitions.
  */
-export function useTileEvents(onPhaseComplete?: (info: PhaseCompleteInfo) => void) {
+export function useTileEvents(
+  gameType: GameType,
+  onPhaseComplete?: (info: PhaseCompleteInfo) => void
+) {
   const onPhaseCompleteRef = useRef(onPhaseComplete)
   useEffect(() => {
     onPhaseCompleteRef.current = onPhaseComplete
@@ -43,11 +47,12 @@ export function useTileEvents(onPhaseComplete?: (info: PhaseCompleteInfo) => voi
   const unclaimTile = useGameStore((s) => s.unclaimTile)
   const eventSourceRef = useRef<EventSource | null>(null)
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const queryKey = periodQueryKeyFor(gameType)
 
   const updateTileInCache = useCallback(
     (tileId: string, newStatus: 'free' | 'locked' | 'drawn', imageUrl?: string) => {
       queryClient.setQueryData<CurrentPeriodResponse & { isMock?: boolean }>(
-        periodQueryKey,
+        queryKey,
         (old) => {
           if (!old?.grid?.tiles) return old
           const tiles = old.grid.tiles.map((t) =>
@@ -63,16 +68,16 @@ export function useTileEvents(onPhaseComplete?: (info: PhaseCompleteInfo) => voi
         }
       )
     },
-    [queryClient]
+    [queryClient, queryKey]
   )
 
   const enablePolling = useCallback(
     (enabled: boolean) => {
-      queryClient.setQueryDefaults(periodQueryKey, {
+      queryClient.setQueryDefaults(queryKey, {
         refetchInterval: enabled ? 10_000 : false,
       })
     },
-    [queryClient]
+    [queryClient, queryKey]
   )
 
   useEffect(() => {
@@ -110,6 +115,9 @@ export function useTileEvents(onPhaseComplete?: (info: PhaseCompleteInfo) => voi
       es.addEventListener('phase_complete', (e: MessageEvent) => {
         try {
           const data: PhaseCompleteEvent = JSON.parse(e.data)
+          // Both games share one SSE channel — only react when this event
+          // belongs to the game this hook is watching.
+          if (data.game_type && data.game_type !== gameType) return
           onPhaseCompleteRef.current?.({
             completedPhase: data.phase,
             nextPhase: data.next_phase,

@@ -5,16 +5,18 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useParams, usePathname } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
-import { Grid3x3, Archive, MessageSquare, User, Menu, X } from 'lucide-react'
+import { Grid3x3, Archive, MessageSquare, Menu, X, PanelLeftClose } from 'lucide-react'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { ThemeToggle } from './ThemeToggle'
+import { useLayoutStore } from '@/lib/store/layout.store'
 
 const TABS = [
   {
     key: 'game',
     icon: Grid3x3,
-    href: (locale: string) => `/${locale}/play`,
+    href: (locale: string) => `/${locale}`,
     isActive: (pathname: string, locale: string) =>
-      pathname.startsWith(`/${locale}/play`),
+      pathname === `/${locale}` || pathname.startsWith(`/${locale}/play`),
   },
   {
     key: 'archive',
@@ -29,13 +31,6 @@ const TABS = [
     href: (locale: string) => `/${locale}/feedback`,
     isActive: (pathname: string, locale: string) =>
       pathname.startsWith(`/${locale}/feedback`),
-  },
-  {
-    key: 'account',
-    icon: User,
-    href: (locale: string) => `/${locale}/account`,
-    isActive: (pathname: string, locale: string) =>
-      pathname.startsWith(`/${locale}/account`),
   },
 ] as const
 
@@ -79,6 +74,8 @@ export function Sidebar() {
   const locale = (params?.locale as string) ?? 'en'
   const pathname = usePathname() ?? ''
   const [open, setOpen] = useState(false)
+  const collapsed = useLayoutStore((s) => s.sidebarCollapsed)
+  const toggleCollapsed = useLayoutStore((s) => s.toggleSidebar)
 
   useEffect(() => {
     if (!open) return
@@ -114,30 +111,49 @@ export function Sidebar() {
         >
           Community
         </Link>
-        <LanguageSwitcher />
+        <div className="flex items-center gap-1">
+          <LanguageSwitcher />
+          <ThemeToggle />
+        </div>
       </header>
 
-      {/* Desktop sidebar */}
-      <aside
+      {/* Desktop sidebar — slides off-screen when collapsed. AppShell renders
+          the re-open button so the user can bring it back. */}
+      <motion.aside
+        initial={false}
+        animate={{ x: collapsed ? '-100%' : 0 }}
+        transition={{ type: 'spring', damping: 30, stiffness: 280 }}
         className="border-foreground bg-background fixed top-0 bottom-0 left-0 z-30 hidden w-64 flex-col border-r md:flex"
         aria-label="Sidebar navigation"
+        aria-hidden={collapsed}
       >
-        <div className="border-foreground/10 border-b px-6 py-6">
-          <Link
-            href={`/${locale}`}
-            className="text-foreground text-lg font-black tracking-[0.2em] uppercase"
+        <div className="border-foreground/10 flex items-start justify-between gap-3 border-b px-6 py-6">
+          <div>
+            <Link
+              href={`/${locale}`}
+              className="text-foreground text-lg font-black tracking-[0.2em] uppercase"
+            >
+              Community
+            </Link>
+            <p className="text-muted-foreground mt-1 text-[10px] tracking-[0.2em] uppercase">
+              Daily Tile Game
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={toggleCollapsed}
+            aria-label="Hide sidebar"
+            className="text-muted-foreground hover:text-foreground hover:bg-foreground/5 -mr-2 flex h-9 w-9 shrink-0 items-center justify-center transition-colors"
           >
-            Community
-          </Link>
-          <p className="text-muted-foreground mt-1 text-[10px] tracking-[0.2em] uppercase">
-            Daily Tile Game
-          </p>
+            <PanelLeftClose className="h-4 w-4" strokeWidth={2} />
+          </button>
         </div>
         <NavItems pathname={pathname} locale={locale} />
-        <div className="border-foreground/10 mt-auto border-t px-6 py-4">
-          <LanguageSwitcher />
+        <div className="border-foreground/10 mt-auto flex items-center justify-between gap-2 border-t px-6 py-4">
+          <LanguageSwitcher direction="up" />
+          <ThemeToggle />
         </div>
-      </aside>
+      </motion.aside>
 
       {/* Mobile drawer */}
       <AnimatePresence>
@@ -182,8 +198,9 @@ export function Sidebar() {
                 </button>
               </div>
               <NavItems pathname={pathname} locale={locale} onItemClick={close} />
-              <div className="border-foreground/10 mt-auto border-t px-6 py-4">
-                <LanguageSwitcher />
+              <div className="border-foreground/10 mt-auto flex items-center justify-between gap-2 border-t px-6 py-4">
+                <LanguageSwitcher direction="up" />
+                <ThemeToggle />
               </div>
             </motion.aside>
           </>

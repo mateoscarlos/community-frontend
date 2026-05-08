@@ -2,7 +2,6 @@
   "nav": {
     "home": "Home",
     "blog": "Blog",
-    "account": "Account",
     "game": "Play",
     "archive": "Archive",
     "feedback": "Feedback"
@@ -24,12 +23,17 @@
   "common": {
     "loading": "Loading…",
     "error": "Something went wrong",
-    "retry": "Try again"
+    "retry": "Try again",
+    "or": "or"
   },
   "landing": {
     "title": "Community",
     "description": "Every day, a new picture. The community draws it together — one tile at a time. Claim a tile, draw your part, watch the masterpiece take shape.",
     "play": "Play",
+    "play_photo": "Play Photo",
+    "play_photo_sub": "copy a daily picture",
+    "play_prompt": "Play Prompt",
+    "play_prompt_sub": "draw from a daily prompt",
     "tagline": "A daily collaborative drawing"
   },
   "blog": {
@@ -37,16 +41,6 @@
     "subtitle": "Stories from the community",
     "min_read": "{{count}} min read",
     "coming_soon": "More posts coming soon"
-  },
-  "account": {
-    "title": "Your Account",
-    "subtitle": "Track your tiles and contributions",
-    "sign_in": "Sign in",
-    "sign_up": "Create account",
-    "or": "or",
-    "play_as_guest": "Continue as guest",
-    "guest_note": "No account needed to play. Sign up to track your history.",
-    "coming_soon": "Accounts coming soon"
   },
   "game": {
     "today": "Today's challenge",
@@ -113,6 +107,8 @@
   "archive": {
     "title": "Archive",
     "subtitle": "Past completed images",
+    "tab_photo": "Photo",
+    "tab_prompt": "Prompt",
     "empty": "No completed images yet",
     "phases": "{{count}} phases",
     "tap_hint": "Tap a day to see all the drawings",

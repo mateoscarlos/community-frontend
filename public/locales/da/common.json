@@ -2,7 +2,6 @@
   "nav": {
     "home": "Hjem",
     "blog": "Blog",
-    "account": "Konto",
     "game": "Spil",
     "archive": "Arkiv",
     "feedback": "Feedback"
@@ -24,12 +23,17 @@
   "common": {
     "loading": "Indlæser…",
     "error": "Noget gik galt",
-    "retry": "Prøv igen"
+    "retry": "Prøv igen",
+    "or": "eller"
   },
   "landing": {
     "title": "Community",
     "description": "Hver dag, et nyt billede. Fællesskabet tegner det sammen — felt for felt. Tag et felt, tegn din del, og se mesterværket tage form.",
     "play": "Spil",
+    "play_photo": "Foto-spil",
+    "play_photo_sub": "kopiér et dagligt billede",
+    "play_prompt": "Idé-spil",
+    "play_prompt_sub": "tegn ud fra en daglig idé",
     "tagline": "En daglig fælles tegning"
   },
   "blog": {
@@ -37,16 +41,6 @@
     "subtitle": "Historier fra fællesskabet",
     "min_read": "{{count}} min læsning",
     "coming_soon": "Flere indlæg kommer snart"
-  },
-  "account": {
-    "title": "Din konto",
-    "subtitle": "Følg dine felter og bidrag",
-    "sign_in": "Log ind",
-    "sign_up": "Opret konto",
-    "or": "eller",
-    "play_as_guest": "Fortsæt som gæst",
-    "guest_note": "Du behøver ikke en konto for at spille. Tilmeld dig for at gemme din historik.",
-    "coming_soon": "Konti kommer snart"
   },
   "game": {
     "today": "Dagens udfordring",
@@ -113,6 +107,8 @@
   "archive": {
     "title": "Arkiv",
     "subtitle": "Tidligere færdige billeder",
+    "tab_photo": "Foto",
+    "tab_prompt": "Idé",
     "empty": "Ingen færdige billeder endnu",
     "phases": "{{count}} faser",
     "tap_hint": "Tryk på en dag for at se alle tegningerne",

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { X, Clock } from 'lucide-react'
@@ -20,6 +21,9 @@ import type { TileResponse } from '@/types/api'
 interface UploadSheetProps {
   tile: TileResponse | null
   imageUrl?: string
+  /** Optional prompt text — shown for prompt-game tiles in place of the reference image. */
+  prompt?: string
+  gameType?: 'photo' | 'prompt'
   gridColumns: number
   gridRows: number
   /** ISO timestamp from the claim — used for the countdown. */
@@ -36,6 +40,8 @@ const EXTEND_THRESHOLD_SECONDS = 120
 export function UploadSheet({
   tile,
   imageUrl,
+  prompt,
+  gameType = 'photo',
   gridColumns,
   gridRows,
   expiresAt,
@@ -43,6 +49,8 @@ export function UploadSheet({
   onSubmitted,
 }: UploadSheetProps) {
   const { t } = useTranslation()
+  const params = useParams()
+  const locale = (params?.locale as string) ?? 'en'
   const { sessionId, unclaimTile, updateClaimExpiry } = useGameStore()
   const isMobile = useIsMobile()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -78,7 +86,7 @@ export function UploadSheet({
 
   const uploadUrl =
     typeof window !== 'undefined'
-      ? `${window.location.origin}/upload?tile=${tile.id}&session=${sessionId}`
+      ? `${window.location.origin}/${locale}/upload?tile=${tile.id}&session=${sessionId}&game=${gameType}`
       : ''
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -232,6 +240,16 @@ export function UploadSheet({
                 className="border-foreground mb-6 aspect-square w-full border"
               />
             )}
+            {step === 'choose' && !imageUrl && prompt && (
+              <div className="border-foreground/40 mb-6 border-2 border-dashed p-5 text-center">
+                <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
+                  Today&apos;s prompt
+                </p>
+                <p className="text-foreground mt-2 text-lg font-bold tracking-tight">
+                  “{prompt}”
+                </p>
+              </div>
+            )}
 
             <input
               ref={fileInputRef}
@@ -268,7 +286,7 @@ export function UploadSheet({
                     <div className="flex items-center gap-3">
                       <div className="bg-foreground/20 h-px flex-1" />
                       <span className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
-                        {t('account.or')}
+                        {t('common.or')}
                       </span>
                       <div className="bg-foreground/20 h-px flex-1" />
                     </div>

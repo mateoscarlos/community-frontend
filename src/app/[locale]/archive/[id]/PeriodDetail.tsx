@@ -81,6 +81,19 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
             </section>
           )}
 
+          {period.game_type === 'prompt' && period.prompt && (
+            <section className="mt-10">
+              <h2 className="text-muted-foreground mb-3 text-[10px] font-bold tracking-[0.2em] uppercase">
+                Prompt
+              </h2>
+              <div className="border-foreground/40 border-2 border-dashed p-6 text-center">
+                <p className="text-foreground text-xl font-bold tracking-tight">
+                  “{period.prompt}”
+                </p>
+              </div>
+            </section>
+          )}
+
           {mosaics.length > 0 && (
             <section className="mt-12 space-y-10">
               <h2 className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">

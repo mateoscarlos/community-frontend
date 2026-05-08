@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { getTranslations } from '@/lib/i18n/server'
 import { isValidLocale } from '@/lib/i18n/config'
 import { notFound } from 'next/navigation'
@@ -13,5 +14,9 @@ export default async function ArchivePage({ params }: ArchivePageProps) {
 
   await getTranslations(locale)
 
-  return <CalendarView />
+  return (
+    <Suspense fallback={null}>
+      <CalendarView />
+    </Suspense>
+  )
 }

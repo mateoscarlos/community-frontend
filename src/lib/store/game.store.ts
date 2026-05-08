@@ -1,13 +1,17 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
+import type { GameType } from '@/types/api'
 
-interface ClaimedTile {
+export interface ClaimedTile {
   tileId: string
   expiresAt: string
   /** When the local claim was added (ISO). Used as a grace window so the
    *  cleanup effect doesn't drop a freshly-claimed tile before the period
    *  query has a chance to refetch. */
   claimedAt: string
+  /** Which parallel game this claim belongs to. Backwards-compat: claims
+   *  persisted before the prompt game existed default to 'photo' on read. */
+  gameType: GameType
 }
 
 interface GameState {
@@ -15,11 +19,12 @@ interface GameState {
   nickname: string
   claimedTiles: ClaimedTile[]
   setNickname: (nickname: string) => void
-  claimTile: (tileId: string, expiresAt: string) => void
+  claimTile: (tileId: string, expiresAt: string, gameType: GameType) => void
   /** Updates the local expires_at after a successful extend or heartbeat sync. */
   updateClaimExpiry: (tileId: string, expiresAt: string) => void
   unclaimTile: (tileId: string) => void
-  clearAllClaims: () => void
+  /** Clears claims for a specific game, or all if `gameType` is omitted. */
+  clearAllClaims: (gameType?: GameType) => void
 }
 
 function generateSessionId(): string {
@@ -34,12 +39,17 @@ export const useGameStore = create<GameState>()(
         nickname: '',
         claimedTiles: [],
         setNickname: (nickname) => set({ nickname }, false, 'setNickname'),
-        claimTile: (tileId, expiresAt) =>
+        claimTile: (tileId, expiresAt, gameType) =>
           set(
             (state) => ({
               claimedTiles: [
                 ...state.claimedTiles.filter((c) => c.tileId !== tileId),
-                { tileId, expiresAt, claimedAt: new Date().toISOString() },
+                {
+                  tileId,
+                  expiresAt,
+                  claimedAt: new Date().toISOString(),
+                  gameType,
+                },
               ],
             }),
             false,
@@ -63,7 +73,16 @@ export const useGameStore = create<GameState>()(
             false,
             'unclaimTile'
           ),
-        clearAllClaims: () => set({ claimedTiles: [] }, false, 'clearAllClaims'),
+        clearAllClaims: (gameType) =>
+          set(
+            (state) => ({
+              claimedTiles: gameType
+                ? state.claimedTiles.filter((c) => c.gameType !== gameType)
+                : [],
+            }),
+            false,
+            'clearAllClaims'
+          ),
       }),
       {
         name: 'community-game',
@@ -72,6 +91,16 @@ export const useGameStore = create<GameState>()(
           nickname: state.nickname,
           claimedTiles: state.claimedTiles,
         }),
+        // Backfill gameType on persisted claims from before the prompt game
+        // existed so we don't lose them on first load after upgrade.
+        merge: (persisted, current) => {
+          const p = persisted as Partial<GameState> | undefined
+          const tiles = (p?.claimedTiles ?? []).map((c) => ({
+            ...c,
+            gameType: (c.gameType ?? 'photo') as GameType,
+          }))
+          return { ...current, ...p, claimedTiles: tiles }
+        },
       }
     ),
     { name: 'game-store' }
