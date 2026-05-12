@@ -385,6 +385,7 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
         gameType={gameType}
         gridColumns={cols}
         gridRows={rows}
+        tiles={tiles}
         expiresAt={uploadClaim?.expiresAt ?? null}
         onClose={() => setUploadTile(null)}
         onSubmitted={() => refetch()}

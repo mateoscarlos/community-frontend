@@ -12,7 +12,7 @@ import { useIsMobile } from '@/lib/hooks/useIsMobile'
 import { useCountdown, formatCountdown } from '@/lib/hooks/useCountdown'
 import { useExtendClaimMutation } from '@/lib/query/claim.queries'
 import { getPresignedUploadUrl, uploadFile, submitTile } from '@/lib/api/submission'
-import { TilePreview } from '@/components/game/TilePreview'
+import { TileNeighborhood } from '@/components/game/TileNeighborhood'
 import { CropEditor } from '@/components/game/CropEditor'
 import { PerspectiveEditor } from '@/components/game/PerspectiveEditor'
 import { cropImageToBlob } from '@/lib/cropImage'
@@ -26,6 +26,8 @@ interface UploadSheetProps {
   gameType?: 'photo' | 'prompt'
   gridColumns: number
   gridRows: number
+  /** All tiles in the current phase — used to render the neighbourhood context. */
+  tiles: TileResponse[]
   /** ISO timestamp from the claim — used for the countdown. */
   expiresAt?: string | null
   onClose: () => void
@@ -44,6 +46,7 @@ export function UploadSheet({
   gameType = 'photo',
   gridColumns,
   gridRows,
+  tiles,
   expiresAt,
   onClose,
   onSubmitted,
@@ -229,19 +232,8 @@ export function UploadSheet({
                 )}
             </div>
 
-            {/* Big tile preview — what the user is meant to copy. */}
-            {step === 'choose' && imageUrl && (
-              <TilePreview
-                imageUrl={imageUrl}
-                gridColumns={gridColumns}
-                gridRows={gridRows}
-                row={tile.row}
-                col={tile.col}
-                className="border-foreground mb-6 aspect-square w-full border"
-              />
-            )}
             {step === 'choose' && !imageUrl && prompt && (
-              <div className="border-foreground/40 mb-6 border-2 border-dashed p-5 text-center">
+              <div className="border-foreground/40 mb-3 border-2 border-dashed p-5 text-center">
                 <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
                   Today&apos;s prompt
                 </p>
@@ -249,6 +241,20 @@ export function UploadSheet({
                   “{prompt}”
                 </p>
               </div>
+            )}
+
+            {/* Target tile sharp in the centre + blurry neighbours around it
+                so the user can match colours with adjacent drawings. */}
+            {step === 'choose' && (
+              <TileNeighborhood
+                imageUrl={imageUrl}
+                tiles={tiles}
+                gridColumns={gridColumns}
+                gridRows={gridRows}
+                row={tile.row}
+                col={tile.col}
+                className="mb-6 w-full"
+              />
             )}
 
             <input
@@ -310,6 +316,7 @@ export function UploadSheet({
                 gridRows={gridRows}
                 row={tile.row}
                 col={tile.col}
+                tiles={tiles}
                 onCancel={handleCancelCrop}
                 onSkip={() => setStep('cropping')}
                 onConfirm={handlePerspectiveApplied}
@@ -324,6 +331,7 @@ export function UploadSheet({
                 gridRows={gridRows}
                 row={tile.row}
                 col={tile.col}
+                tiles={tiles}
                 onCancel={handleCancelCrop}
                 onConfirm={handleConfirmCrop}
               />

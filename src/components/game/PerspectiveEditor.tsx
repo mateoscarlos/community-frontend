@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { warpPerspective, type Quad } from '@/lib/perspective'
-import { TilePreview } from '@/components/game/TilePreview'
+import { TileNeighborhood } from '@/components/game/TileNeighborhood'
+import type { TileResponse } from '@/types/api'
 
 interface PerspectiveEditorProps {
   imageSrc: string
@@ -12,6 +13,8 @@ interface PerspectiveEditorProps {
   gridRows: number
   row: number
   col: number
+  /** All tiles in the current phase — feeds the neighbourhood preview. */
+  tiles: TileResponse[]
   /** "Apply" returns a flattened, square JPEG Blob. */
   onConfirm: (blob: Blob) => void
   onSkip: () => void
@@ -38,6 +41,7 @@ export function PerspectiveEditor({
   gridRows,
   row,
   col,
+  tiles,
   onConfirm,
   onSkip,
   onCancel,
@@ -137,14 +141,15 @@ export function PerspectiveEditor({
           {t('perspective.hint')}
         </p>
 
-        {/* Reference up top, small. */}
-        <TilePreview
+        {/* Reference + neighbourhood up top so the user can match edges. */}
+        <TileNeighborhood
           imageUrl={imageUrl}
+          tiles={tiles}
           gridColumns={gridColumns}
           gridRows={gridRows}
           row={row}
           col={col}
-          className="border-foreground mx-auto mb-3 aspect-square w-24 border md:w-28"
+          className="mx-auto mb-3 w-36 md:w-44"
         />
       </div>
 

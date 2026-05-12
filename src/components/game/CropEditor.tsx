@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import Cropper, { type Area } from 'react-easy-crop'
 import { useTranslation } from 'react-i18next'
 import { TilePreview } from '@/components/game/TilePreview'
+import { TileNeighborhood } from '@/components/game/TileNeighborhood'
+import type { TileResponse } from '@/types/api'
 
 interface CropEditorProps {
   /** Object URL or data URL of the user's photo. */
@@ -14,6 +16,8 @@ interface CropEditorProps {
   gridRows: number
   row: number
   col: number
+  /** All tiles in the current phase — feeds the neighbourhood preview. */
+  tiles: TileResponse[]
   onCancel: () => void
   /** Returns the final crop region in source-image pixel coordinates. */
   onConfirm: (area: Area) => void
@@ -34,6 +38,7 @@ export function CropEditor({
   gridRows,
   row,
   col,
+  tiles,
   onCancel,
   onConfirm,
   busy = false,
@@ -60,13 +65,14 @@ export function CropEditor({
             <p className="text-muted-foreground mb-1 text-center text-[9px] tracking-[0.2em] uppercase">
               {t('crop.reference')}
             </p>
-            <TilePreview
+            <TileNeighborhood
               imageUrl={imageUrl}
+              tiles={tiles}
               gridColumns={gridColumns}
               gridRows={gridRows}
               row={row}
               col={col}
-              className="border-foreground aspect-square w-full border"
+              className="w-full"
             />
           </div>
           <div>

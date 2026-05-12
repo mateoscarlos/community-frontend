@@ -7,7 +7,7 @@ import type { Area } from 'react-easy-crop'
 import { getPresignedUploadUrl, uploadFile, submitTile } from '@/lib/api/submission'
 import { fetchCurrentPeriod } from '@/lib/api/period'
 import type { GameType } from '@/types/api'
-import { TilePreview } from '@/components/game/TilePreview'
+import { TileNeighborhood } from '@/components/game/TileNeighborhood'
 import { CropEditor } from '@/components/game/CropEditor'
 import { PerspectiveEditor } from '@/components/game/PerspectiveEditor'
 import { cropImageToBlob } from '@/lib/cropImage'
@@ -40,7 +40,8 @@ function UploadView() {
     enabled: !!tileId && !!sessionId,
     retry: 1,
   })
-  const tile = period?.grid?.tiles?.find((t) => t.id === tileId)
+  const tiles = period?.grid?.tiles ?? []
+  const tile = tiles.find((t) => t.id === tileId)
   const imageUrl = period?.period?.image?.image_url
   const gridColumns = period?.grid?.columns ?? 0
   const gridRows = period?.grid?.rows ?? 0
@@ -138,14 +139,15 @@ function UploadView() {
             )}
           </div>
 
-          {tile && imageUrl ? (
-            <TilePreview
+          {tile ? (
+            <TileNeighborhood
               imageUrl={imageUrl}
+              tiles={tiles}
               gridColumns={gridColumns}
               gridRows={gridRows}
               row={tile.row}
               col={tile.col}
-              className="border-foreground aspect-square w-full border-2"
+              className="w-full"
             />
           ) : (
             <div className="border-foreground bg-foreground/5 aspect-square w-full border-2" />
@@ -173,6 +175,7 @@ function UploadView() {
             gridRows={gridRows}
             row={tile.row}
             col={tile.col}
+            tiles={tiles}
             onCancel={handleCancelCrop}
             onSkip={() => setStep('cropping')}
             onConfirm={handlePerspectiveApplied}
@@ -189,6 +192,7 @@ function UploadView() {
             gridRows={gridRows}
             row={tile.row}
             col={tile.col}
+            tiles={tiles}
             onCancel={handleCancelCrop}
             onConfirm={handleConfirmCrop}
           />
