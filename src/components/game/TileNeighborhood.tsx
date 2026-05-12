@@ -74,14 +74,16 @@ export function TileNeighborhood({
               <div className="bg-foreground/5 absolute inset-0" />
             ) : isCenter ? (
               imageUrl ? (
-                <TilePreview
-                  imageUrl={imageUrl}
-                  gridColumns={gridColumns}
-                  gridRows={gridRows}
-                  row={r}
-                  col={c}
-                  className="absolute inset-0"
-                />
+                <div className="absolute inset-0">
+                  <TilePreview
+                    imageUrl={imageUrl}
+                    gridColumns={gridColumns}
+                    gridRows={gridRows}
+                    row={r}
+                    col={c}
+                    className="h-full w-full"
+                  />
+                </div>
               ) : (
                 <div className="bg-background absolute inset-0" />
               )
@@ -105,7 +107,7 @@ export function TileNeighborhood({
                   gridRows={gridRows}
                   row={r}
                   col={c}
-                  className="absolute inset-0"
+                  className="h-full w-full"
                 />
               </div>
             ) : (

@@ -202,133 +202,135 @@ export function PerspectiveEditor({
       : undefined
 
   return (
-    <div className="space-y-4">
-      <div>
-        <p className="text-muted-foreground mb-2 text-[10px] font-bold tracking-[0.2em] uppercase">
-          {t('perspective.title')}
-        </p>
-        <p className="text-muted-foreground mb-3 text-[11px] tracking-[0.05em]">
-          {t('perspective.hint')}
-        </p>
-
-        <TileNeighborhood
-          imageUrl={imageUrl}
-          tiles={tiles}
-          gridColumns={gridColumns}
-          gridRows={gridRows}
-          row={row}
-          col={col}
-          className="mx-auto mb-3 w-36 md:w-44"
-        />
-      </div>
-
-      {/* Photo with corner handles, zoom + pan, and a ghost reference. */}
-      <div
-        ref={frameRef}
-        className="border-foreground bg-background relative w-full touch-none overflow-hidden border-2"
-        style={{ aspectRatio: aspect }}
-        onPointerDown={onFramePointerDown}
-        onPointerMove={onFramePointerMove}
-        onPointerUp={onFramePointerUp}
-        onPointerCancel={onFramePointerUp}
-        onWheel={onWheel}
-      >
+    <div className="space-y-4 md:grid md:grid-cols-[1fr_19rem] md:gap-6 md:space-y-0">
+      {/* Photo — left column on md+, top on mobile. */}
+      <div className="md:col-start-1 md:row-start-1">
         <div
-          ref={innerRef}
-          className="absolute inset-0"
-          style={{
-            transform: `translate(${tx}px, ${ty}px) scale(${zoom})`,
-            transformOrigin: 'center center',
-          }}
+          ref={frameRef}
+          className="border-foreground bg-background relative mx-auto w-full touch-none overflow-hidden border-2 md:max-h-[70vh]"
+          style={{ aspectRatio: aspect }}
+          onPointerDown={onFramePointerDown}
+          onPointerMove={onFramePointerMove}
+          onPointerUp={onFramePointerUp}
+          onPointerCancel={onFramePointerUp}
+          onWheel={onWheel}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            ref={imgRef}
-            src={imageSrc}
-            alt=""
-            onLoad={handleImgLoad}
-            className="absolute inset-0 h-full w-full object-contain select-none"
-            draggable={false}
-          />
+          <div
+            ref={innerRef}
+            className="absolute inset-0"
+            style={{
+              transform: `translate(${tx}px, ${ty}px) scale(${zoom})`,
+              transformOrigin: 'center center',
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              ref={imgRef}
+              src={imageSrc}
+              alt=""
+              onLoad={handleImgLoad}
+              className="absolute inset-0 h-full w-full object-contain select-none"
+              draggable={false}
+            />
 
-          {/* Reference ghost — clipped to the quad shape so the user can see
-              roughly where each part of the target tile should end up. */}
-          {clipPath && overlay > 0 && imageUrl && (
-            <div
-              className="pointer-events-none absolute inset-0"
-              style={{ clipPath, opacity: overlay }}
-            >
-              <TilePreview
-                imageUrl={imageUrl}
-                gridColumns={gridColumns}
-                gridRows={gridRows}
-                row={row}
-                col={col}
-                className="absolute inset-0"
-              />
-            </div>
-          )}
+            {/* Reference ghost — clipped to the quad shape so the user can see
+                roughly where each part of the target tile should end up. */}
+            {clipPath && overlay > 0 && imageUrl && (
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{ clipPath, opacity: overlay }}
+              >
+                <TilePreview
+                  imageUrl={imageUrl}
+                  gridColumns={gridColumns}
+                  gridRows={gridRows}
+                  row={row}
+                  col={col}
+                  className="h-full w-full"
+                />
+              </div>
+            )}
 
-          {/* SVG outline of the quad. */}
-          {pts && (
-            <svg
-              className="pointer-events-none absolute inset-0 h-full w-full"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-            >
-              <polygon
-                points={pts.map((p) => `${p.x * 100},${p.y * 100}`).join(' ')}
-                fill="rgba(255,255,255,0.08)"
-                stroke="white"
-                strokeWidth="0.4"
-                vectorEffect="non-scaling-stroke"
-              />
-              {pts.map((_, i) => {
-                const a = pts[i]
-                const b = pts[(i + 1) % 4]
-                const mx = ((a.x + b.x) / 2) * 100
-                const my = ((a.y + b.y) / 2) * 100
-                return (
-                  <circle
-                    key={`mid-${i}`}
-                    cx={mx}
-                    cy={my}
-                    r={0.6}
-                    fill="white"
-                    vectorEffect="non-scaling-stroke"
-                  />
-                )
-              })}
-            </svg>
-          )}
+            {/* SVG outline of the quad. */}
+            {pts && (
+              <svg
+                className="pointer-events-none absolute inset-0 h-full w-full"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+              >
+                <polygon
+                  points={pts.map((p) => `${p.x * 100},${p.y * 100}`).join(' ')}
+                  fill="rgba(255,255,255,0.08)"
+                  stroke="white"
+                  strokeWidth="0.4"
+                  vectorEffect="non-scaling-stroke"
+                />
+                {pts.map((_, i) => {
+                  const a = pts[i]
+                  const b = pts[(i + 1) % 4]
+                  const mx = ((a.x + b.x) / 2) * 100
+                  const my = ((a.y + b.y) / 2) * 100
+                  return (
+                    <circle
+                      key={`mid-${i}`}
+                      cx={mx}
+                      cy={my}
+                      r={0.6}
+                      fill="white"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  )
+                })}
+              </svg>
+            )}
 
-          {/* Corner handles. */}
-          {pts &&
-            pts.map((p, i) => (
-              <button
-                key={i}
-                type="button"
-                aria-label={`Corner ${i + 1}`}
-                onPointerDown={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
-                  setDragging(i)
-                }}
-                className="border-foreground bg-background absolute z-10 touch-none rounded-full border-2"
-                style={{
-                  left: `calc(${p.x * 100}% - ${HANDLE_HALF}px)`,
-                  top: `calc(${p.y * 100}% - ${HANDLE_HALF}px)`,
-                  width: HANDLE_HALF * 2,
-                  height: HANDLE_HALF * 2,
-                }}
-              />
-            ))}
+            {/* Corner handles. */}
+            {pts &&
+              pts.map((p, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  aria-label={`Corner ${i + 1}`}
+                  onPointerDown={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
+                    setDragging(i)
+                  }}
+                  className="border-foreground bg-background absolute z-10 touch-none rounded-full border-2"
+                  style={{
+                    left: `calc(${p.x * 100}% - ${HANDLE_HALF}px)`,
+                    top: `calc(${p.y * 100}% - ${HANDLE_HALF}px)`,
+                    width: HANDLE_HALF * 2,
+                    height: HANDLE_HALF * 2,
+                  }}
+                />
+              ))}
+          </div>
         </div>
       </div>
 
-      {/* Sliders for zoom + reference overlay. */}
-      <div className="space-y-3">
+      {/* Sidebar — right column on md+, below photo on mobile. */}
+      <div className="space-y-4 md:col-start-2 md:row-start-1">
+        <div>
+          <p className="text-muted-foreground mb-2 text-[10px] font-bold tracking-[0.2em] uppercase">
+            {t('perspective.title')}
+          </p>
+          <p className="text-muted-foreground mb-3 text-[11px] tracking-[0.05em]">
+            {t('perspective.hint')}
+          </p>
+
+          <TileNeighborhood
+            imageUrl={imageUrl}
+            tiles={tiles}
+            gridColumns={gridColumns}
+            gridRows={gridRows}
+            row={row}
+            col={col}
+            className="mx-auto w-36 md:mx-0 md:w-full"
+          />
+        </div>
+
         <SliderRow
           label={t('crop.zoom')}
           min={MIN_ZOOM}
@@ -345,23 +347,23 @@ export function PerspectiveEditor({
           value={overlay}
           onChange={setOverlay}
         />
-      </div>
 
-      <div className="grid grid-cols-2 gap-3 pt-2">
-        <button
-          onClick={onCancel}
-          disabled={busyLocal}
-          className="border-foreground text-foreground hover:bg-foreground hover:text-background flex h-14 items-center justify-center border text-sm font-bold tracking-[0.2em] uppercase transition-all disabled:opacity-30"
-        >
-          {t('perspective.cancel')}
-        </button>
-        <button
-          onClick={handleApply}
-          disabled={busyLocal || !pts}
-          className="bg-foreground text-background hover:bg-foreground/90 flex h-14 items-center justify-center text-sm font-bold tracking-[0.2em] uppercase transition-all disabled:cursor-not-allowed disabled:opacity-30"
-        >
-          {busyLocal ? '...' : t('perspective.apply')}
-        </button>
+        <div className="grid grid-cols-2 gap-3 pt-2">
+          <button
+            onClick={onCancel}
+            disabled={busyLocal}
+            className="border-foreground text-foreground hover:bg-foreground hover:text-background flex h-14 items-center justify-center border text-sm font-bold tracking-[0.2em] uppercase transition-all disabled:opacity-30"
+          >
+            {t('perspective.cancel')}
+          </button>
+          <button
+            onClick={handleApply}
+            disabled={busyLocal || !pts}
+            className="bg-foreground text-background hover:bg-foreground/90 flex h-14 items-center justify-center text-sm font-bold tracking-[0.2em] uppercase transition-all disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            {busyLocal ? '...' : t('perspective.apply')}
+          </button>
+        </div>
       </div>
     </div>
   )

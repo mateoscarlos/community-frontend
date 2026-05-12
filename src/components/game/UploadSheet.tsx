@@ -213,7 +213,7 @@ export function UploadSheet({
           />
 
           <motion.div
-            className="border-foreground bg-background fixed inset-x-0 bottom-0 z-50 flex max-h-[95svh] flex-col overflow-y-auto border-t px-6 pt-6 pb-8 md:inset-x-auto md:bottom-4 md:left-1/2 md:w-full md:max-w-lg md:-translate-x-1/2 md:border"
+            className="border-foreground bg-background fixed inset-x-0 bottom-0 z-50 flex max-h-[95svh] flex-col overflow-y-auto border-t px-6 pt-6 pb-8 md:inset-x-auto md:bottom-4 md:left-1/2 md:w-full md:max-w-2xl md:-translate-x-1/2 md:border lg:max-w-4xl"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
