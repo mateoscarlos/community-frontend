@@ -3,7 +3,7 @@
     "home": "Hjem",
     "blog": "Blog",
     "game": "Spil",
-    "archive": "Arkiv",
+    "archive": "Museum",
     "feedback": "Feedback"
   },
   "health": {
@@ -106,8 +106,9 @@
     "completed_subtitle": "Alle felter er tegnet. Fantastisk arbejde, alle sammen!"
   },
   "archive": {
-    "title": "Arkiv",
-    "subtitle": "Tidligere færdige billeder",
+    "title": "Museum",
+    "subtitle": "Den permanente samling",
+    "kicker": "Daglige udstillinger",
     "tab_photo": "Foto",
     "tab_prompt": "Idé",
     "empty": "Ingen færdige billeder endnu",

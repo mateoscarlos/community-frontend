@@ -3,7 +3,7 @@
     "home": "Home",
     "blog": "Blog",
     "game": "Play",
-    "archive": "Archive",
+    "archive": "Museum",
     "feedback": "Feedback"
   },
   "health": {
@@ -106,8 +106,9 @@
     "completed_subtitle": "Every tile has been drawn. Amazing work, everyone!"
   },
   "archive": {
-    "title": "Archive",
-    "subtitle": "Past completed images",
+    "title": "Museum",
+    "subtitle": "The permanent collection",
+    "kicker": "Daily exhibitions",
     "tab_photo": "Photo",
     "tab_prompt": "Prompt",
     "empty": "No completed images yet",

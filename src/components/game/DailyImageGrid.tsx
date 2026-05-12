@@ -204,9 +204,12 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
           <Link
             href={`/${locale}/archive?game=${gameType}`}
             aria-label={t('nav.archive')}
-            className="border-foreground text-foreground hover:bg-foreground hover:text-background flex h-10 w-10 shrink-0 items-center justify-center border transition-colors"
+            className="border-foreground text-foreground hover:bg-foreground hover:text-background flex h-10 shrink-0 items-center gap-2 border px-3 transition-colors"
           >
-            <Archive className="h-4 w-4" strokeWidth={2} />
+            <Archive className="h-3.5 w-3.5" strokeWidth={2} />
+            <span className="text-[10px] font-bold tracking-[0.2em] uppercase">
+              {t('nav.archive')}
+            </span>
           </Link>
         </div>
       </div>

@@ -3,7 +3,7 @@
     "home": "Inicio",
     "blog": "Blog",
     "game": "Jugar",
-    "archive": "Archivo",
+    "archive": "Museo",
     "feedback": "Comentarios"
   },
   "health": {
@@ -106,8 +106,9 @@
     "completed_subtitle": "Todas las casillas han sido dibujadas. ¡Increíble trabajo!"
   },
   "archive": {
-    "title": "Archivo",
-    "subtitle": "Imágenes completadas anteriores",
+    "title": "Museo",
+    "subtitle": "La colección permanente",
+    "kicker": "Exposiciones diarias",
     "tab_photo": "Foto",
     "tab_prompt": "Idea",
     "empty": "Aún no hay imágenes completadas",

@@ -9,9 +9,15 @@ export function LandingView({ locale }: { locale: string }) {
   return (
     <div className="bg-background flex min-h-svh flex-col items-center justify-center px-6 py-16">
       <div className="w-full max-w-md space-y-10 text-center">
-        <h1 className="text-foreground text-5xl font-black tracking-tight uppercase md:text-6xl">
-          {t('landing.title')}
-        </h1>
+        <div className="space-y-4">
+          <p className="text-muted-foreground font-mono text-[10px] tracking-[0.3em] uppercase">
+            № 001 · Daily edition
+          </p>
+          <h1 className="text-foreground text-7xl leading-[0.85] font-black tracking-tighter uppercase md:text-8xl">
+            {t('landing.title')}
+          </h1>
+          <div className="bg-foreground/20 mx-auto h-px w-12" />
+        </div>
 
         <p className="text-muted-foreground text-sm tracking-[0.05em] md:text-base">
           {t('landing.description')}

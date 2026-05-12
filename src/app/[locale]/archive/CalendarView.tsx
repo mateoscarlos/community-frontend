@@ -56,11 +56,14 @@ export function CalendarView() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-12 px-6 py-12">
-      <header className="border-foreground border-b pb-6">
-        <h1 className="text-foreground text-4xl font-black tracking-tight uppercase">
+      <header className="border-foreground border-b pb-8">
+        <p className="text-muted-foreground mb-4 font-mono text-[10px] tracking-[0.3em] uppercase">
+          {t('archive.kicker')} · Est. 2026
+        </p>
+        <h1 className="text-foreground text-6xl leading-[0.85] font-black tracking-tighter uppercase md:text-8xl">
           {t('archive.title')}
         </h1>
-        <p className="text-muted-foreground mt-2 text-xs tracking-[0.2em] uppercase">
+        <p className="text-muted-foreground mt-4 text-xs tracking-[0.2em] uppercase md:text-sm">
           {t('archive.subtitle')}
         </p>
       </header>
