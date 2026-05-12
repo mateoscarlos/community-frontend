@@ -9,7 +9,10 @@ import { QRCodeSVG } from 'qrcode.react'
 import { useGameStore } from '@/lib/store/game.store'
 import { useIsMobile } from '@/lib/hooks/useIsMobile'
 import { useCountdown, formatCountdown } from '@/lib/hooks/useCountdown'
-import { useExtendClaimMutation } from '@/lib/query/claim.queries'
+import {
+  useExtendClaimMutation,
+  useReleaseClaimMutation,
+} from '@/lib/query/claim.queries'
 import {
   getPresignedUploadUrl,
   uploadFile,
@@ -69,6 +72,7 @@ export function UploadSheet({
   // can come back to it as long as they're still active in the app.
   const secondsLeft = useCountdown(tile && step !== 'done' ? (expiresAt ?? null) : null)
   const extendMutation = useExtendClaimMutation()
+  const releaseMutation = useReleaseClaimMutation()
 
   // While the QR is showing on the laptop, poll the backend for a raw photo
   // the phone might have uploaded. Once it arrives, pull it down locally and
@@ -128,6 +132,16 @@ export function UploadSheet({
   // the tile reserved for this session. The user can reopen the sheet by
   // tapping their tile in the grid (it shows the pencil icon).
   const handleClose = () => {
+    onClose()
+  }
+
+  // Explicit "give up" — releases the claim on the backend, drops it
+  // locally, and closes. Available from the choose + perspective steps.
+  const handleRelease = () => {
+    if (!tile) return
+    const tileId = tile.id
+    releaseMutation.mutate({ tileId, sessionId })
+    unclaimTile(tileId)
     onClose()
   }
 
@@ -227,9 +241,21 @@ export function UploadSheet({
             </button>
 
             <div className="mb-4">
-              <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
-                {t('upload.title')}
-              </p>
+              <div className="flex items-baseline justify-between">
+                <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
+                  {t('upload.title')}
+                </p>
+                {(step === 'choose' || step === 'perspective') && (
+                  <button
+                    type="button"
+                    onClick={handleRelease}
+                    disabled={releaseMutation.isPending}
+                    className="text-muted-foreground hover:text-foreground text-[10px] font-bold tracking-[0.15em] uppercase transition-colors disabled:opacity-30"
+                  >
+                    {t('upload.release')}
+                  </button>
+                )}
+              </div>
               <div className="mt-1 flex items-baseline justify-between">
                 <p className="text-foreground font-mono text-xl font-black">
                   {tile.row + 1},{tile.col + 1}
@@ -272,31 +298,6 @@ export function UploadSheet({
                 )}
             </div>
 
-            {step === 'choose' && !imageUrl && prompt && (
-              <div className="border-foreground/40 mb-3 border-2 border-dashed p-5 text-center">
-                <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
-                  Today&apos;s prompt
-                </p>
-                <p className="text-foreground mt-2 text-lg font-bold tracking-tight">
-                  “{prompt}”
-                </p>
-              </div>
-            )}
-
-            {/* Target tile sharp in the centre + blurry neighbours around it
-                so the user can match colours with adjacent drawings. */}
-            {step === 'choose' && (
-              <TileNeighborhood
-                imageUrl={imageUrl}
-                tiles={tiles}
-                gridColumns={gridColumns}
-                gridRows={gridRows}
-                row={tile.row}
-                col={tile.col}
-                className="mb-6 w-full"
-              />
-            )}
-
             <input
               ref={fileInputRef}
               type="file"
@@ -307,44 +308,68 @@ export function UploadSheet({
             />
 
             {step === 'choose' && (
-              <div className="space-y-4">
-                {isMobile ? (
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="bg-foreground text-background hover:bg-foreground/90 flex h-14 w-full items-center justify-center text-sm font-bold tracking-[0.2em] uppercase transition-all"
-                  >
-                    {t('upload.take_photo')}
-                  </button>
-                ) : (
-                  <>
-                    <div className="border-foreground flex flex-col items-center gap-3 border p-6">
+              <div className="space-y-4 md:grid md:grid-cols-[18rem_1fr] md:gap-6 md:space-y-0">
+                <div className="space-y-3">
+                  {!imageUrl && prompt && (
+                    <div className="border-foreground/40 border-2 border-dashed p-4 text-center">
                       <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
-                        {t('upload.scan_qr')}
+                        Today&apos;s prompt
                       </p>
-                      <div className="bg-background border-foreground border p-2">
-                        <QRCodeSVG value={uploadUrl} size={160} />
-                      </div>
-                      <p className="text-muted-foreground text-[10px] tracking-[0.15em] uppercase">
-                        {t('upload.scan_qr_hint')}
+                      <p className="text-foreground mt-2 text-base font-bold tracking-tight">
+                        “{prompt}”
                       </p>
                     </div>
+                  )}
+                  <TileNeighborhood
+                    imageUrl={imageUrl}
+                    tiles={tiles}
+                    gridColumns={gridColumns}
+                    gridRows={gridRows}
+                    row={tile.row}
+                    col={tile.col}
+                    className="mx-auto w-full max-w-[14rem] md:max-w-none"
+                  />
+                </div>
 
-                    <div className="flex items-center gap-3">
-                      <div className="bg-foreground/20 h-px flex-1" />
-                      <span className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
-                        {t('common.or')}
-                      </span>
-                      <div className="bg-foreground/20 h-px flex-1" />
-                    </div>
-
+                <div className="space-y-4">
+                  {isMobile ? (
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className="border-foreground text-foreground hover:bg-foreground hover:text-background flex h-14 w-full items-center justify-center border text-sm font-bold tracking-[0.2em] uppercase transition-all"
+                      className="bg-foreground text-background hover:bg-foreground/90 flex h-14 w-full items-center justify-center text-sm font-bold tracking-[0.2em] uppercase transition-all"
                     >
-                      {t('upload.choose_file')}
+                      {t('upload.take_photo')}
                     </button>
-                  </>
-                )}
+                  ) : (
+                    <>
+                      <div className="border-foreground flex flex-col items-center gap-3 border p-4">
+                        <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
+                          {t('upload.scan_qr')}
+                        </p>
+                        <div className="bg-background border-foreground border p-2">
+                          <QRCodeSVG value={uploadUrl} size={140} />
+                        </div>
+                        <p className="text-muted-foreground text-[10px] tracking-[0.15em] uppercase">
+                          {t('upload.scan_qr_hint')}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <div className="bg-foreground/20 h-px flex-1" />
+                        <span className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
+                          {t('common.or')}
+                        </span>
+                        <div className="bg-foreground/20 h-px flex-1" />
+                      </div>
+
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="border-foreground text-foreground hover:bg-foreground hover:text-background flex h-12 w-full items-center justify-center border text-sm font-bold tracking-[0.2em] uppercase transition-all"
+                      >
+                        {t('upload.choose_file')}
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             )}
 

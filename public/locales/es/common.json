@@ -79,7 +79,8 @@
     "uploading": "Subiendo...",
     "success": "¡Dibujo enviado!",
     "extend": "Necesito 2 minutos más",
-    "expired": "Tiempo agotado — casilla liberada"
+    "expired": "Tiempo agotado — casilla liberada",
+    "release": "Soltar casilla"
   },
   "crop": {
     "reference": "Referencia",

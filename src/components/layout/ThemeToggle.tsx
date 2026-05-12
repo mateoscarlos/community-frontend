@@ -19,10 +19,23 @@ export function ThemeToggle() {
   const isDark = mounted ? resolvedTheme === 'dark' : true
   const next = isDark ? 'light' : 'dark'
 
+  const handleToggle = () => {
+    // Cross-fade the whole document via the View Transitions API where
+    // supported (Chrome/Edge/Safari TP). Fallback is an instant swap.
+    const doc = document as Document & {
+      startViewTransition?: (cb: () => void) => unknown
+    }
+    if (typeof doc.startViewTransition === 'function') {
+      doc.startViewTransition(() => setTheme(next))
+    } else {
+      setTheme(next)
+    }
+  }
+
   return (
     <button
       type="button"
-      onClick={() => setTheme(next)}
+      onClick={handleToggle}
       aria-label={`Switch to ${next} mode`}
       className="border-foreground/40 hover:bg-foreground hover:text-background flex h-9 w-9 items-center justify-center border transition-colors"
     >

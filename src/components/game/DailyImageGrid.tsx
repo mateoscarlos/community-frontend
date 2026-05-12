@@ -423,6 +423,8 @@ function TileCell({
   return (
     <motion.button
       className={`relative border transition-colors focus:outline-none ${cursorClass} ${
+        clickable ? 'hover:bg-foreground/15' : ''
+      } ${
         isFree
           ? disabled
             ? 'border-foreground/10'
@@ -438,7 +440,6 @@ function TileCell({
       whileHover={
         clickable
           ? {
-              backgroundColor: 'rgba(255,255,255,0.15)',
               scale: 1.03,
               zIndex: 10,
               transition: { duration: 0.12 },

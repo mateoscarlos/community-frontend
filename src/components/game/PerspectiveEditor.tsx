@@ -254,14 +254,15 @@ export function PerspectiveEditor({
             {/* SVG outline of the quad. */}
             {pts && (
               <svg
-                className="pointer-events-none absolute inset-0 h-full w-full"
+                className="text-foreground pointer-events-none absolute inset-0 h-full w-full"
                 viewBox="0 0 100 100"
                 preserveAspectRatio="none"
               >
                 <polygon
                   points={pts.map((p) => `${p.x * 100},${p.y * 100}`).join(' ')}
-                  fill="rgba(255,255,255,0.08)"
-                  stroke="white"
+                  fill="currentColor"
+                  fillOpacity={0.08}
+                  stroke="currentColor"
                   strokeWidth="0.4"
                   vectorEffect="non-scaling-stroke"
                 />
@@ -276,7 +277,7 @@ export function PerspectiveEditor({
                       cx={mx}
                       cy={my}
                       r={0.6}
-                      fill="white"
+                      fill="currentColor"
                       vectorEffect="non-scaling-stroke"
                     />
                   )

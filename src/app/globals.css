@@ -196,6 +196,15 @@
     background: var(--foreground);
     color: var(--background);
   }
+
+  /* Theme cross-fade. ThemeToggle wraps setTheme in startViewTransition,
+     which paints the old + new theme on stacked pseudo-elements; we just
+     slow the default fade so the swap doesn't feel like a flicker. */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 320ms;
+    animation-timing-function: ease;
+  }
 }
 
 /* ─── Custom Cursors ─────────────────────────────────────────────────────── */

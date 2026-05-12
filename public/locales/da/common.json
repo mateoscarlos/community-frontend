@@ -79,7 +79,8 @@
     "uploading": "Uploader...",
     "success": "Tegning indsendt!",
     "extend": "Jeg har brug for 2 minutter til",
-    "expired": "Tiden er gået — feltet er frigivet"
+    "expired": "Tiden er gået — feltet er frigivet",
+    "release": "Frigiv felt"
   },
   "crop": {
     "reference": "Reference",

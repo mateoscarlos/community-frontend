@@ -79,7 +79,8 @@
     "uploading": "Uploading...",
     "success": "Drawing submitted!",
     "extend": "Need 2 more minutes",
-    "expired": "Time's up — claim released"
+    "expired": "Time's up — claim released",
+    "release": "Release tile"
   },
   "crop": {
     "reference": "Reference",
