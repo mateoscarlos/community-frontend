@@ -3,16 +3,12 @@
 import { Suspense, useState, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import type { Area } from 'react-easy-crop'
-import { getPresignedUploadUrl, uploadFile, submitTile } from '@/lib/api/submission'
+import { getStagePresignedUrl, uploadFile } from '@/lib/api/submission'
 import { fetchCurrentPeriod } from '@/lib/api/period'
 import type { GameType } from '@/types/api'
 import { TileNeighborhood } from '@/components/game/TileNeighborhood'
-import { CropEditor } from '@/components/game/CropEditor'
-import { PerspectiveEditor } from '@/components/game/PerspectiveEditor'
-import { cropImageToBlob } from '@/lib/cropImage'
 
-type Step = 'ready' | 'perspective' | 'cropping' | 'uploading' | 'done' | 'error'
+type Step = 'ready' | 'uploading' | 'done' | 'error'
 
 export default function UploadPage() {
   return (
@@ -29,11 +25,10 @@ function UploadView() {
   const gameType: GameType = searchParams.get('game') === 'prompt' ? 'prompt' : 'photo'
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [step, setStep] = useState<Step>('ready')
-  const [preview, setPreview] = useState<string | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
-  // Fetch the current period so we can show the user the exact tile crop
-  // they're meant to draw — without it the QR target was a black box.
+  // Fetch the current period so we can render the same neighbourhood preview
+  // the laptop is showing — without it the phone target was a black box.
   const { data: period } = useQuery({
     queryKey: ['period', 'current', 'upload-page', gameType],
     queryFn: () => fetchCurrentPeriod(gameType),
@@ -61,45 +56,15 @@ function UploadView() {
     )
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (preview) URL.revokeObjectURL(preview)
-    const objectUrl = URL.createObjectURL(file)
-    setPreview(objectUrl)
-    setErrorMsg(null)
-    setStep('perspective')
-  }
-
-  const handlePerspectiveApplied = (blob: Blob) => {
-    if (preview) URL.revokeObjectURL(preview)
-    setPreview(URL.createObjectURL(blob))
-    setStep('cropping')
-  }
-
-  const handleCancelCrop = () => {
-    if (preview) URL.revokeObjectURL(preview)
-    setPreview(null)
-    setStep('ready')
-  }
-
-  const handleConfirmCrop = async (area: Area) => {
-    if (!preview || !tileId || !sessionId) return
+    e.target.value = ''
     setStep('uploading')
     setErrorMsg(null)
     try {
-      const blob = await cropImageToBlob(preview, area)
-      const presign = await getPresignedUploadUrl({
-        tile_id: tileId,
-        session_id: sessionId,
-        content_type: 'image/jpeg',
-      })
-      await uploadFile(presign.upload_url, blob)
-      await submitTile(tileId, {
-        session_id: sessionId,
-        storage_key: presign.storage_key,
-        crop: { x: 0, y: 0, width: 1, height: 1 },
-      })
+      const presign = await getStagePresignedUrl(tileId, sessionId)
+      await uploadFile(presign.upload_url, file)
       setStep('done')
     } catch (err) {
       setStep('error')
@@ -108,8 +73,6 @@ function UploadView() {
   }
 
   const handleRetry = () => {
-    if (preview) URL.revokeObjectURL(preview)
-    setPreview(null)
     setErrorMsg(null)
     setStep('ready')
     setTimeout(() => fileInputRef.current?.click(), 100)
@@ -154,7 +117,7 @@ function UploadView() {
           )}
 
           <p className="text-muted-foreground px-4 text-center text-[11px] tracking-[0.15em] uppercase">
-            Draw this on paper, then take a photo of your drawing.
+            Take a photo of your drawing — you&apos;ll finish editing on your laptop.
           </p>
 
           <button
@@ -166,71 +129,26 @@ function UploadView() {
         </div>
       )}
 
-      {step === 'perspective' && preview && tile && (
-        <div className="w-full max-w-md">
-          <PerspectiveEditor
-            imageSrc={preview}
-            imageUrl={imageUrl}
-            gridColumns={gridColumns}
-            gridRows={gridRows}
-            row={tile.row}
-            col={tile.col}
-            tiles={tiles}
-            onCancel={handleCancelCrop}
-            onSkip={() => setStep('cropping')}
-            onConfirm={handlePerspectiveApplied}
-          />
-        </div>
-      )}
-
-      {step === 'cropping' && preview && tile && (
-        <div className="w-full max-w-md">
-          <CropEditor
-            imageSrc={preview}
-            imageUrl={imageUrl}
-            gridColumns={gridColumns}
-            gridRows={gridRows}
-            row={tile.row}
-            col={tile.col}
-            tiles={tiles}
-            onCancel={handleCancelCrop}
-            onConfirm={handleConfirmCrop}
-          />
-        </div>
-      )}
-
       {step === 'uploading' && (
         <div className="flex w-full max-w-md flex-col items-center gap-6">
-          {preview && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={preview}
-              alt=""
-              className="border-foreground aspect-square w-full border object-cover"
-            />
-          )}
           <p className="text-foreground text-xs font-bold tracking-[0.2em] uppercase">
-            Uploading...
+            Sending...
           </p>
         </div>
       )}
 
       {step === 'done' && (
-        <div className="flex w-full max-w-md flex-col items-center gap-6">
-          {preview && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={preview}
-              alt=""
-              className="border-foreground aspect-square w-full border-2 object-cover"
-            />
-          )}
-          <p className="text-foreground text-xs font-bold tracking-[0.2em] uppercase">
-            ✓ Submitted
+        <div className="flex w-full max-w-md flex-col items-center gap-4 text-center">
+          <p className="text-foreground text-xl font-black tracking-tight">✓ Sent</p>
+          <p className="text-muted-foreground text-[11px] tracking-[0.15em] uppercase">
+            Return to your laptop to finish editing.
           </p>
-          <p className="text-muted-foreground text-[10px] tracking-[0.15em] uppercase">
-            You can close this tab
-          </p>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="border-foreground text-foreground hover:bg-foreground hover:text-background mt-2 flex h-12 w-full items-center justify-center border text-[11px] font-bold tracking-[0.15em] uppercase transition-all"
+          >
+            Retake Photo
+          </button>
         </div>
       )}
 

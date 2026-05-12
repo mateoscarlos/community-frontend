@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
@@ -11,7 +11,13 @@ import { useGameStore } from '@/lib/store/game.store'
 import { useIsMobile } from '@/lib/hooks/useIsMobile'
 import { useCountdown, formatCountdown } from '@/lib/hooks/useCountdown'
 import { useExtendClaimMutation } from '@/lib/query/claim.queries'
-import { getPresignedUploadUrl, uploadFile, submitTile } from '@/lib/api/submission'
+import {
+  getPresignedUploadUrl,
+  uploadFile,
+  submitTile,
+  pollStagedUpload,
+  fetchStagedAsObjectUrl,
+} from '@/lib/api/submission'
 import { TileNeighborhood } from '@/components/game/TileNeighborhood'
 import { CropEditor } from '@/components/game/CropEditor'
 import { PerspectiveEditor } from '@/components/game/PerspectiveEditor'
@@ -66,6 +72,47 @@ export function UploadSheet({
   // can come back to it as long as they're still active in the app.
   const secondsLeft = useCountdown(tile && step !== 'done' ? (expiresAt ?? null) : null)
   const extendMutation = useExtendClaimMutation()
+
+  // While the QR is showing on the laptop, poll the backend for a raw photo
+  // the phone might have uploaded. Once it arrives, pull it down locally and
+  // hand it to the perspective editor so the rest of the flow runs on the
+  // big screen.
+  const tileId = tile?.id ?? null
+  const pollEnabled = !!tileId && !isMobile && step === 'choose'
+  useEffect(() => {
+    if (!pollEnabled || !tileId) return
+    let cancelled = false
+    let timer: ReturnType<typeof setTimeout> | undefined
+
+    const tick = async () => {
+      try {
+        const url = await pollStagedUpload(tileId, sessionId)
+        if (cancelled) return
+        if (url) {
+          const objectUrl = await fetchStagedAsObjectUrl(url)
+          if (cancelled) {
+            URL.revokeObjectURL(objectUrl)
+            return
+          }
+          setPreview((prev) => {
+            if (prev) URL.revokeObjectURL(prev)
+            return objectUrl
+          })
+          setStep('perspective')
+          return
+        }
+      } catch {
+        // Transient failures are fine — we'll try again on the next tick.
+      }
+      if (!cancelled) timer = setTimeout(tick, 2000)
+    }
+
+    tick()
+    return () => {
+      cancelled = true
+      if (timer) clearTimeout(timer)
+    }
+  }, [pollEnabled, tileId, sessionId])
 
   if (!tile) return null
 
