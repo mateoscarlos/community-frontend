@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { UploadSheet } from '@/components/game/UploadSheet'
 import { PreviewSheet } from '@/components/game/PreviewSheet'
 import { IdlePrompt } from '@/components/game/IdlePrompt'
+import { CanvasZoom } from '@/components/game/CanvasZoom'
 import {
   useClaimTileMutation,
   isClaimConflict,
@@ -178,7 +179,7 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-xl flex-col">
+    <div className="mx-auto flex w-full max-w-xl flex-col md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
       {/* Header strip */}
       <div className="border-foreground flex items-end justify-between gap-4 border-b px-6 py-5">
         <div>
@@ -268,45 +269,47 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
             </motion.div>
           )}
 
-          {imageUrl && (
-            <motion.img
-              key={imageUrl}
-              ref={setImgRef}
-              src={imageUrl}
-              alt={t('game.today')}
-              className="absolute inset-0 h-full w-full object-cover"
-              onLoad={() => setImageReady(true)}
-              animate={{ opacity: imageLoaded ? 1 : 0 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-              draggable={false}
-            />
-          )}
-
-          <AnimatePresence>
-            {imageLoaded && (
-              <motion.div
-                key="grid"
-                className="absolute inset-0 grid"
-                style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
-                variants={gridVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                {tiles.map((tile) => (
-                  <TileCell
-                    key={tile.id}
-                    tile={tile}
-                    isMine={myTileIds.has(tile.id)}
-                    disabled={
-                      tile.status === 'free' &&
-                      (hasActiveClaim || claimMutation.isPending)
-                    }
-                    onClick={() => handleTileClick(tile)}
-                  />
-                ))}
-              </motion.div>
+          <CanvasZoom>
+            {imageUrl && (
+              <motion.img
+                key={imageUrl}
+                ref={setImgRef}
+                src={imageUrl}
+                alt={t('game.today')}
+                className="absolute inset-0 h-full w-full object-cover"
+                onLoad={() => setImageReady(true)}
+                animate={{ opacity: imageLoaded ? 1 : 0 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+                draggable={false}
+              />
             )}
-          </AnimatePresence>
+
+            <AnimatePresence>
+              {imageLoaded && (
+                <motion.div
+                  key="grid"
+                  className="absolute inset-0 grid"
+                  style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+                  variants={gridVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  {tiles.map((tile) => (
+                    <TileCell
+                      key={tile.id}
+                      tile={tile}
+                      isMine={myTileIds.has(tile.id)}
+                      disabled={
+                        tile.status === 'free' &&
+                        (hasActiveClaim || claimMutation.isPending)
+                      }
+                      onClick={() => handleTileClick(tile)}
+                    />
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </CanvasZoom>
         </div>
       </div>
 
