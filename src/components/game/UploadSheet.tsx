@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { X, Clock } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
-import type { Area } from 'react-easy-crop'
 import { useGameStore } from '@/lib/store/game.store'
 import { useIsMobile } from '@/lib/hooks/useIsMobile'
 import { useCountdown, formatCountdown } from '@/lib/hooks/useCountdown'
@@ -19,9 +18,7 @@ import {
   fetchStagedAsObjectUrl,
 } from '@/lib/api/submission'
 import { TileNeighborhood } from '@/components/game/TileNeighborhood'
-import { CropEditor } from '@/components/game/CropEditor'
 import { PerspectiveEditor } from '@/components/game/PerspectiveEditor'
-import { cropImageToBlob } from '@/lib/cropImage'
 import type { TileResponse } from '@/types/api'
 
 interface UploadSheetProps {
@@ -40,7 +37,7 @@ interface UploadSheetProps {
   onSubmitted: () => void
 }
 
-type UploadStep = 'choose' | 'perspective' | 'cropping' | 'uploading' | 'done' | 'error'
+type UploadStep = 'choose' | 'perspective' | 'uploading' | 'done' | 'error'
 
 // Show the "give me 2 more minutes" button when the countdown drops below this.
 const EXTEND_THRESHOLD_SECONDS = 120
@@ -153,25 +150,22 @@ export function UploadSheet({
     setStep('perspective')
   }
 
-  const handlePerspectiveApplied = (blob: Blob) => {
-    if (preview) URL.revokeObjectURL(preview)
-    setPreview(URL.createObjectURL(blob))
-    setStep('cropping')
-  }
-
-  const handleCancelCrop = () => {
+  const handleCancelEditor = () => {
     if (preview) URL.revokeObjectURL(preview)
     setPreview(null)
     setStep('choose')
   }
 
-  const handleConfirmCrop = async (area: Area) => {
-    if (!preview) return
+  // The merged editor returns the final, warped JPEG blob — upload it
+  // directly without a separate crop step.
+  const handlePerspectiveApplied = async (blob: Blob) => {
+    if (preview) URL.revokeObjectURL(preview)
+    const previewUrl = URL.createObjectURL(blob)
+    setPreview(previewUrl)
     setStep('uploading')
     setErrorMsg(null)
 
     try {
-      const blob = await cropImageToBlob(preview, area)
       const presign = await getPresignedUploadUrl({
         tile_id: tile.id,
         session_id: sessionId,
@@ -240,22 +234,21 @@ export function UploadSheet({
                 <p className="text-foreground font-mono text-xl font-black">
                   {tile.row + 1},{tile.col + 1}
                 </p>
-                {(step === 'choose' || step === 'perspective' || step === 'cropping') &&
-                  expiresAt && (
-                    <div className="text-foreground flex items-center gap-1.5 font-mono text-sm font-bold tracking-tight">
-                      <Clock className="h-3.5 w-3.5" />
-                      <span
-                        className={
-                          secondsLeft <= EXTEND_THRESHOLD_SECONDS ? 'text-foreground' : ''
-                        }
-                      >
-                        {formatCountdown(secondsLeft)}
-                      </span>
-                    </div>
-                  )}
+                {(step === 'choose' || step === 'perspective') && expiresAt && (
+                  <div className="text-foreground flex items-center gap-1.5 font-mono text-sm font-bold tracking-tight">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span
+                      className={
+                        secondsLeft <= EXTEND_THRESHOLD_SECONDS ? 'text-foreground' : ''
+                      }
+                    >
+                      {formatCountdown(secondsLeft)}
+                    </span>
+                  </div>
+                )}
               </div>
 
-              {(step === 'choose' || step === 'perspective' || step === 'cropping') &&
+              {(step === 'choose' || step === 'perspective') &&
                 expiresAt &&
                 secondsLeft > 0 &&
                 secondsLeft <= EXTEND_THRESHOLD_SECONDS && (
@@ -268,7 +261,7 @@ export function UploadSheet({
                   </button>
                 )}
 
-              {(step === 'choose' || step === 'perspective' || step === 'cropping') &&
+              {(step === 'choose' || step === 'perspective') &&
                 expiresAt &&
                 secondsLeft === 0 && (
                   <div className="border-foreground mt-3 border border-dashed p-3 text-center">
@@ -364,23 +357,8 @@ export function UploadSheet({
                 row={tile.row}
                 col={tile.col}
                 tiles={tiles}
-                onCancel={handleCancelCrop}
-                onSkip={() => setStep('cropping')}
+                onCancel={handleCancelEditor}
                 onConfirm={handlePerspectiveApplied}
-              />
-            )}
-
-            {step === 'cropping' && preview && (
-              <CropEditor
-                imageSrc={preview}
-                imageUrl={imageUrl}
-                gridColumns={gridColumns}
-                gridRows={gridRows}
-                row={tile.row}
-                col={tile.col}
-                tiles={tiles}
-                onCancel={handleCancelCrop}
-                onConfirm={handleConfirmCrop}
               />
             )}
 
