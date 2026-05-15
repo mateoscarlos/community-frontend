@@ -1,11 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { Lock, Check, Pencil, Archive } from 'lucide-react'
+import { Lock, Check, Pencil } from 'lucide-react'
 import { useCurrentPeriodQuery } from '@/lib/query/period.queries'
 import { useTileEvents } from '@/lib/hooks/useTileEvents'
 import { PhaseCompleteOverlay } from '@/components/game/PhaseCompleteOverlay'
@@ -15,6 +14,9 @@ import { UploadSheet } from '@/components/game/UploadSheet'
 import { PreviewSheet } from '@/components/game/PreviewSheet'
 import { IdlePrompt } from '@/components/game/IdlePrompt'
 import { CanvasZoom } from '@/components/game/CanvasZoom'
+import { GameTopTabs } from '@/components/game/GameTopTabs'
+import { DateTimeFooter } from '@/components/layout/DateTimeFooter'
+import { useLockBodyScroll } from '@/lib/hooks/useLockBodyScroll'
 import {
   useClaimTileMutation,
   isClaimConflict,
@@ -39,7 +41,8 @@ const gridVariants = {
 }
 
 export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGridProps) {
-  const { t, i18n } = useTranslation()
+  useLockBodyScroll()
+  const { t } = useTranslation()
   const params = useParams()
   const locale = (params?.locale as string) ?? 'en'
   const { data, isLoading, isError, refetch } = useCurrentPeriodQuery(
@@ -135,11 +138,6 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
   // sidestepping a setState-in-effect lint violation.
   const imageLoaded = isPromptGame || imageReady
 
-  const today = new Date().toLocaleDateString(i18n.language, {
-    month: 'long',
-    day: 'numeric',
-  })
-
   const handleTileClick = (tile: TileResponse) => {
     // Already-mine tile → straight to upload sheet (resume drawing).
     if (myTileIds.has(tile.id) && tile.status === 'locked') {
@@ -179,58 +177,32 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-xl flex-col md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
-      {/* Header strip */}
-      <div className="border-foreground flex items-end justify-between gap-4 border-b px-6 py-5">
-        <div>
-          <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
-            {t('game.today')}
-          </p>
-          <p className="text-foreground mt-1 text-2xl font-black tracking-tight">
-            {today}
-          </p>
-        </div>
-        <div className="flex items-end gap-3">
-          {totalTiles > 0 && (
-            <div className="text-right">
-              <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
-                Drawn
-              </p>
-              <p className="text-foreground mt-1 font-mono text-2xl font-black tracking-tight">
-                {drawnCount}/{totalTiles}
-              </p>
-            </div>
+    <div className="bg-background flex h-svh flex-col items-center overflow-hidden px-4 pb-3 sm:px-6 sm:pb-8">
+      <GameTopTabs locale={locale} gameType={gameType} />
+
+      <div className="flex w-full max-w-md flex-1 flex-col items-center sm:max-w-lg">
+        <div className="mt-4 mb-3 text-center sm:mt-8 sm:mb-6">
+          {isPromptGame && promptText && (
+            <h1
+              className="text-foreground text-3xl leading-tight sm:text-4xl"
+              style={{ fontFamily: 'var(--font-handwritten)' }}
+            >
+              {promptText}
+            </h1>
           )}
-          <Link
-            href={`/${locale}/archive?game=${gameType}`}
-            aria-label={t('nav.archive')}
-            className="border-foreground text-foreground hover:bg-foreground hover:text-background flex h-10 shrink-0 items-center gap-2 border px-3 transition-colors"
-          >
-            <Archive className="h-3.5 w-3.5" strokeWidth={2} />
-            <span className="text-[10px] font-bold tracking-[0.2em] uppercase">
-              {t('nav.archive')}
-            </span>
-          </Link>
+          {totalTiles > 0 && (
+            <p
+              className="text-foreground/90 mt-2 text-lg sm:text-xl"
+              style={{ fontFamily: 'var(--font-handwritten)' }}
+            >
+              {drawnCount}/{totalTiles} {t('game.complete')}
+            </p>
+          )}
         </div>
-      </div>
 
-      {/* Prompt callout — only for the prompt game. */}
-      {isPromptGame && promptText && (
-        <div className="border-foreground/40 mx-6 mt-6 border-2 border-dashed p-5 text-center">
-          <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
-            Today&apos;s prompt
-          </p>
-          <p className="text-foreground mt-2 text-xl font-bold tracking-tight">
-            “{promptText}”
-          </p>
-        </div>
-      )}
-
-      {/* Image + grid */}
-      <div className="px-6 pt-6">
         <div
-          className={`border-foreground relative aspect-square w-full overflow-hidden border ${
-            isPromptGame ? 'bg-background' : ''
+          className={`relative aspect-square w-full overflow-hidden ${
+            isPromptGame ? '' : 'border-foreground border'
           }`}
         >
           <AnimatePresence>
@@ -278,7 +250,7 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
                 key={imageUrl}
                 ref={setImgRef}
                 src={imageUrl}
-                alt={t('game.today')}
+                alt={t('nav.game')}
                 className="absolute inset-0 h-full w-full object-cover"
                 onLoad={() => setImageReady(true)}
                 animate={{ opacity: imageLoaded ? 1 : 0 }}
@@ -291,7 +263,7 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
               {imageLoaded && (
                 <motion.div
                   key="grid"
-                  className="absolute inset-0 grid"
+                  className={`absolute inset-0 grid ${isPromptGame ? 'gap-1' : ''}`}
                   style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
                   variants={gridVariants}
                   initial="hidden"
@@ -302,6 +274,7 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
                       key={tile.id}
                       tile={tile}
                       isMine={myTileIds.has(tile.id)}
+                      isPromptGame={isPromptGame}
                       disabled={
                         tile.status === 'free' &&
                         (hasActiveClaim || claimMutation.isPending)
@@ -314,21 +287,25 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
             </AnimatePresence>
           </CanvasZoom>
         </div>
+
+        <AnimatePresence>
+          {imageLoaded && (
+            <motion.p
+              className="text-muted-foreground mt-3 text-center text-base leading-none tracking-wide uppercase sm:mt-6 sm:text-xl"
+              style={{ fontFamily: 'var(--font-handwritten)' }}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.4 }}
+            >
+              {t('game.claim_tile')}
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* Hint */}
-      <AnimatePresence>
-        {imageLoaded && (
-          <motion.p
-            className="text-muted-foreground px-6 pt-4 text-center text-[10px] font-bold tracking-[0.2em] uppercase"
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.4 }}
-          >
-            {t('game.claim_tile')}
-          </motion.p>
-        )}
-      </AnimatePresence>
+      <div className="pt-3 sm:pt-8">
+        <DateTimeFooter locale={locale} />
+      </div>
 
       <AnimatePresence>
         {claimError && (
@@ -374,6 +351,7 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
         imageUrl={imageUrl}
         gridColumns={cols}
         gridRows={rows}
+        gameType={gameType}
         claiming={claimMutation.isPending}
         blocked={hasActiveClaim && !myTileIds.has(previewTile?.id ?? '')}
         onClose={() => setPreviewTile(null)}
@@ -400,11 +378,13 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
 function TileCell({
   tile,
   isMine,
+  isPromptGame,
   disabled = false,
   onClick,
 }: {
   tile: TileResponse
   isMine: boolean
+  isPromptGame: boolean
   disabled?: boolean
   onClick: () => void
 }) {
@@ -423,20 +403,37 @@ function TileCell({
         ? 'cur-lock'
         : ''
 
+  // Prompt mode has no source photo, so every undrawn tile is paper-gray.
+  // Photo mode lets the reference image show through unfilled tiles and only
+  // dims them once they're locked or claimed.
+  let baseBg = ''
+  if (!isDrawn) {
+    if (isPromptGame) baseBg = 'bg-zinc-300'
+    else if (isMine && isLocked) baseBg = 'bg-foreground/20'
+    else if (isLocked) baseBg = 'bg-background/40'
+  }
+
+  const borderClass = isPromptGame
+    ? isMine && isLocked
+      ? 'ring-2 ring-foreground'
+      : ''
+    : isFree
+      ? disabled
+        ? 'border-foreground/10 border'
+        : 'border-foreground/20 border'
+      : isMine && isLocked
+        ? 'border-foreground border-2'
+        : isLocked
+          ? 'border-foreground/40 border'
+          : 'border-foreground/30 border'
+
+  const iconColor = isPromptGame ? 'text-zinc-700' : 'text-foreground'
+  const lockColor = isPromptGame ? 'text-zinc-600' : 'text-foreground/80'
+
   return (
     <motion.button
-      className={`relative border transition-colors focus:outline-none ${cursorClass} ${
-        clickable ? 'hover:bg-foreground/15' : ''
-      } ${
-        isFree
-          ? disabled
-            ? 'border-foreground/10'
-            : 'border-foreground/20'
-          : isMine && isLocked
-            ? 'border-foreground border-2'
-            : isLocked
-              ? 'border-foreground/40'
-              : 'border-foreground/30'
+      className={`relative overflow-hidden transition-colors focus:outline-none ${baseBg} ${borderClass} ${cursorClass} ${
+        clickable ? (isPromptGame ? 'hover:brightness-95' : 'hover:bg-foreground/15') : ''
       }`}
       variants={tileVariants}
       transition={{ type: 'spring', stiffness: 300, damping: 22 }}
@@ -456,21 +453,21 @@ function TileCell({
     >
       {isMine && isLocked && (
         <motion.div
-          className="bg-foreground/20 absolute inset-0 flex items-center justify-center"
+          className="absolute inset-0 flex items-center justify-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <Pencil className="text-foreground h-4 w-4 drop-shadow-md" />
+          <Pencil className={`h-4 w-4 drop-shadow-md ${iconColor}`} />
         </motion.div>
       )}
 
       {isLocked && !isMine && (
         <motion.div
-          className="bg-background/40 absolute inset-0 flex items-center justify-center"
+          className="absolute inset-0 flex items-center justify-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <Lock className="text-foreground/80 h-3 w-3 drop-shadow-md" />
+          <Lock className={`h-3 w-3 drop-shadow-md ${lockColor}`} />
         </motion.div>
       )}
 
@@ -488,7 +485,7 @@ function TileCell({
               draggable={false}
             />
           ) : (
-            <Check className="text-foreground/70 h-3 w-3 drop-shadow-md" />
+            <Check className={`h-3 w-3 drop-shadow-md ${iconColor}`} />
           )}
         </motion.div>
       )}

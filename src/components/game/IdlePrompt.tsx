@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { SketchyBox } from '@/components/ui/SketchyBox'
 
 interface IdlePromptProps {
   open: boolean
@@ -13,13 +14,9 @@ interface IdlePromptProps {
 }
 
 /**
- * Shown when no real interaction has been detected in a while. Gives the user
- * a brief window to confirm they're still working on their tile; if they
- * don't, the parent stops heartbeats and the backend sweeps the claim.
- *
- * The countdown lives in IdleContent which only mounts while open is true —
- * keeps the new react-hooks rules happy (no synchronous setState inside the
- * effect body; refs/Date.now never read during render).
+ * Friendly nudge when the user has been inactive — gives them a chance to
+ * keep their claim instead of silently losing it. Mounting `IdleContent` only
+ * while open keeps timers from running in the background.
  */
 export function IdlePrompt({
   open,
@@ -69,36 +66,102 @@ function IdleContent({
   const secondsLeft = Math.max(0, Math.ceil((graceMs - (now - startedAt)) / 1000))
 
   return (
-    <>
+    <div className="fixed inset-0 z-[60]">
       <motion.div
-        className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm"
+        className="absolute inset-0"
+        style={{
+          background: 'rgba(0, 0, 0, 0.7)',
+          backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
+        }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        transition={{ duration: 0.18 }}
+        aria-hidden="true"
       />
-      <motion.div
-        role="alertdialog"
-        aria-live="assertive"
-        className="border-foreground bg-background fixed inset-x-6 top-1/2 z-[60] mx-auto max-w-sm -translate-y-1/2 border-2 px-6 pt-6 pb-6"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        transition={{ type: 'spring', damping: 22, stiffness: 280 }}
-      >
-        <p className="text-foreground text-center text-lg font-black tracking-tight uppercase">
-          {t('idle.title')}
-        </p>
-        <p className="text-muted-foreground mt-3 text-center text-[11px] tracking-[0.15em] uppercase">
-          {t('idle.body', { count: secondsLeft })}
-        </p>
-        <button
-          autoFocus
-          onClick={onStillHere}
-          className="bg-foreground text-background hover:bg-foreground/90 mt-6 flex h-14 w-full items-center justify-center text-sm font-bold tracking-[0.2em] uppercase transition-all"
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-4">
+        <motion.div
+          role="alertdialog"
+          aria-live="polite"
+          className="pointer-events-auto relative w-full max-w-md"
+          style={{
+            background: '#e6e6e6',
+            color: '#111',
+            boxShadow:
+              '0 30px 60px -20px rgba(0,0,0,0.7), 0 18px 36px -18px rgba(0,0,0,0.45)',
+          }}
+          initial={{ opacity: 0, scale: 0.92, y: -10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.96, y: 8 }}
+          transition={{ type: 'spring', damping: 22, stiffness: 280 }}
         >
-          {t('idle.still_here')}
-        </button>
-      </motion.div>
-    </>
+          <div className="flex flex-col items-center gap-5 px-6 pt-8 pb-7 text-center sm:px-10 sm:pt-10 sm:pb-9">
+            <WavingHand />
+            <h2
+              className="text-3xl leading-none sm:text-4xl"
+              style={{ fontFamily: 'var(--font-handwritten)' }}
+            >
+              {t('idle.title')}
+            </h2>
+            <p className="text-[15px] leading-relaxed text-zinc-700 sm:text-base">
+              {t('idle.body', { count: secondsLeft })}
+            </p>
+            <StillHereButton onClick={onStillHere} label={t('idle.still_here')} />
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  )
+}
+
+function WavingHand() {
+  // Hand-drawn waving hand to soften the prompt — gentle wave on a loop so
+  // it reads as a friendly check-in rather than a warning.
+  return (
+    <motion.svg
+      viewBox="0 0 48 48"
+      className="h-12 w-12 text-zinc-800"
+      aria-hidden="true"
+      initial={{ rotate: -12 }}
+      animate={{ rotate: [-12, 14, -12] }}
+      transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+      style={{ transformOrigin: '50% 80%' }}
+    >
+      <path
+        d="M 18 8 C 16 8, 15 10, 16 12 L 20 22 L 18 22 C 16 22, 14 22, 13 24 L 12 27 C 11 30, 12 34, 16 38 C 20 42, 28 42, 32 38 C 36 34, 36 28, 34 24 L 30 16 C 29 14, 27 14, 26 15 L 28 19 L 23 9 C 22 7, 20 7, 19 8 Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M 36 8 L 40 6 M 38 14 L 43 14 M 36 20 L 40 22"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </motion.svg>
+  )
+}
+
+function StillHereButton({ onClick, label }: { onClick: () => void; label: string }) {
+  return (
+    <button
+      type="button"
+      autoFocus
+      onClick={onClick}
+      className="relative inline-flex h-14 w-40 items-center justify-center text-zinc-900 sm:h-16 sm:w-48"
+    >
+      <SketchyBox variant={3} />
+      <span
+        className="relative z-10 text-2xl leading-none sm:text-3xl"
+        style={{ fontFamily: 'var(--font-handwritten)' }}
+      >
+        {label}
+      </span>
+    </button>
   )
 }

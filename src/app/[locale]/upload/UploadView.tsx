@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { getStagePresignedUrl, uploadFile } from '@/lib/api/submission'
 import { fetchCurrentPeriod } from '@/lib/api/period'
+import { normalizeImageFile } from '@/lib/image'
 import type { GameType } from '@/types/api'
 import { TileNeighborhood } from '@/components/game/TileNeighborhood'
 
@@ -55,8 +56,9 @@ export function UploadView() {
     setStep('uploading')
     setErrorMsg(null)
     try {
+      const normalized = await normalizeImageFile(file)
       const presign = await getStagePresignedUrl(tileId, sessionId)
-      await uploadFile(presign.upload_url, file)
+      await uploadFile(presign.upload_url, normalized)
       setStep('done')
     } catch (err) {
       setStep('error')
@@ -75,7 +77,7 @@ export function UploadView() {
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,image/heic,image/heif,.heic,.heif"
         capture="environment"
         onChange={handleFileChange}
         className="hidden"

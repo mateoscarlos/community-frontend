@@ -1,5 +1,4 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 
 interface LayoutState {
   sidebarCollapsed: boolean
@@ -7,13 +6,10 @@ interface LayoutState {
   setSidebarCollapsed: (collapsed: boolean) => void
 }
 
-export const useLayoutStore = create<LayoutState>()(
-  persist(
-    (set) => ({
-      sidebarCollapsed: false,
-      toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
-      setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
-    }),
-    { name: 'community-layout' }
-  )
-)
+// No persistence: the sidebar starts hidden on every page load. Users open it
+// for a session via the floating toggle and it auto-collapses next visit.
+export const useLayoutStore = create<LayoutState>()((set) => ({
+  sidebarCollapsed: true,
+  toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
+  setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
+}))

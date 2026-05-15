@@ -4,7 +4,14 @@
     "blog": "Blog",
     "game": "Spil",
     "archive": "Museum",
-    "feedback": "Feedback"
+    "feedback": "Feedback",
+    "info": "Info",
+    "settings": "Indstillinger"
+  },
+  "info": {
+    "p1": "Community er der, hvor verden tegner sammen. Lærredet er delt op i felter, og det eneste, du skal gøre, er at tage et felt, gribe en pen og tegne din del ud fra en fælles idé, der skifter hver 24. time. Når alle felterne er fyldt ud, vokser lærredet — der er altid plads til mere. Husk dog: ét felt pr. lærred, så få det meste ud af dit.",
+    "p2": "I bund og grund handler Community om at lave kunst sammen — på den gammeldags måde. Ingen digitale værktøjer, ingen AI. Bare papir, en pen og dig. Et globalt galleri bygget én lille tegning ad gangen.",
+    "close": "Luk"
   },
   "health": {
     "title": "Systemstatus",
@@ -28,8 +35,10 @@
   },
   "landing": {
     "title": "Community",
-    "description": "Hver dag, et nyt billede. Fællesskabet tegner det sammen — felt for felt. Tag et felt, tegn din del, og se mesterværket tage form.",
+    "description": "Tag et stykke papir og noget at tegne med — en kuglepen, blyant, farveblyant, hvad du end har. Her samarbejder du med folk fra hele verden om at lave én tegning sammen. Klar? Lad os lave noget fantastisk.",
     "play": "Spil",
+    "mode_picture": "Billede",
+    "mode_prompt": "Idé",
     "play_photo": "Foto-spil",
     "play_photo_sub": "kopiér et dagligt billede",
     "play_prompt": "Idé-spil",
@@ -52,7 +61,8 @@
     "legend_free": "Ledig",
     "legend_locked": "Taget",
     "legend_yours": "Dit",
-    "legend_drawn": "Færdig"
+    "legend_drawn": "Færdig",
+    "complete": "færdige"
   },
   "claim": {
     "conflict": "Nogen tog lige dette felt!",
@@ -61,13 +71,14 @@
   "preview": {
     "title": "Forhåndsvisning",
     "ttl": "10 min til at tegne efter du tager feltet",
+    "intro": "Du har 10 minutter til at tegne din del — find papir og pen frem, og lad os komme i gang.",
     "claim": "Tag felt",
     "blocked": "Færdiggør dit nuværende felt først"
   },
   "idle": {
-    "title": "Er du der stadig?",
-    "body": "Tryk nedenfor eller dit felt frigives om {{count}}s",
-    "still_here": "Jeg er her"
+    "title": "Tegner du stadig?",
+    "body": "Tryk for at beholde dit felt — ellers frigives det om {{count}}s.",
+    "still_here": "Ja!"
   },
   "upload": {
     "title": "Upload din tegning",
@@ -80,7 +91,16 @@
     "success": "Tegning indsendt!",
     "extend": "Jeg har brug for 2 minutter til",
     "expired": "Tiden er gået — feltet er frigivet",
-    "release": "Frigiv felt"
+    "release": "Frigiv felt",
+    "time_left": "Tid tilbage",
+    "work_in_progress": "I gang…",
+    "done": "Færdig",
+    "cancel": "Annuller",
+    "upload": "Upload",
+    "confirm_release_title": "Frigiv dette felt?",
+    "confirm_release_body": "Pladsen ryger tilbage i puljen, og en anden kan tage den.",
+    "confirm_release_yes": "Ja, frigiv",
+    "confirm_release_no": "Bliv ved at tegne"
   },
   "crop": {
     "reference": "Reference",

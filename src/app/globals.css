@@ -141,6 +141,7 @@
 
   --font-sans: var(--font-geist-sans), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), monospace;
+  --font-handwritten: var(--font-handwritten), 'Comic Sans MS', cursive;
 
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
@@ -191,6 +192,21 @@
     cursor:
       url('/cursors/default.svg') 2 2,
       default;
+  }
+  /* Tailwind v4 dropped the v3 preflight that set `cursor: pointer` on
+     buttons, so the body's custom cursor is inherited and clickables don't
+     feel clickable. Restore the affordance for interactive controls. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  a[href],
+  summary {
+    cursor:
+      url('/cursors/click.svg') 8 2,
+      pointer;
+  }
+  button:disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
   }
   ::selection {
     background: var(--foreground);

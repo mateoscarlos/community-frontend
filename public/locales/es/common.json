@@ -4,7 +4,14 @@
     "blog": "Blog",
     "game": "Jugar",
     "archive": "Museo",
-    "feedback": "Comentarios"
+    "feedback": "Comentarios",
+    "info": "Info",
+    "settings": "Ajustes"
+  },
+  "info": {
+    "p1": "Community es donde el mundo dibuja en común. El lienzo se divide en casillas y solo tienes que reclamar una, coger un boli y dibujar tu parte a partir de una idea compartida que cambia cada 24 horas. Cuando se rellenan todas las casillas, el lienzo se amplía — siempre hay sitio para más. Eso sí, recuerda: una casilla por lienzo, así que aprovecha la tuya.",
+    "p2": "En el fondo, Community va de hacer arte juntos a la vieja usanza. Sin herramientas digitales, sin IA. Solo papel, un boli y tú. Una galería global construida dibujo a dibujo.",
+    "close": "Cerrar"
   },
   "health": {
     "title": "Estado del sistema",
@@ -28,8 +35,10 @@
   },
   "landing": {
     "title": "Community",
-    "description": "Cada día, una nueva imagen. La comunidad la dibuja en equipo — casilla a casilla. Reclama una casilla, dibuja tu parte y mira cómo cobra forma la obra.",
+    "description": "Coge un papel y algo para dibujar — un boli, un lápiz, una cera, lo que tengas a mano. Aquí harás equipo con gente de todo el mundo para crear un dibujo juntos. ¿Listo? Vamos a hacer algo increíble.",
     "play": "Jugar",
+    "mode_picture": "Imagen",
+    "mode_prompt": "Idea",
     "play_photo": "Modo foto",
     "play_photo_sub": "copia una foto diaria",
     "play_prompt": "Modo idea",
@@ -52,7 +61,8 @@
     "legend_free": "Libre",
     "legend_locked": "Reclamada",
     "legend_yours": "Tuya",
-    "legend_drawn": "Hecha"
+    "legend_drawn": "Hecha",
+    "complete": "completadas"
   },
   "claim": {
     "conflict": "¡Alguien acaba de reclamar esta casilla!",
@@ -61,13 +71,14 @@
   "preview": {
     "title": "Vista previa",
     "ttl": "10 min para dibujar al reclamar",
+    "intro": "Tienes 10 minutos para dibujar tu parte — coge papel y boli y a darle.",
     "claim": "Reclamar casilla",
     "blocked": "Termina primero tu casilla actual"
   },
   "idle": {
-    "title": "¿Sigues ahí?",
-    "body": "Toca abajo o tu casilla se liberará en {{count}}s",
-    "still_here": "Sigo aquí"
+    "title": "¿Sigues dibujando?",
+    "body": "Toca para mantener tu casilla — si no se liberará en {{count}}s.",
+    "still_here": "¡Sí!"
   },
   "upload": {
     "title": "Sube tu dibujo",
@@ -80,7 +91,16 @@
     "success": "¡Dibujo enviado!",
     "extend": "Necesito 2 minutos más",
     "expired": "Tiempo agotado — casilla liberada",
-    "release": "Soltar casilla"
+    "release": "Soltar casilla",
+    "time_left": "Tiempo restante",
+    "work_in_progress": "Trabajando…",
+    "done": "Listo",
+    "cancel": "Cancelar",
+    "upload": "Subir",
+    "confirm_release_title": "¿Soltar esta casilla?",
+    "confirm_release_body": "Volverá al pool y cualquiera podrá cogerla.",
+    "confirm_release_yes": "Sí, soltar",
+    "confirm_release_no": "Seguir dibujando"
   },
   "crop": {
     "reference": "Referencia",

@@ -94,28 +94,19 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile top bar */}
-      <header className="border-foreground bg-background sticky top-0 z-40 flex h-14 items-center justify-between border-b px-4 md:hidden">
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-label="Open navigation"
-          aria-expanded={open}
-          className="hover:bg-foreground/5 -ml-2 flex h-12 w-12 items-center justify-center transition-colors"
-        >
-          <Menu className="h-6 w-6" strokeWidth={2} />
-        </button>
-        <Link
-          href={`/${locale}`}
-          className="text-foreground text-sm font-black tracking-[0.2em] uppercase"
-        >
-          Community
-        </Link>
-        <div className="flex items-center gap-1">
-          <LanguageSwitcher />
-          <ThemeToggle />
-        </div>
-      </header>
+      {/* Mobile sidebar opener — small floating button so it doesn't reserve
+          layout space. The full mobile top bar has been retired now that we
+          have a back button on every non-home page; users who want the
+          sidebar tap this. */}
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="Open navigation"
+        aria-expanded={open}
+        className="border-foreground bg-background hover:bg-foreground hover:text-background fixed bottom-3 left-3 z-30 flex h-10 w-10 items-center justify-center border transition-colors md:hidden"
+      >
+        <Menu className="h-5 w-5" strokeWidth={2} />
+      </button>
 
       {/* Desktop sidebar — slides off-screen when collapsed. AppShell renders
           the re-open button so the user can bring it back. */}

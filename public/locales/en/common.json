@@ -4,7 +4,14 @@
     "blog": "Blog",
     "game": "Play",
     "archive": "Museum",
-    "feedback": "Feedback"
+    "feedback": "Feedback",
+    "info": "Info",
+    "settings": "Settings"
+  },
+  "info": {
+    "p1": "Community is where the world draws together. The canvas is split into tiles, and all you need to do is claim one, pick up a pen, and draw your piece based on a shared prompt that updates every 24 hours. Fill all the tiles, and the canvas expands — there's always room for more. Just keep in mind: one tile per canvas, so make yours count.",
+    "p2": "At its heart, Community is about making art together — the old-fashioned way. No digital tools, no AI. Just paper, a pen, and you. A global gallery built one small drawing at a time.",
+    "close": "Close"
   },
   "health": {
     "title": "System Status",
@@ -28,8 +35,10 @@
   },
   "landing": {
     "title": "Community",
-    "description": "Every day, a new picture. The community draws it together — one tile at a time. Claim a tile, draw your part, watch the masterpiece take shape.",
+    "description": "Grab a piece of paper and something to draw with — a pen, pencil, crayon, whatever you've got. Here you'll team up with people from around the world to create one drawing together. Ready? Let's make something awesome.",
     "play": "Play",
+    "mode_picture": "Picture",
+    "mode_prompt": "Prompt",
     "play_photo": "Play Photo",
     "play_photo_sub": "copy a daily picture",
     "play_prompt": "Play Prompt",
@@ -52,7 +61,8 @@
     "legend_free": "Free",
     "legend_locked": "Claimed",
     "legend_yours": "Yours",
-    "legend_drawn": "Done"
+    "legend_drawn": "Done",
+    "complete": "complete"
   },
   "claim": {
     "conflict": "Someone just claimed this tile!",
@@ -61,13 +71,14 @@
   "preview": {
     "title": "Preview",
     "ttl": "10 min to draw once claimed",
+    "intro": "You've got 10 minutes to draw your piece — grab your paper and pen and let's go.",
     "claim": "Claim tile",
     "blocked": "Finish your current tile first"
   },
   "idle": {
-    "title": "Are you still there?",
-    "body": "Tap below or your tile will be released in {{count}}s",
-    "still_here": "I'm still here"
+    "title": "Still drawing?",
+    "body": "Tap to keep your tile — it'll free up in {{count}}s otherwise.",
+    "still_here": "Yep!"
   },
   "upload": {
     "title": "Upload your drawing",
@@ -80,7 +91,16 @@
     "success": "Drawing submitted!",
     "extend": "Need 2 more minutes",
     "expired": "Time's up — claim released",
-    "release": "Release tile"
+    "release": "Release tile",
+    "time_left": "Time left",
+    "work_in_progress": "Work in progress…",
+    "done": "Done",
+    "cancel": "Cancel",
+    "upload": "Upload",
+    "confirm_release_title": "Release this tile?",
+    "confirm_release_body": "Your spot will go back to the pool and someone else can grab it.",
+    "confirm_release_yes": "Yes, release",
+    "confirm_release_no": "Keep drawing"
   },
   "crop": {
     "reference": "Reference",

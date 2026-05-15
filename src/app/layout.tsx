@@ -1,10 +1,15 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist, Geist_Mono, Schoolbell } from 'next/font/google'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
+const handwritten = Schoolbell({
+  variable: '--font-handwritten',
+  subsets: ['latin'],
+  weight: '400',
+})
 
 export const metadata: Metadata = {
   title: { default: 'Community', template: '%s | Community' },
@@ -17,7 +22,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${handwritten.variable} antialiased`}
+      >
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

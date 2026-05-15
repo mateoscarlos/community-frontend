@@ -4,11 +4,12 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { X, Clock } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useGameStore } from '@/lib/store/game.store'
 import { useIsMobile } from '@/lib/hooks/useIsMobile'
 import { useCountdown, formatCountdown } from '@/lib/hooks/useCountdown'
+import { SketchyBox } from '@/components/ui/SketchyBox'
+import { ModalCloseButton } from '@/components/ui/ModalCloseButton'
 import {
   useExtendClaimMutation,
   useReleaseClaimMutation,
@@ -22,6 +23,7 @@ import {
 } from '@/lib/api/submission'
 import { TileNeighborhood } from '@/components/game/TileNeighborhood'
 import { PerspectiveEditor } from '@/components/game/PerspectiveEditor'
+import { normalizeImageFile } from '@/lib/image'
 import type { TileResponse } from '@/types/api'
 
 interface UploadSheetProps {
@@ -63,9 +65,17 @@ export function UploadSheet({
   const { sessionId, unclaimTile, updateClaimExpiry } = useGameStore()
   const isMobile = useIsMobile()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
   const [step, setStep] = useState<UploadStep>('choose')
   const [preview, setPreview] = useState<string | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  // Reveal QR panel on demand — Done expands it so the user has a "did
+  // anything happen?" confirmation, instead of silently opening the camera
+  // (desktop) or doing nothing useful.
+  const [showQr, setShowQr] = useState(false)
+  // Cancel asks for confirmation before releasing the tile, since dropping the
+  // claim is destructive and the user may have tapped Cancel by accident.
+  const [confirmReleaseOpen, setConfirmReleaseOpen] = useState(false)
 
   // Countdown derived from claim expiry. Heartbeats are page-level (see
   // DailyImageGrid) so closing this sheet doesn't kill the claim — the user
@@ -142,6 +152,7 @@ export function UploadSheet({
     const tileId = tile.id
     releaseMutation.mutate({ tileId, sessionId })
     unclaimTile(tileId)
+    setConfirmReleaseOpen(false)
     onClose()
   }
 
@@ -150,7 +161,7 @@ export function UploadSheet({
       ? `${window.location.origin}/${locale}/upload?tile=${tile.id}&session=${sessionId}&game=${gameType}`
       : ''
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     e.target.value = ''
@@ -158,10 +169,16 @@ export function UploadSheet({
     // Free a previous object URL if the user re-took the photo.
     if (preview) URL.revokeObjectURL(preview)
 
-    const objectUrl = URL.createObjectURL(file)
-    setPreview(objectUrl)
-    setErrorMsg(null)
-    setStep('perspective')
+    try {
+      const normalized = await normalizeImageFile(file)
+      const objectUrl = URL.createObjectURL(normalized)
+      setPreview(objectUrl)
+      setErrorMsg(null)
+      setStep('perspective')
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : t('common.error'))
+      setStep('error')
+    }
   }
 
   const handleCancelEditor = () => {
@@ -226,150 +243,158 @@ export function UploadSheet({
             onClick={handleClose}
           />
 
+          <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
           <motion.div
-            className="border-foreground bg-background fixed inset-x-0 bottom-0 z-50 flex max-h-[95svh] flex-col overflow-y-auto border-t px-6 pt-6 pb-8 md:inset-x-auto md:bottom-4 md:left-1/2 md:w-full md:max-w-2xl md:-translate-x-1/2 md:border lg:max-w-4xl"
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+            className="border-foreground bg-background pointer-events-auto relative flex max-h-[92svh] w-full max-w-3xl flex-col overflow-y-auto border px-6 pt-8 pb-8 sm:px-10 lg:max-w-4xl"
+            initial={{ opacity: 0, scale: 0.92, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 8 }}
+            transition={{ type: 'spring', damping: 24, stiffness: 300 }}
           >
-            <button
-              onClick={handleClose}
-              className="text-muted-foreground hover:text-foreground absolute top-4 right-4 z-10 transition-colors"
-            >
-              <X className="h-5 w-5" />
-            </button>
+            <ModalCloseButton onClick={handleClose} ariaLabel={t('info.close')} />
 
-            <div className="mb-4">
-              <div className="flex items-baseline justify-between">
+            {step === 'choose' ? (
+              <div className="mb-6 text-center">
+                {expiresAt && (
+                  <>
+                    <p className="text-muted-foreground text-[10px] font-bold tracking-[0.25em] uppercase">
+                      {t('upload.time_left')}
+                    </p>
+                    <p
+                      className="text-foreground mt-1 text-3xl leading-none tabular-nums sm:text-4xl"
+                      style={{ fontFamily: 'var(--font-handwritten)' }}
+                    >
+                      {formatCountdown(secondsLeft)}
+                    </p>
+                  </>
+                )}
+                {prompt && (
+                  <h2
+                    className="text-foreground mt-4 text-2xl leading-tight sm:text-3xl"
+                    style={{ fontFamily: 'var(--font-handwritten)' }}
+                  >
+                    {prompt}
+                  </h2>
+                )}
+                {expiresAt &&
+                  secondsLeft > 0 &&
+                  secondsLeft <= EXTEND_THRESHOLD_SECONDS && (
+                    <button
+                      onClick={handleExtend}
+                      disabled={extendMutation.isPending}
+                      className="border-foreground text-foreground hover:bg-foreground hover:text-background mt-4 inline-flex h-9 items-center justify-center border px-4 text-[11px] font-bold tracking-[0.2em] uppercase transition-all disabled:opacity-30"
+                    >
+                      {extendMutation.isPending ? '...' : t('upload.extend')}
+                    </button>
+                  )}
+                {expiresAt && secondsLeft === 0 && (
+                  <p
+                    className="text-foreground mt-3 text-lg"
+                    style={{ fontFamily: 'var(--font-handwritten)' }}
+                  >
+                    {t('upload.expired')}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="mb-4">
                 <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
                   {t('upload.title')}
                 </p>
-                {(step === 'choose' || step === 'perspective') && (
-                  <button
-                    type="button"
-                    onClick={handleRelease}
-                    disabled={releaseMutation.isPending}
-                    className="text-muted-foreground hover:text-foreground text-[10px] font-bold tracking-[0.15em] uppercase transition-colors disabled:opacity-30"
-                  >
-                    {t('upload.release')}
-                  </button>
-                )}
-              </div>
-              <div className="mt-1 flex items-baseline justify-between">
-                <p className="text-foreground font-mono text-xl font-black">
+                <p className="text-foreground mt-1 font-mono text-xl font-black">
                   {tile.row + 1},{tile.col + 1}
                 </p>
-                {(step === 'choose' || step === 'perspective') && expiresAt && (
-                  <div className="text-foreground flex items-center gap-1.5 font-mono text-sm font-bold tracking-tight">
-                    <Clock className="h-3.5 w-3.5" />
-                    <span
-                      className={
-                        secondsLeft <= EXTEND_THRESHOLD_SECONDS ? 'text-foreground' : ''
-                      }
-                    >
-                      {formatCountdown(secondsLeft)}
-                    </span>
-                  </div>
-                )}
               </div>
-
-              {(step === 'choose' || step === 'perspective') &&
-                expiresAt &&
-                secondsLeft > 0 &&
-                secondsLeft <= EXTEND_THRESHOLD_SECONDS && (
-                  <button
-                    onClick={handleExtend}
-                    disabled={extendMutation.isPending}
-                    className="border-foreground text-foreground hover:bg-foreground hover:text-background mt-3 flex h-10 w-full items-center justify-center border text-[11px] font-bold tracking-[0.2em] uppercase transition-all disabled:opacity-30"
-                  >
-                    {extendMutation.isPending ? '...' : t('upload.extend')}
-                  </button>
-                )}
-
-              {(step === 'choose' || step === 'perspective') &&
-                expiresAt &&
-                secondsLeft === 0 && (
-                  <div className="border-foreground mt-3 border border-dashed p-3 text-center">
-                    <p className="text-foreground text-[11px] font-bold tracking-[0.15em] uppercase">
-                      {t('upload.expired')}
-                    </p>
-                  </div>
-                )}
-            </div>
+            )}
 
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
-              capture={isMobile ? 'environment' : undefined}
+              accept="image/*,image/heic,image/heif,.heic,.heif"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            <input
+              ref={cameraInputRef}
+              type="file"
+              accept="image/*,image/heic,image/heif,.heic,.heif"
+              capture="environment"
               onChange={handleFileChange}
               className="hidden"
             />
 
             {step === 'choose' && (
-              <div className="space-y-4 md:grid md:grid-cols-[18rem_1fr] md:gap-6 md:space-y-0">
-                <div className="space-y-3">
-                  {!imageUrl && prompt && (
-                    <div className="border-foreground/40 border-2 border-dashed p-4 text-center">
-                      <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
-                        Today&apos;s prompt
-                      </p>
-                      <p className="text-foreground mt-2 text-base font-bold tracking-tight">
-                        “{prompt}”
-                      </p>
-                    </div>
-                  )}
-                  <TileNeighborhood
-                    imageUrl={imageUrl}
-                    tiles={tiles}
-                    gridColumns={gridColumns}
-                    gridRows={gridRows}
-                    row={tile.row}
-                    col={tile.col}
-                    className="mx-auto w-full max-w-[14rem] md:max-w-none"
-                  />
+              <div className="flex flex-col items-center gap-6 sm:gap-8">
+                <TileNeighborhood
+                  imageUrl={imageUrl}
+                  tiles={tiles}
+                  gridColumns={gridColumns}
+                  gridRows={gridRows}
+                  row={tile.row}
+                  col={tile.col}
+                  promptMode={gameType === 'prompt'}
+                  className="mx-auto w-full max-w-md sm:max-w-lg"
+                />
+
+                <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6">
+                  <SketchyActionButton
+                    onClick={() => {
+                      if (isMobile) {
+                        cameraInputRef.current?.click()
+                      } else {
+                        setShowQr((v) => !v)
+                      }
+                    }}
+                    variant={0}
+                  >
+                    {t('upload.done')}
+                  </SketchyActionButton>
+                  <SketchyActionButton
+                    onClick={() => setConfirmReleaseOpen(true)}
+                    disabled={releaseMutation.isPending}
+                    variant={1}
+                  >
+                    {t('upload.cancel')}
+                  </SketchyActionButton>
                 </div>
 
-                <div className="space-y-4">
-                  {isMobile ? (
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className="bg-foreground text-background hover:bg-foreground/90 flex h-14 w-full items-center justify-center text-sm font-bold tracking-[0.2em] uppercase transition-all"
+                <AnimatePresence initial={false}>
+                  {showQr && !isMobile && (
+                    <motion.div
+                      key="qr-panel"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.25, ease: 'easeOut' }}
+                      className="w-full overflow-hidden"
                     >
-                      {t('upload.take_photo')}
-                    </button>
-                  ) : (
-                    <>
-                      <div className="border-foreground flex flex-col items-center gap-3 border p-4">
-                        <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
-                          {t('upload.scan_qr')}
-                        </p>
-                        <div className="bg-background border-foreground border p-2">
-                          <QRCodeSVG value={uploadUrl} size={140} />
+                      <div className="flex flex-col items-center justify-center gap-6 pt-2 sm:flex-row sm:items-start sm:gap-10">
+                        <div className="flex flex-col items-center gap-2">
+                          <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
+                            {t('upload.scan_qr')}
+                          </p>
+                          <div className="bg-background border-foreground border p-2">
+                            <QRCodeSVG value={uploadUrl} size={140} />
+                          </div>
+                          <p className="text-muted-foreground text-[10px] tracking-[0.15em] uppercase">
+                            {t('upload.scan_qr_hint')}
+                          </p>
                         </div>
-                        <p className="text-muted-foreground text-[10px] tracking-[0.15em] uppercase">
-                          {t('upload.scan_qr_hint')}
-                        </p>
+                        <div className="flex flex-col items-center gap-2 sm:pt-6">
+                          <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
+                            {t('common.or')}
+                          </p>
+                          <SketchyActionButton
+                            onClick={() => fileInputRef.current?.click()}
+                            variant={2}
+                          >
+                            {t('upload.upload')}
+                          </SketchyActionButton>
+                        </div>
                       </div>
-
-                      <div className="flex items-center gap-3">
-                        <div className="bg-foreground/20 h-px flex-1" />
-                        <span className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
-                          {t('common.or')}
-                        </span>
-                        <div className="bg-foreground/20 h-px flex-1" />
-                      </div>
-
-                      <button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="border-foreground text-foreground hover:bg-foreground hover:text-background flex h-12 w-full items-center justify-center border text-sm font-bold tracking-[0.2em] uppercase transition-all"
-                      >
-                        {t('upload.choose_file')}
-                      </button>
-                    </>
+                    </motion.div>
                   )}
-                </div>
+                </AnimatePresence>
               </div>
             )}
 
@@ -435,8 +460,140 @@ export function UploadSheet({
               </div>
             )}
           </motion.div>
+          </div>
+
+          <ConfirmReleaseDialog
+            open={confirmReleaseOpen}
+            onCancel={() => setConfirmReleaseOpen(false)}
+            onConfirm={handleRelease}
+            busy={releaseMutation.isPending}
+          />
         </>
       )}
     </AnimatePresence>
+  )
+}
+
+function ConfirmReleaseDialog({
+  open,
+  onCancel,
+  onConfirm,
+  busy,
+}: {
+  open: boolean
+  onCancel: () => void
+  onConfirm: () => void
+  busy?: boolean
+}) {
+  const { t } = useTranslation()
+  return (
+    <AnimatePresence>
+      {open && (
+        <div className="fixed inset-0 z-[70]">
+          <motion.div
+            onClick={onCancel}
+            className="absolute inset-0"
+            style={{
+              background: 'rgba(0,0,0,0.6)',
+              backdropFilter: 'blur(4px)',
+              WebkitBackdropFilter: 'blur(4px)',
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            aria-hidden="true"
+          />
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-4">
+            <motion.div
+              role="alertdialog"
+              aria-modal="true"
+              className="pointer-events-auto relative w-full max-w-md"
+              style={{
+                background: '#e6e6e6',
+                color: '#111',
+                boxShadow:
+                  '0 25px 60px -18px rgba(0,0,0,0.7), 0 14px 32px -16px rgba(0,0,0,0.45)',
+              }}
+              initial={{ opacity: 0, scale: 0.92, y: -8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 6 }}
+              transition={{ type: 'spring', damping: 24, stiffness: 320 }}
+            >
+              <div className="flex flex-col items-center gap-4 px-6 pt-8 pb-7 text-center sm:px-9 sm:pt-10 sm:pb-9">
+                <h3
+                  className="text-2xl leading-none sm:text-3xl"
+                  style={{ fontFamily: 'var(--font-handwritten)' }}
+                >
+                  {t('upload.confirm_release_title')}
+                </h3>
+                <p className="text-[14px] leading-relaxed text-zinc-700 sm:text-[15px]">
+                  {t('upload.confirm_release_body')}
+                </p>
+                <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={onConfirm}
+                    disabled={busy}
+                    className="relative inline-flex h-12 w-32 items-center justify-center text-zinc-900 disabled:opacity-40 sm:h-14 sm:w-36"
+                  >
+                    <SketchyBox variant={1} />
+                    <span
+                      className="relative z-10 text-xl leading-none sm:text-2xl"
+                      style={{ fontFamily: 'var(--font-handwritten)' }}
+                    >
+                      {t('upload.confirm_release_yes')}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onCancel}
+                    disabled={busy}
+                    className="relative inline-flex h-12 w-32 items-center justify-center text-zinc-900 disabled:opacity-40 sm:h-14 sm:w-36"
+                  >
+                    <SketchyBox variant={3} />
+                    <span
+                      className="relative z-10 text-xl leading-none sm:text-2xl"
+                      style={{ fontFamily: 'var(--font-handwritten)' }}
+                    >
+                      {t('upload.confirm_release_no')}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      )}
+    </AnimatePresence>
+  )
+}
+
+function SketchyActionButton({
+  children,
+  onClick,
+  disabled,
+  variant,
+}: {
+  children: React.ReactNode
+  onClick: () => void
+  disabled?: boolean
+  variant: number
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="text-foreground relative inline-flex h-14 w-24 items-center justify-center disabled:opacity-40 sm:h-16 sm:w-32"
+    >
+      <SketchyBox variant={variant} />
+      <span
+        className="relative z-10 text-xl leading-none sm:text-2xl"
+        style={{ fontFamily: 'var(--font-handwritten)' }}
+      >
+        {children}
+      </span>
+    </button>
   )
 }

@@ -1,9 +1,12 @@
 'use client'
 
+import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { X } from 'lucide-react'
 import { TilePreview } from '@/components/game/TilePreview'
+import { SketchyBox } from '@/components/ui/SketchyBox'
+import { ModalCloseButton } from '@/components/ui/ModalCloseButton'
 import type { TileResponse } from '@/types/api'
 
 interface PreviewSheetProps {
@@ -11,6 +14,7 @@ interface PreviewSheetProps {
   imageUrl?: string
   gridColumns: number
   gridRows: number
+  gameType?: 'photo' | 'prompt'
   /** True while the parent's claim mutation is in flight. */
   claiming?: boolean
   /** True when the user already holds another claim — disables the button. */
@@ -20,88 +24,145 @@ interface PreviewSheetProps {
 }
 
 /**
- * First step of the two-stage claim flow: shows the user the tile they're
- * about to claim and asks them to confirm before the timer starts ticking.
+ * Confirm-claim modal. Picture mode shows the tile crop the user is about to
+ * draw; prompt mode skips the crop since there's no reference image. Both
+ * surface the same intro copy and a single sketchy "Claim tile" CTA.
  */
 export function PreviewSheet({
   tile,
   imageUrl,
   gridColumns,
   gridRows,
+  gameType = 'photo',
   claiming = false,
   blocked = false,
   onClose,
   onClaim,
 }: PreviewSheetProps) {
   const { t } = useTranslation()
+  const open = !!tile
+  const isPromptGame = gameType === 'prompt'
 
-  return (
+  useEffect(() => {
+    if (!open) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = prev
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [open, onClose])
+
+  if (typeof document === 'undefined') return null
+
+  return createPortal(
     <AnimatePresence>
-      {tile && (
-        <>
+      {open && tile && (
+        <div className="fixed inset-0 z-[100]">
           <motion.div
-            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
+            key="preview-backdrop"
+            onClick={onClose}
+            className="absolute inset-0"
+            style={{
+              background: 'rgba(0, 0, 0, 0.78)',
+              backdropFilter: 'blur(6px)',
+              WebkitBackdropFilter: 'blur(6px)',
+            }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            transition={{ duration: 0.2 }}
+            aria-hidden="true"
           />
-
-          <motion.div
-            className="border-foreground bg-background fixed inset-x-0 bottom-0 z-50 flex max-h-[95svh] flex-col overflow-y-auto border-t px-6 pt-6 pb-8 md:inset-x-auto md:bottom-4 md:left-1/2 md:w-full md:max-w-lg md:-translate-x-1/2 md:border"
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-          >
-            <button
-              onClick={onClose}
-              className="text-muted-foreground hover:text-foreground absolute top-4 right-4 z-10 transition-colors"
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-4">
+            <motion.div
+              key="preview-card"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="preview-modal-title"
+              className="pointer-events-auto relative w-full max-w-lg"
+              style={{
+                background: '#e6e6e6',
+                color: '#111',
+                boxShadow:
+                  '0 30px 60px -20px rgba(0,0,0,0.7), 0 18px 36px -18px rgba(0,0,0,0.45)',
+              }}
+              initial={{ opacity: 0, scale: 0.88, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 8 }}
+              transition={{ type: 'spring', damping: 22, stiffness: 280 }}
             >
-              <X className="h-5 w-5" />
-            </button>
+              <ModalCloseButton onClick={onClose} ariaLabel={t('info.close')} />
 
-            <div className="mb-4">
-              <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
+              <h2 id="preview-modal-title" className="sr-only">
                 {t('preview.title')}
-              </p>
-              <div className="mt-1 flex items-baseline justify-between">
-                <p className="text-foreground font-mono text-xl font-black">
-                  {tile.row + 1},{tile.col + 1}
-                </p>
-                <p className="text-muted-foreground text-[10px] tracking-[0.15em] uppercase">
-                  {t('preview.ttl')}
-                </p>
-              </div>
-            </div>
+              </h2>
 
-            <TilePreview
-              imageUrl={imageUrl}
-              gridColumns={gridColumns}
-              gridRows={gridRows}
-              row={tile.row}
-              col={tile.col}
-              className="border-foreground mb-6 aspect-square w-full border"
-            />
-
-            {blocked ? (
-              <div className="border-foreground border border-dashed p-4 text-center">
-                <p className="text-foreground text-xs tracking-[0.15em] uppercase">
-                  {t('preview.blocked')}
+              <div className="flex flex-col items-center gap-6 px-6 pt-14 pb-8 sm:px-10 sm:pt-16 sm:pb-10">
+                <p className="text-center text-[15px] leading-relaxed sm:text-base">
+                  {t('preview.intro')}
                 </p>
+
+                {!isPromptGame && imageUrl && (
+                  <TilePreview
+                    imageUrl={imageUrl}
+                    gridColumns={gridColumns}
+                    gridRows={gridRows}
+                    row={tile.row}
+                    col={tile.col}
+                    className="aspect-square w-40 border border-zinc-900/30 sm:w-48"
+                  />
+                )}
+
+                {blocked ? (
+                  <div className="border border-dashed border-zinc-900/40 px-4 py-3 text-center text-xs tracking-[0.15em] uppercase">
+                    {t('preview.blocked')}
+                  </div>
+                ) : (
+                  <ClaimButton
+                    onClick={onClaim}
+                    disabled={claiming}
+                    label={claiming ? '…' : t('preview.claim')}
+                  />
+                )}
               </div>
-            ) : (
-              <button
-                onClick={onClaim}
-                disabled={claiming}
-                className="bg-foreground text-background hover:bg-foreground/90 flex h-14 w-full items-center justify-center text-sm font-bold tracking-[0.2em] uppercase transition-all disabled:cursor-not-allowed disabled:opacity-30"
-              >
-                {claiming ? '...' : t('preview.claim')}
-              </button>
-            )}
-          </motion.div>
-        </>
+            </motion.div>
+          </div>
+        </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
+  )
+}
+
+function ClaimButton({
+  onClick,
+  disabled,
+  label,
+}: {
+  onClick: () => void
+  disabled?: boolean
+  label: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="relative inline-flex h-14 w-44 items-center justify-center text-zinc-900 disabled:opacity-40 sm:h-16 sm:w-52"
+      style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}
+    >
+      <SketchyBox variant={2} />
+      <span
+        className="relative z-10 text-2xl leading-none sm:text-3xl"
+        style={{ fontFamily: 'var(--font-handwritten)' }}
+      >
+        {label}
+      </span>
+    </button>
   )
 }

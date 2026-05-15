@@ -9,7 +9,7 @@ import {
   type WheelEvent as ReactWheelEvent,
 } from 'react'
 import { useTranslation } from 'react-i18next'
-import { warpPerspective, type Quad } from '@/lib/perspective'
+import { homography, warpPerspective, type Quad } from '@/lib/perspective'
 import { TileNeighborhood } from '@/components/game/TileNeighborhood'
 import { TilePreview } from '@/components/game/TilePreview'
 import type { TileResponse } from '@/types/api'
@@ -196,10 +196,45 @@ export function PerspectiveEditor({
   }
 
   const busyLocal = busy || working
-  const clipPath =
-    pts && pts.length === 4
-      ? `polygon(${pts.map((p) => `${p.x * 100}% ${p.y * 100}%`).join(', ')})`
-      : undefined
+
+  // Re-render when the frame resizes so the screen-space clip-path stays
+  // accurate after viewport changes.
+  const [, setFrameTick] = useState(0)
+  useEffect(() => {
+    const f = frameRef.current
+    if (!f || typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(() => setFrameTick((n) => n + 1))
+    observer.observe(f)
+    return () => observer.disconnect()
+  }, [])
+
+  // Map quad points from image fractions into screen-space pixels of the
+  // frame, accounting for the inner div's zoom + pan transform. The reference
+  // ghost lives outside the transformed layer and is warped (matrix3d) to fit
+  // exactly inside that screen-space quad — so the user sees the *whole* tile
+  // squeezed into wherever they place their corners, no matter the zoom.
+  const frameEl = frameRef.current
+  const referenceWarp = (() => {
+    if (!pts || pts.length !== 4 || !frameEl) return null
+    const w = frameEl.clientWidth
+    const h = frameEl.clientHeight
+    if (!w || !h) return null
+    const dst: Quad = pts.map((p) => ({
+      x: (p.x - 0.5) * w * zoom + w / 2 + tx,
+      y: (p.y - 0.5) * h * zoom + h / 2 + ty,
+    })) as Quad
+    const src: Quad = [
+      { x: 0, y: 0 },
+      { x: w, y: 0 },
+      { x: w, y: h },
+      { x: 0, y: h },
+    ]
+    const H = homography(src, dst)
+    // CSS matrix3d takes a 4x4 column-major matrix. We lift the 2D
+    // homography into 3D by inserting an identity Z row/column.
+    const m = `matrix3d(${H[0]}, ${H[3]}, 0, ${H[6]}, ${H[1]}, ${H[4]}, 0, ${H[7]}, 0, 0, 1, 0, ${H[2]}, ${H[5]}, 0, ${H[8]})`
+    return { matrix: m, w, h }
+  })()
 
   return (
     <div className="space-y-4 md:grid md:grid-cols-[1fr_19rem] md:gap-6 md:space-y-0">
@@ -215,99 +250,112 @@ export function PerspectiveEditor({
           onPointerCancel={onFramePointerUp}
           onWheel={onWheel}
         >
-          <div
-            ref={innerRef}
-            className="absolute inset-0"
-            style={{
+          {(() => {
+            const transformStyle = {
               transform: `translate(${tx}px, ${ty}px) scale(${zoom})`,
-              transformOrigin: 'center center',
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              ref={imgRef}
-              src={imageSrc}
-              alt=""
-              onLoad={handleImgLoad}
-              className="absolute inset-0 h-full w-full object-contain select-none"
-              draggable={false}
-            />
+              transformOrigin: 'center center' as const,
+            }
+            return (
+              <>
+                {/* Drawing layer — gets the zoom/pan transform. */}
+                <div ref={innerRef} className="absolute inset-0" style={transformStyle}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    ref={imgRef}
+                    src={imageSrc}
+                    alt=""
+                    onLoad={handleImgLoad}
+                    className="absolute inset-0 h-full w-full object-contain select-none"
+                    draggable={false}
+                  />
+                </div>
 
-            {/* Reference ghost — clipped to the quad shape so the user can see
-                roughly where each part of the target tile should end up. */}
-            {clipPath && overlay > 0 && imageUrl && (
-              <div
-                className="pointer-events-none absolute inset-0"
-                style={{ clipPath, opacity: overlay }}
-              >
-                <TilePreview
-                  imageUrl={imageUrl}
-                  gridColumns={gridColumns}
-                  gridRows={gridRows}
-                  row={row}
-                  col={col}
-                  className="h-full w-full"
-                />
-              </div>
-            )}
-
-            {/* SVG outline of the quad. */}
-            {pts && (
-              <svg
-                className="text-foreground pointer-events-none absolute inset-0 h-full w-full"
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-              >
-                <polygon
-                  points={pts.map((p) => `${p.x * 100},${p.y * 100}`).join(' ')}
-                  fill="currentColor"
-                  fillOpacity={0.08}
-                  stroke="currentColor"
-                  strokeWidth="0.4"
-                  vectorEffect="non-scaling-stroke"
-                />
-                {pts.map((_, i) => {
-                  const a = pts[i]
-                  const b = pts[(i + 1) % 4]
-                  const mx = ((a.x + b.x) / 2) * 100
-                  const my = ((a.y + b.y) / 2) * 100
-                  return (
-                    <circle
-                      key={`mid-${i}`}
-                      cx={mx}
-                      cy={my}
-                      r={0.6}
-                      fill="currentColor"
-                      vectorEffect="non-scaling-stroke"
+                {/* Reference ghost — outside the transformed layer, but the
+                    tile is warped via matrix3d to fill exactly the user's
+                    quad in screen-space. The image itself isn't pixel-zoomed;
+                    it's perspective-warped to the corners they're dragging. */}
+                {referenceWarp && overlay > 0 && imageUrl && (
+                  <div
+                    className="pointer-events-none absolute top-0 left-0 origin-top-left overflow-hidden"
+                    style={{
+                      width: referenceWarp.w,
+                      height: referenceWarp.h,
+                      transform: referenceWarp.matrix,
+                      opacity: overlay,
+                    }}
+                  >
+                    <TilePreview
+                      imageUrl={imageUrl}
+                      gridColumns={gridColumns}
+                      gridRows={gridRows}
+                      row={row}
+                      col={col}
+                      className="h-full w-full"
                     />
-                  )
-                })}
-              </svg>
-            )}
+                  </div>
+                )}
 
-            {/* Corner handles. */}
-            {pts &&
-              pts.map((p, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  aria-label={`Corner ${i + 1}`}
-                  onPointerDown={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
-                    setDragging(i)
-                  }}
-                  className="border-foreground bg-background absolute z-10 touch-none rounded-full border-2"
-                  style={{
-                    left: `calc(${p.x * 100}% - ${HANDLE_HALF}px)`,
-                    top: `calc(${p.y * 100}% - ${HANDLE_HALF}px)`,
-                    width: HANDLE_HALF * 2,
-                    height: HANDLE_HALF * 2,
-                  }}
-                />
-              ))}
-          </div>
+                {/* Quad outline + handles layer — shares the transform so the
+                    polygon stays glued to the drawing as it zooms. */}
+                <div className="pointer-events-none absolute inset-0" style={transformStyle}>
+                  {pts && (
+                    <svg
+                      className="text-foreground absolute inset-0 h-full w-full"
+                      viewBox="0 0 100 100"
+                      preserveAspectRatio="none"
+                    >
+                      <polygon
+                        points={pts.map((p) => `${p.x * 100},${p.y * 100}`).join(' ')}
+                        fill="currentColor"
+                        fillOpacity={0.08}
+                        stroke="currentColor"
+                        strokeWidth="0.4"
+                        vectorEffect="non-scaling-stroke"
+                      />
+                      {pts.map((_, i) => {
+                        const a = pts[i]
+                        const b = pts[(i + 1) % 4]
+                        const mx = ((a.x + b.x) / 2) * 100
+                        const my = ((a.y + b.y) / 2) * 100
+                        return (
+                          <circle
+                            key={`mid-${i}`}
+                            cx={mx}
+                            cy={my}
+                            r={0.6}
+                            fill="currentColor"
+                            vectorEffect="non-scaling-stroke"
+                          />
+                        )
+                      })}
+                    </svg>
+                  )}
+
+                  {pts &&
+                    pts.map((p, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        aria-label={`Corner ${i + 1}`}
+                        onPointerDown={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
+                          setDragging(i)
+                        }}
+                        className="border-foreground bg-background pointer-events-auto absolute z-10 touch-none rounded-full border-2"
+                        style={{
+                          left: `calc(${p.x * 100}% - ${HANDLE_HALF}px)`,
+                          top: `calc(${p.y * 100}% - ${HANDLE_HALF}px)`,
+                          width: HANDLE_HALF * 2,
+                          height: HANDLE_HALF * 2,
+                        }}
+                      />
+                    ))}
+                </div>
+              </>
+            )
+          })()}
         </div>
       </div>
 
