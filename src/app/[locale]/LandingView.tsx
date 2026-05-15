@@ -16,9 +16,12 @@ export function LandingView({ locale }: { locale: string }) {
   const [now, setNow] = useState<Date | null>(null)
 
   useEffect(() => {
-    setNow(new Date())
+    const rafId = requestAnimationFrame(() => setNow(new Date()))
     const id = setInterval(() => setNow(new Date()), 1000)
-    return () => clearInterval(id)
+    return () => {
+      cancelAnimationFrame(rafId)
+      clearInterval(id)
+    }
   }, [])
 
   const dateLabel = now

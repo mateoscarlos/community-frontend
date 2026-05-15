@@ -197,13 +197,16 @@ export function PerspectiveEditor({
 
   const busyLocal = busy || working
 
-  // Re-render when the frame resizes so the screen-space clip-path stays
-  // accurate after viewport changes.
-  const [, setFrameTick] = useState(0)
+  // Track frame size in state (set inside the ResizeObserver callback, never
+  // read off the ref during render) so we can compute the reference warp
+  // without violating react-hooks/refs.
+  const [frameSize, setFrameSize] = useState<{ w: number; h: number } | null>(null)
   useEffect(() => {
     const f = frameRef.current
     if (!f || typeof ResizeObserver === 'undefined') return
-    const observer = new ResizeObserver(() => setFrameTick((n) => n + 1))
+    const observer = new ResizeObserver(() => {
+      setFrameSize({ w: f.clientWidth, h: f.clientHeight })
+    })
     observer.observe(f)
     return () => observer.disconnect()
   }, [])
@@ -213,11 +216,9 @@ export function PerspectiveEditor({
   // ghost lives outside the transformed layer and is warped (matrix3d) to fit
   // exactly inside that screen-space quad — so the user sees the *whole* tile
   // squeezed into wherever they place their corners, no matter the zoom.
-  const frameEl = frameRef.current
   const referenceWarp = (() => {
-    if (!pts || pts.length !== 4 || !frameEl) return null
-    const w = frameEl.clientWidth
-    const h = frameEl.clientHeight
+    if (!pts || pts.length !== 4 || !frameSize) return null
+    const { w, h } = frameSize
     if (!w || !h) return null
     const dst: Quad = pts.map((p) => ({
       x: (p.x - 0.5) * w * zoom + w / 2 + tx,

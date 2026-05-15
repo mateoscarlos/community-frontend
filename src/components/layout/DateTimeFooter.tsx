@@ -8,9 +8,15 @@ export function DateTimeFooter({ locale }: { locale: string }) {
   const [now, setNow] = useState<Date | null>(null)
 
   useEffect(() => {
-    setNow(new Date())
+    // Seed the first tick via rAF (next paint) instead of a synchronous
+    // setState in the effect body — keeps react-hooks/set-state-in-effect
+    // happy. The interval handles subsequent updates.
+    const rafId = requestAnimationFrame(() => setNow(new Date()))
     const id = setInterval(() => setNow(new Date()), 1000)
-    return () => clearInterval(id)
+    return () => {
+      cancelAnimationFrame(rafId)
+      clearInterval(id)
+    }
   }, [])
 
   if (!now) return <div className="h-10" aria-hidden />
