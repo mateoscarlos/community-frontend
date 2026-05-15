@@ -67,17 +67,17 @@ export function InfoModal({ open, onClose }: InfoModalProps) {
               exit={{ opacity: 0, scale: 0.94, y: 8 }}
               transition={{ type: 'spring', damping: 22, stiffness: 280 }}
             >
-            <ModalCloseButton onClick={onClose} ariaLabel={t('info.close')} />
+              <ModalCloseButton onClick={onClose} ariaLabel={t('info.close')} />
 
-            <h2 id="info-modal-title" className="sr-only">
-              {t('nav.info')}
-            </h2>
+              <h2 id="info-modal-title" className="sr-only">
+                {t('nav.info')}
+              </h2>
 
-            <div className="space-y-5 px-6 pt-14 pb-8 text-[15px] leading-relaxed sm:px-10 sm:pt-16 sm:pb-10 sm:text-base">
-              <p>{t('info.p1')}</p>
-              <p>{t('info.p2')}</p>
-            </div>
-          </motion.div>
+              <div className="space-y-5 px-6 pt-14 pb-8 text-[15px] leading-relaxed sm:px-10 sm:pt-16 sm:pb-10 sm:text-base">
+                <p>{t('info.p1')}</p>
+                <p>{t('info.p2')}</p>
+              </div>
+            </motion.div>
           </div>
         </div>
       )}

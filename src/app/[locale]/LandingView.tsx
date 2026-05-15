@@ -70,12 +70,7 @@ export function LandingView({ locale }: { locale: string }) {
 function CurvedTitle({ text }: { text: string }) {
   // textPath bends the glyphs along the arc. Width is responsive via viewBox.
   return (
-    <svg
-      viewBox="0 0 600 220"
-      className="w-full max-w-2xl"
-      aria-label={text}
-      role="img"
-    >
+    <svg viewBox="0 0 600 220" className="w-full max-w-2xl" aria-label={text} role="img">
       <defs>
         <path id="community-arc" d="M 40 200 Q 300 -40 560 200" fill="none" />
       </defs>
@@ -149,15 +144,7 @@ function ModeToggle({
   )
 }
 
-function PlayButton({
-  href,
-  label,
-  mode,
-}: {
-  href: string
-  label: string
-  mode: Mode
-}) {
+function PlayButton({ href, label, mode }: { href: string; label: string; mode: Mode }) {
   // Pulse + tiny rotation each time the mode flips, so the button itself
   // confirms the change visually even though its label stays the same.
   return (

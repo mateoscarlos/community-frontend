@@ -297,7 +297,10 @@ export function PerspectiveEditor({
 
                 {/* Quad outline + handles layer — shares the transform so the
                     polygon stays glued to the drawing as it zooms. */}
-                <div className="pointer-events-none absolute inset-0" style={transformStyle}>
+                <div
+                  className="pointer-events-none absolute inset-0"
+                  style={transformStyle}
+                >
                   {pts && (
                     <svg
                       className="text-foreground absolute inset-0 h-full w-full"

@@ -28,11 +28,7 @@ export function ClickSoundProvider() {
         'button, a[href], [role="button"], summary'
       ) as HTMLElement | null
       if (!interactive) return
-      if (
-        interactive instanceof HTMLButtonElement &&
-        interactive.disabled
-      )
-        return
+      if (interactive instanceof HTMLButtonElement && interactive.disabled) return
       if (interactive.getAttribute('aria-disabled') === 'true') return
       // Honor an opt-out attribute so we can silence specific elements later
       // (e.g. drag handles, slider thumbs) without ripping out the listener.
