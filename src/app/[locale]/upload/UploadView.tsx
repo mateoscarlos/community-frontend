@@ -74,10 +74,14 @@ export function UploadView() {
 
   return (
     <div className="bg-background flex min-h-svh flex-col items-center justify-center p-6">
+      {/* iOS Safari shows a black camera preview when `accept` is combined
+          with capture AND lists specific HEIC types. `image/*` alone gets the
+          full camera UI, and HEIC files are still selectable from the photo
+          library (we convert them to JPEG via normalizeImageFile). */}
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*,image/heic,image/heif,.heic,.heif"
+        accept="image/*"
         capture="environment"
         onChange={handleFileChange}
         className="hidden"

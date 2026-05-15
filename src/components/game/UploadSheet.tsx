@@ -307,6 +307,9 @@ export function UploadSheet({
                 </div>
               )}
 
+              {/* Desktop file picker can advertise HEIC explicitly — it has no
+                  capture attribute, so iOS Safari's black-preview quirk doesn't
+                  apply. */}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -314,10 +317,13 @@ export function UploadSheet({
                 onChange={handleFileChange}
                 className="hidden"
               />
+              {/* Mobile camera: pair `capture` with a plain `image/*` accept.
+                  iOS shows a black camera preview if the accept lists specific
+                  HEIC types alongside capture. */}
               <input
                 ref={cameraInputRef}
                 type="file"
-                accept="image/*,image/heic,image/heif,.heic,.heif"
+                accept="image/*"
                 capture="environment"
                 onChange={handleFileChange}
                 className="hidden"
