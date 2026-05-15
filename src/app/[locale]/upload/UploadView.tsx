@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { getStagePresignedUrl, uploadFile } from '@/lib/api/submission'
@@ -19,6 +19,17 @@ export function UploadView() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [step, setStep] = useState<Step>('ready')
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+
+  // Chrome / Firefox / Edge on iOS launch a black-preview camera when `capture`
+  // is set on the input. Stripping the attribute makes iOS show its native
+  // picker (Camera / Photo Library / Browse), which routes to the working
+  // camera UI. Safari iOS keeps `capture` and goes straight to the camera.
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !fileInputRef.current) return
+    if (/(CriOS|FxiOS|EdgiOS|OPiOS|GSA|YaBrowser)/.test(navigator.userAgent)) {
+      fileInputRef.current.removeAttribute('capture')
+    }
+  }, [])
 
   // Fetch the current period so we can render the same neighbourhood preview
   // the laptop is showing — without it the phone target was a black box.

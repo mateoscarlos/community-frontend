@@ -77,6 +77,17 @@ export function UploadSheet({
   // claim is destructive and the user may have tapped Cancel by accident.
   const [confirmReleaseOpen, setConfirmReleaseOpen] = useState(false)
 
+  // Chrome / Firefox / Edge on iOS render a black-preview camera when the
+  // input has `capture`. Drop it on those browsers so iOS shows its native
+  // picker dialog (Camera / Photo Library); Safari iOS keeps capture and
+  // goes straight to the camera.
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !cameraInputRef.current) return
+    if (/(CriOS|FxiOS|EdgiOS|OPiOS|GSA|YaBrowser)/.test(navigator.userAgent)) {
+      cameraInputRef.current.removeAttribute('capture')
+    }
+  }, [])
+
   // Countdown derived from claim expiry. Heartbeats are page-level (see
   // DailyImageGrid) so closing this sheet doesn't kill the claim — the user
   // can come back to it as long as they're still active in the app.
