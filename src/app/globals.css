@@ -271,9 +271,15 @@
   animation: emoji-rise var(--emoji-dur, 16s) linear var(--emoji-delay, 0s) infinite;
 }
 
+/* Reduced motion (incl. iOS Low Power Mode): don't animate, but still show
+   the emojis — scattered statically across the page instead of parked
+   off-screen below the fold. */
 @media (prefers-reduced-motion: reduce) {
   .emoji-particle {
     animation: none;
-    opacity: 0;
+    bottom: auto;
+    top: var(--emoji-top, 40%);
+    opacity: var(--emoji-opacity, 0.32);
+    transform: translateX(var(--emoji-drift, 0)) rotate(var(--emoji-spin, 8deg));
   }
 }

@@ -2,10 +2,15 @@
 // drifting upward like bubbles. A few are desaturated for a retro B&W feel,
 // the rest stay in colour. Values are hand-tuned (not random) so server and
 // client render identically — no hydration mismatch.
+//
+// `top` is only used as the static fallback position when the user (or iOS
+// Low Power Mode) has reduced motion enabled — without it the emojis would
+// sit off-screen below the fold and look "missing" on those devices.
 
 interface Particle {
   emoji: string
   left: number // %
+  top: number // % — static fallback position (reduced motion)
   size: number // px
   dur: number // s
   delay: number // s (negative = already mid-flight on first paint)
@@ -19,6 +24,7 @@ const PARTICLES: Particle[] = [
   {
     emoji: '✏️',
     left: 6,
+    top: 16,
     size: 22,
     dur: 19,
     delay: -2,
@@ -30,6 +36,7 @@ const PARTICLES: Particle[] = [
   {
     emoji: '🫧',
     left: 14,
+    top: 62,
     size: 30,
     dur: 15,
     delay: -8,
@@ -41,6 +48,7 @@ const PARTICLES: Particle[] = [
   {
     emoji: '🎨',
     left: 23,
+    top: 34,
     size: 26,
     dur: 22,
     delay: -14,
@@ -52,6 +60,7 @@ const PARTICLES: Particle[] = [
   {
     emoji: '🖍️',
     left: 33,
+    top: 78,
     size: 20,
     dur: 17,
     delay: -5,
@@ -63,6 +72,7 @@ const PARTICLES: Particle[] = [
   {
     emoji: '✨',
     left: 42,
+    top: 22,
     size: 18,
     dur: 13,
     delay: -10,
@@ -74,6 +84,7 @@ const PARTICLES: Particle[] = [
   {
     emoji: '🖼️',
     left: 52,
+    top: 70,
     size: 28,
     dur: 24,
     delay: -3,
@@ -85,6 +96,7 @@ const PARTICLES: Particle[] = [
   {
     emoji: '🫧',
     left: 61,
+    top: 12,
     size: 24,
     dur: 16,
     delay: -12,
@@ -96,6 +108,7 @@ const PARTICLES: Particle[] = [
   {
     emoji: '⭐',
     left: 70,
+    top: 52,
     size: 19,
     dur: 18,
     delay: -7,
@@ -107,6 +120,7 @@ const PARTICLES: Particle[] = [
   {
     emoji: '🖌️',
     left: 78,
+    top: 84,
     size: 24,
     dur: 21,
     delay: -16,
@@ -118,6 +132,7 @@ const PARTICLES: Particle[] = [
   {
     emoji: '📐',
     left: 86,
+    top: 28,
     size: 22,
     dur: 20,
     delay: -4,
@@ -129,6 +144,7 @@ const PARTICLES: Particle[] = [
   {
     emoji: '🎈',
     left: 92,
+    top: 66,
     size: 26,
     dur: 23,
     delay: -11,
@@ -140,6 +156,7 @@ const PARTICLES: Particle[] = [
   {
     emoji: '✏️',
     left: 47,
+    top: 46,
     size: 18,
     dur: 14,
     delay: -9,
@@ -151,6 +168,7 @@ const PARTICLES: Particle[] = [
   {
     emoji: '🫧',
     left: 30,
+    top: 8,
     size: 16,
     dur: 12,
     delay: -6,
@@ -162,6 +180,7 @@ const PARTICLES: Particle[] = [
   {
     emoji: '✨',
     left: 64,
+    top: 88,
     size: 16,
     dur: 15,
     delay: -13,
@@ -187,6 +206,7 @@ export function FloatingEmojis() {
               left: `${p.left}%`,
               fontSize: p.size,
               filter: p.mono ? 'grayscale(1)' : undefined,
+              '--emoji-top': `${p.top}%`,
               '--emoji-dur': `${p.dur}s`,
               '--emoji-delay': `${p.delay}s`,
               '--emoji-drift': `${p.drift}px`,
