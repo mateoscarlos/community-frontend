@@ -71,21 +71,50 @@ export function LandingView({ locale }: { locale: string }) {
 }
 
 function CurvedTitle({ text }: { text: string }) {
-  // textPath bends the glyphs along the arc. Width is responsive via viewBox.
+  // Comic-logo treatment: a chunky rounded display font bent along an arc,
+  // with a stacked 3D extrusion built from offset copies of the glyphs. The
+  // front face is filled with the page background and outlined in the
+  // foreground, so the whole thing inverts cleanly between light/dark.
+  const EXTRUDE_LAYERS = 9
+  const STEP_X = 0.9
+  const STEP_Y = 1.5
+  const fontStyle = {
+    fontFamily: 'var(--font-logo)',
+    fontSize: 116,
+  } as const
+
   return (
-    <svg viewBox="0 0 600 220" className="w-full max-w-2xl" aria-label={text} role="img">
+    <svg viewBox="0 0 600 240" className="w-full max-w-2xl" aria-label={text} role="img">
       <defs>
-        <path id="community-arc" d="M 40 200 Q 300 -40 560 200" fill="none" />
+        <path id="community-arc" d="M 40 205 Q 300 -25 560 205" fill="none" />
       </defs>
+
+      {/* 3D side extrusion — farthest layer first so nearer ones paint on top. */}
+      {Array.from({ length: EXTRUDE_LAYERS }, (_, idx) => {
+        const i = EXTRUDE_LAYERS - idx
+        return (
+          <text
+            key={i}
+            className="fill-foreground"
+            style={fontStyle}
+            transform={`translate(${i * STEP_X}, ${i * STEP_Y})`}
+          >
+            <textPath href="#community-arc" startOffset="50%" textAnchor="middle">
+              {text}
+            </textPath>
+          </text>
+        )
+      })}
+
+      {/* Front face: background fill, foreground outline. */}
       <text
-        className="fill-foreground"
         style={{
-          fontFamily: 'var(--font-handwritten)',
-          fontSize: 130,
-          fontWeight: 700,
-          paintOrder: 'stroke',
+          ...fontStyle,
+          fill: 'var(--background)',
           stroke: 'var(--foreground)',
-          strokeWidth: 2,
+          strokeWidth: 3,
+          paintOrder: 'stroke',
+          strokeLinejoin: 'round',
         }}
       >
         <textPath href="#community-arc" startOffset="50%" textAnchor="middle">

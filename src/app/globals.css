@@ -142,6 +142,7 @@
   --font-sans: var(--font-geist-sans), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), monospace;
   --font-handwritten: var(--font-handwritten), 'Comic Sans MS', cursive;
+  --font-logo: var(--font-logo), 'Luckiest Guy', cursive;
 
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
