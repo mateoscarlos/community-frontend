@@ -9,17 +9,16 @@ import { ChevronDown } from 'lucide-react'
 import { useArchiveQuery } from '@/lib/query/period.queries'
 import { GameTopTabs } from '@/components/game/GameTopTabs'
 import { SketchyBox } from '@/components/ui/SketchyBox'
-import { Skeleton } from '@/components/ui/skeleton'
 import type { ArchivePeriodResponse, GameType } from '@/types/api'
 
 function parseGameParam(raw: string | null): GameType {
   return raw === 'prompt' ? 'prompt' : 'photo'
 }
 
-// A gentle, deterministic "hung on a wall" rhythm — alternating tilt and
-// vertical offset so the gallery feels curated by hand, not by a grid.
-const TILTS = [-2.2, 1.6, -1.2, 2.4, -1.8, 1.1]
-const OFFSETS = [0, 22, 8, 30, 4, 18]
+// Art densely clustered at varied sizes (mostly similar with a few larger
+// anchor pieces), each flat-mounted with a slim border + soft shadow. Fixed
+// widths (not random) so server/client render identically.
+const WIDTHS = [150, 198, 168, 232, 152, 186, 172, 210]
 
 export function CalendarView() {
   const { t, i18n } = useTranslation()
@@ -126,80 +125,66 @@ export function CalendarView() {
         <GameToggle value={gameType} onChange={setGameType} />
       </div>
 
-      {/* A faint hand-drawn flourish + the collection subtitle, for flavour. */}
-      <p
-        className="text-foreground/45 mt-6 text-center text-lg"
-        style={{ fontFamily: 'var(--font-handwritten)' }}
-      >
-        ✦ {t('archive.subtitle')} ✦
-      </p>
+      <div className="mt-8 w-full max-w-6xl">
+        {selectedKey && (
+          <p className="text-foreground/50 mb-8 text-center text-[11px] font-bold tracking-[0.3em] uppercase">
+            {monthName(Number(selectedKey.split('-')[1]))} {selYear}
+          </p>
+        )}
 
-      {isLoading && (
-        <div className="mt-16 grid w-full max-w-6xl grid-cols-2 gap-x-6 gap-y-16 sm:grid-cols-3 sm:gap-x-10 lg:grid-cols-4">
-          {Array.from({ length: 8 }, (_, i) => (
-            <Skeleton key={`s-${i}`} className="aspect-square w-full rounded-none" />
-          ))}
-        </div>
-      )}
+        {isLoading && (
+          <div className="flex flex-wrap items-start justify-center gap-x-3 gap-y-8 sm:gap-x-5">
+            {WIDTHS.map((w, i) => (
+              <div
+                key={`s-${i}`}
+                className="bg-foreground/10 aspect-square shrink-0"
+                style={{ width: w }}
+              />
+            ))}
+          </div>
+        )}
 
-      {!isLoading && pieces.length === 0 && (
-        <div className="mt-24 flex flex-col items-center gap-5">
-          <div className="border-foreground/30 relative aspect-square w-40 border-4 border-dashed">
-            <span
-              className="text-foreground/30 absolute inset-0 flex items-center justify-center text-5xl"
+        {!isLoading && pieces.length === 0 && (
+          <div className="flex flex-col items-center gap-4 py-20">
+            <div className="border-foreground/20 bg-foreground/[0.04] aspect-square w-40 border" />
+            <p
+              className="text-foreground/60 text-2xl"
               style={{ fontFamily: 'var(--font-handwritten)' }}
             >
-              ?
-            </span>
+              {t('archive.empty_month')}
+            </p>
           </div>
-          <p
-            className="text-foreground/60 text-2xl"
-            style={{ fontFamily: 'var(--font-handwritten)' }}
-          >
-            {t('archive.empty_month')}
-          </p>
-        </div>
-      )}
+        )}
 
-      {!isLoading && pieces.length > 0 && (
-        <>
-          {/* The gallery wall: a faint picture-rail line the pieces hang from. */}
-          <div className="relative mt-16 w-full max-w-6xl">
-            <div className="border-foreground/15 absolute inset-x-0 top-3 border-t" />
-            <div className="relative grid grid-cols-2 gap-x-6 gap-y-20 sm:grid-cols-3 sm:gap-x-12 lg:grid-cols-4">
-              {pieces.map((p, idx) => (
-                <FramedPiece
-                  key={p.id}
-                  period={p}
-                  locale={locale}
-                  tilt={TILTS[idx % TILTS.length]}
-                  offset={OFFSETS[idx % OFFSETS.length]}
-                />
-              ))}
-            </div>
+        {!isLoading && pieces.length > 0 && (
+          <div className="flex flex-wrap items-start justify-center gap-x-3 gap-y-8 sm:gap-x-5 sm:gap-y-10">
+            {pieces.map((p, idx) => (
+              <WallPiece
+                key={p.id}
+                period={p}
+                locale={locale}
+                width={WIDTHS[idx % WIDTHS.length]}
+              />
+            ))}
           </div>
-          <p
-            className="text-foreground/45 mt-20 text-center text-lg"
-            style={{ fontFamily: 'var(--font-handwritten)' }}
-          >
-            {t('archive.gallery_hint')}
-          </p>
-        </>
-      )}
+        )}
+
+        <p className="text-foreground/40 mt-14 text-center text-sm tracking-wide">
+          {t('archive.gallery_hint')}
+        </p>
+      </div>
     </div>
   )
 }
 
-function FramedPiece({
+function WallPiece({
   period,
   locale,
-  tilt,
-  offset,
+  width,
 }: {
   period: ArchivePeriodResponse
   locale: string
-  tilt: number
-  offset: number
+  width: number
 }) {
   const { i18n } = useTranslation()
   const date = new Date(period.started_at)
@@ -208,72 +193,42 @@ function FramedPiece({
     day: 'numeric',
   }).format(date)
 
+  // Flat-mounted on the wall: a slim white border and a soft drop shadow so
+  // it sits just off the surface. No tilt, no hover motion — calm, like the
+  // real thing.
   return (
-    <motion.div style={{ marginTop: offset }} className="flex justify-center">
-      <Link
-        href={`/${locale}/archive/${period.id}`}
-        className="group block w-full max-w-[15rem]"
-        title={date.toLocaleDateString(locale)}
-      >
-        {/* The whole piece pivots from the nail at the top — a slight resting
-            tilt that swings level when you lean in (hover). */}
-        <motion.div
-          className="origin-top"
-          style={{ rotate: tilt }}
-          whileHover={{ rotate: 0, y: -6 }}
-          transition={{ type: 'spring', stiffness: 220, damping: 14 }}
-        >
-          {/* Hanger: a nail and two taut strings down to the frame corners. */}
-          <svg
-            viewBox="0 0 100 26"
-            className="text-foreground/70 mx-auto block h-6 w-full"
-            aria-hidden="true"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M 8 24 Q 50 -6 92 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
+    <Link
+      href={`/${locale}/archive/${period.id}`}
+      className="block shrink-0"
+      style={{ width }}
+      title={date.toLocaleDateString(locale)}
+    >
+      <div className="relative bg-white p-1 shadow-[0_8px_18px_-8px_rgba(0,0,0,0.55)] ring-1 ring-black/10">
+        <div className="relative aspect-square w-full overflow-hidden bg-black/[0.04]">
+          {period.final_image_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={period.final_image_url}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+              draggable={false}
+              loading="lazy"
             />
-            <circle cx="50" cy="6" r="2.4" className="fill-foreground" />
-          </svg>
-
-          {/* Framed artwork: chunky outer frame + inner mat. */}
-          <div className="border-foreground bg-foreground/5 relative border-[5px] p-2 shadow-[0_14px_30px_-14px_rgba(0,0,0,0.7)] transition-shadow duration-300 group-hover:shadow-[0_22px_44px_-14px_rgba(0,0,0,0.85)] sm:border-[6px] sm:p-3">
-            <div className="border-foreground/25 relative aspect-square w-full border">
-              {period.final_image_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={period.final_image_url}
-                  alt=""
-                  className="absolute inset-0 h-full w-full object-cover"
-                  draggable={false}
-                  loading="lazy"
-                />
-              ) : (
-                <span
-                  className="text-foreground/30 absolute inset-0 flex items-center justify-center text-3xl"
-                  style={{ fontFamily: 'var(--font-handwritten)' }}
-                >
-                  ?
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Engraved brass-style plaque, slightly askew for character. */}
-          <div className="mt-3 flex justify-center">
+          ) : (
             <span
-              className="bg-foreground text-background inline-block -rotate-1 px-3 py-1 text-sm leading-none shadow-[0_3px_8px_-3px_rgba(0,0,0,0.6)] transition-transform duration-300 group-hover:rotate-0"
+              className="absolute inset-0 flex items-center justify-center text-2xl text-black/20"
               style={{ fontFamily: 'var(--font-handwritten)' }}
             >
-              {dayLabel}
+              ?
             </span>
-          </div>
-        </motion.div>
-      </Link>
-    </motion.div>
+          )}
+        </div>
+      </div>
+      {/* Small museum tombstone label. */}
+      <p className="text-foreground/55 mt-2 text-center text-[10px] tracking-[0.12em] uppercase">
+        {dayLabel}
+      </p>
+    </Link>
   )
 }
 

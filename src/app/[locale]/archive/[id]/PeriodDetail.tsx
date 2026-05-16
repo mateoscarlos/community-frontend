@@ -1,14 +1,21 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react'
 import { usePeriodByIdQuery, useArchiveQuery } from '@/lib/query/period.queries'
 import { GameTopTabs } from '@/components/game/GameTopTabs'
-import { SketchyBox } from '@/components/ui/SketchyBox'
+import { ModalCloseButton } from '@/components/ui/ModalCloseButton'
 import { Skeleton } from '@/components/ui/skeleton'
+
+interface Mosaic {
+  phase: number
+  image_url: string
+  composed_at: string
+}
 
 interface PeriodDetailProps {
   id: string
@@ -26,6 +33,17 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
     [period]
   )
   const original = period?.image
+
+  // Horizontal filmstrip: scrolled by the side arrows (the bar is hidden).
+  const stripRef = useRef<HTMLDivElement>(null)
+  const scrollStrip = (dir: -1 | 1) => {
+    const el = stripRef.current
+    if (!el) return
+    el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: 'smooth' })
+  }
+
+  // Click any phase to view it large in a lightbox.
+  const [zoomed, setZoomed] = useState<Mosaic | null>(null)
 
   // The other days in the same month, for the "more from this month" rail.
   const { data: archive } = useArchiveQuery(gameType)
@@ -53,7 +71,7 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
     <div className="bg-background flex min-h-svh flex-col items-center px-4 pb-20 sm:px-6">
       <GameTopTabs locale={locale} gameType={gameType} activeTab="museum" />
 
-      <div className="mt-6 w-full max-w-5xl">
+      <div className="mt-6 w-full max-w-6xl">
         <Link
           href={`/${locale}/archive`}
           className="text-foreground/70 hover:text-foreground inline-flex items-center gap-2 text-base transition-colors"
@@ -105,80 +123,71 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
             </div>
 
             {/* Subject + evolution side by side on desktop, stacked on mobile */}
-            <div className="flex flex-col gap-12 lg:flex-row lg:items-start">
+            <div className="flex flex-col gap-14 lg:flex-row lg:items-start">
               {period.game_type === 'photo' && original?.image_url && (
-                <div className="lg:w-64 lg:shrink-0">
+                <div className="lg:w-72 lg:shrink-0">
                   <p
-                    className="text-foreground/60 mb-3 text-center text-lg lg:text-left"
+                    className="text-foreground/60 mb-4 text-center text-lg lg:text-left"
                     style={{ fontFamily: 'var(--font-handwritten)' }}
                   >
                     {t('archive.the_subject')}
                   </p>
-                  <div className="relative mx-auto aspect-square w-full max-w-xs p-3 lg:mx-0">
-                    <SketchyBox variant={1} strokeWidth={3} />
-                    <div className="absolute inset-3 overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={original.image_url}
-                        alt=""
-                        className="h-full w-full object-cover"
-                        draggable={false}
-                      />
+                  <div className="group mx-auto w-full max-w-xs lg:mx-0">
+                    <MattedFrame src={original.image_url} />
+                    <div className="mt-3 flex justify-center">
+                      <Plaque>{t('archive.the_subject')}</Plaque>
                     </div>
                   </div>
                 </div>
               )}
 
               <div className="min-w-0 flex-1">
-                <p
-                  className="text-foreground/60 mb-4 text-lg"
-                  style={{ fontFamily: 'var(--font-handwritten)' }}
-                >
-                  {t('archive.evolution')}
-                </p>
+                <div className="mb-5 flex items-center justify-between gap-4">
+                  <p
+                    className="text-foreground/60 text-lg"
+                    style={{ fontFamily: 'var(--font-handwritten)' }}
+                  >
+                    {t('archive.evolution')}
+                  </p>
+                  {mosaics.length > 1 && (
+                    <div className="flex shrink-0 gap-2">
+                      <StripArrow dir={-1} onClick={() => scrollStrip(-1)} />
+                      <StripArrow dir={1} onClick={() => scrollStrip(1)} />
+                    </div>
+                  )}
+                </div>
 
                 {mosaics.length > 0 ? (
-                  <div className="-mx-4 flex snap-x gap-6 overflow-x-auto px-4 pb-4 sm:-mx-0 sm:px-0">
-                    {mosaics.map((m, i) => (
-                      <div key={m.phase} className="flex items-center gap-6">
-                        <div className="w-56 shrink-0 snap-center sm:w-64">
-                          <div className="relative aspect-square w-full p-3">
-                            <SketchyBox variant={i % 4} strokeWidth={3} />
-                            <div className="bg-foreground/5 absolute inset-3 overflow-hidden">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={m.image_url}
-                                alt=""
-                                className="h-full w-full object-cover"
-                                draggable={false}
-                                loading="lazy"
-                              />
+                  <div className="relative">
+                    <div
+                      ref={stripRef}
+                      className="evo-scroll -mx-4 flex snap-x snap-proximity items-start gap-6 overflow-x-auto px-4 pb-5 sm:-mx-0 sm:gap-9 sm:pr-10 sm:pl-0 lg:-mr-16 lg:pr-20"
+                    >
+                      {mosaics.map((m, i) => (
+                        <div key={m.phase} className="flex items-center gap-6 sm:gap-9">
+                          <button
+                            type="button"
+                            onClick={() => setZoomed(m)}
+                            className="w-60 shrink-0 snap-center text-left sm:w-72"
+                            aria-label={t('archive.phase_label', { phase: m.phase })}
+                          >
+                            <MattedFrame src={m.image_url} />
+                            <div className="mt-3 flex justify-center">
+                              <Plaque>
+                                {t('archive.phase_label', { phase: m.phase })}
+                              </Plaque>
                             </div>
-                          </div>
-                          <div className="relative mx-auto -mt-1 flex h-9 w-4/5 items-center justify-center">
-                            <SketchyBox variant={3} strokeWidth={2.5} />
-                            <span
-                              className="text-foreground relative z-10 text-base leading-none"
-                              style={{ fontFamily: 'var(--font-handwritten)' }}
-                            >
-                              {t('archive.phase_label', { phase: m.phase })}
-                            </span>
-                          </div>
-                          <p className="text-muted-foreground mt-2 text-center font-mono text-[10px] tracking-[0.15em] uppercase">
-                            {new Date(m.composed_at).toLocaleDateString(locale, {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </p>
+                            <p className="text-muted-foreground mt-2 text-center font-mono text-[10px] tracking-[0.15em] uppercase">
+                              {new Date(m.composed_at).toLocaleDateString(locale, {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </p>
+                          </button>
+                          {i < mosaics.length - 1 && <EvoArrow />}
                         </div>
-                        {i < mosaics.length - 1 && (
-                          <ArrowRight
-                            className="text-foreground/40 hidden h-6 w-6 shrink-0 sm:block"
-                            strokeWidth={2.5}
-                          />
-                        )}
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 ) : (
                   <p
@@ -193,14 +202,14 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
 
             {/* More from this month */}
             {monthRail.length > 1 && (
-              <section className="mt-20">
+              <section className="mt-24">
                 <p
-                  className="text-foreground/60 mb-4 text-lg"
+                  className="text-foreground/60 mb-5 text-lg"
                   style={{ fontFamily: 'var(--font-handwritten)' }}
                 >
                   {t('archive.this_month')}
                 </p>
-                <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-3 sm:-mx-0 sm:px-0">
+                <div className="-mx-4 flex gap-5 overflow-x-auto px-4 pb-4 sm:-mx-0 sm:px-0">
                   {monthRail.map((p) => {
                     const isCurrent = p.id === id
                     const d = new Date(p.started_at)
@@ -212,14 +221,13 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
                         key={p.id}
                         href={`/${locale}/archive/${p.id}`}
                         aria-current={isCurrent ? 'page' : undefined}
-                        className="group shrink-0"
+                        className="shrink-0"
                       >
-                        <motion.div
-                          whileHover={{ y: -4 }}
-                          className={`relative h-20 w-20 overflow-hidden sm:h-24 sm:w-24 ${
+                        <div
+                          className={`bg-foreground/5 relative h-24 w-24 overflow-hidden border-[3px] sm:h-28 sm:w-28 ${
                             isCurrent
-                              ? 'ring-foreground ring-2'
-                              : 'opacity-60 group-hover:opacity-100'
+                              ? 'border-foreground'
+                              : 'border-foreground/40 opacity-70'
                           }`}
                         >
                           {p.final_image_url ? (
@@ -232,12 +240,20 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
                               loading="lazy"
                             />
                           ) : (
-                            <div className="bg-foreground/10 h-full w-full" />
+                            <span
+                              className="text-foreground/30 absolute inset-0 flex items-center justify-center text-2xl"
+                              style={{ fontFamily: 'var(--font-handwritten)' }}
+                            >
+                              ?
+                            </span>
                           )}
-                          <span className="bg-background/80 text-foreground absolute right-1 bottom-1 px-1 font-mono text-[10px] font-bold">
+                          <span
+                            className="bg-foreground text-background absolute right-0 bottom-0 px-1.5 py-0.5 text-xs leading-none"
+                            style={{ fontFamily: 'var(--font-handwritten)' }}
+                          >
                             {label}
                           </span>
-                        </motion.div>
+                        </div>
                       </Link>
                     )
                   })}
@@ -247,6 +263,177 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
           </>
         )}
       </div>
+
+      <ImageLightbox
+        mosaic={zoomed}
+        onClose={() => setZoomed(null)}
+        label={zoomed ? t('archive.phase_label', { phase: zoomed.phase }) : ''}
+        closeLabel={t('info.close')}
+        timestamp={zoomed ? new Date(zoomed.composed_at).toLocaleString(locale) : ''}
+      />
     </div>
+  )
+}
+
+// Filmstrip nav arrow — lives in the section header, never over the art.
+function StripArrow({ dir, onClick }: { dir: -1 | 1; onClick: () => void }) {
+  const Icon = dir === -1 ? ChevronLeft : ChevronRight
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={dir === -1 ? 'Scroll left' : 'Scroll right'}
+      className="border-foreground/40 text-foreground hover:bg-foreground hover:text-background flex h-9 w-9 items-center justify-center border transition-colors"
+    >
+      <Icon className="h-5 w-5" strokeWidth={2.25} />
+    </button>
+  )
+}
+
+// Full-size view of a single phase, opened by clicking it in the strip.
+function ImageLightbox({
+  mosaic,
+  onClose,
+  label,
+  timestamp,
+  closeLabel,
+}: {
+  mosaic: Mosaic | null
+  onClose: () => void
+  label: string
+  timestamp: string
+  closeLabel: string
+}) {
+  const open = !!mosaic
+
+  useEffect(() => {
+    if (!open) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = prev
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [open, onClose])
+
+  if (typeof document === 'undefined') return null
+
+  return createPortal(
+    <AnimatePresence>
+      {open && mosaic && (
+        <div className="fixed inset-0 z-[100]">
+          <motion.div
+            onClick={onClose}
+            className="absolute inset-0"
+            style={{
+              background: 'rgba(0,0,0,0.85)',
+              backdropFilter: 'blur(6px)',
+              WebkitBackdropFilter: 'blur(6px)',
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            aria-hidden="true"
+          />
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-4 sm:p-8">
+            <motion.figure
+              role="dialog"
+              aria-modal="true"
+              aria-label={label}
+              className="pointer-events-auto relative flex max-h-full flex-col items-center"
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ type: 'spring', damping: 24, stiffness: 280 }}
+            >
+              <div className="absolute -top-1 right-0 z-10 translate-x-1 -translate-y-full sm:-right-2">
+                <ModalCloseButton onClick={onClose} ariaLabel={closeLabel} />
+              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={mosaic.image_url}
+                alt={label}
+                className="max-h-[78svh] w-auto max-w-full bg-white object-contain p-2 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.8)] ring-1 ring-white/15"
+                draggable={false}
+              />
+              <figcaption className="mt-4 text-center text-sm tracking-[0.15em] text-white/80 uppercase">
+                {label}
+                {timestamp ? ` · ${timestamp}` : ''}
+              </figcaption>
+            </motion.figure>
+          </div>
+        </div>
+      )}
+    </AnimatePresence>,
+    document.body
+  )
+}
+
+// Flat-mounted artwork: a slim white border and a soft drop shadow so it
+// sits just off the wall. Calm and static — no hover motion.
+function MattedFrame({ src }: { src?: string }) {
+  return (
+    <div className="relative bg-white p-1 shadow-[0_10px_22px_-10px_rgba(0,0,0,0.6)] ring-1 ring-black/10">
+      <div className="relative aspect-square w-full overflow-hidden bg-black/[0.04]">
+        {src ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={src}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover"
+            draggable={false}
+            loading="lazy"
+          />
+        ) : (
+          <span
+            className="absolute inset-0 flex items-center justify-center text-3xl text-black/20"
+            style={{ fontFamily: 'var(--font-handwritten)' }}
+          >
+            ?
+          </span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// Small museum tombstone label.
+function Plaque({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="text-foreground/70 inline-block text-[11px] tracking-[0.15em] uppercase">
+      {children}
+    </span>
+  )
+}
+
+// Hand-drawn arrow between phases — wobbly, with a little arrowhead.
+function EvoArrow() {
+  return (
+    <svg
+      viewBox="0 0 48 24"
+      className="text-foreground/40 hidden h-6 w-12 shrink-0 sm:block"
+      aria-hidden="true"
+    >
+      <path
+        d="M 3 13 Q 16 7 30 13 T 43 12"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M 36 6 L 44 12 L 36 19"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }

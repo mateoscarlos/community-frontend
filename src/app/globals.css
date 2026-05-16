@@ -323,3 +323,14 @@ html.a11y *::after {
 html.a11y .emoji-particle {
   display: none !important;
 }
+
+/* ─── Evolution filmstrip scroller ───────────────────────────────────────── */
+
+/* Scrollbar fully hidden — navigation is via the arrow buttons. */
+.evo-scroll {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* old Edge */
+}
+.evo-scroll::-webkit-scrollbar {
+  display: none; /* Chrome / Safari */
+}
