@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useParams, usePathname } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
-import { Grid3x3, Archive, MessageSquare, Menu, X, PanelLeftClose } from 'lucide-react'
+import { Grid3x3, Archive, MessageSquare, X, PanelLeftClose } from 'lucide-react'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { ThemeToggle } from './ThemeToggle'
 import { useLayoutStore } from '@/lib/store/layout.store'
@@ -94,22 +94,12 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile sidebar opener — small floating button so it doesn't reserve
-          layout space. The full mobile top bar has been retired now that we
-          have a back button on every non-home page; users who want the
-          sidebar tap this. */}
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label="Open navigation"
-        aria-expanded={open}
-        className="border-foreground bg-background hover:bg-foreground hover:text-background fixed bottom-3 left-3 z-30 flex h-10 w-10 items-center justify-center border transition-colors md:hidden"
-      >
-        <Menu className="h-5 w-5" strokeWidth={2} />
-      </button>
+      {/* Sidebar is intentionally hidden for now — there's no affordance to
+          open it (theme + language moved to the Settings modal). The drawer
+          markup below is kept so we can bring the sidebar back later without
+          rebuilding it. */}
 
-      {/* Desktop sidebar — slides off-screen when collapsed. AppShell renders
-          the re-open button so the user can bring it back. */}
+      {/* Desktop sidebar — slides off-screen when collapsed. */}
       <motion.aside
         initial={false}
         animate={{ x: collapsed ? '-100%' : 0 }}

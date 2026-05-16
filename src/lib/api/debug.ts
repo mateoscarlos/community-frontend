@@ -1,4 +1,21 @@
-import { apiFetch } from './client'
+import { ApiError } from './client'
+
+// Admin calls go through the same-origin BFF (/api/admin/*), never straight
+// to the backend — the Next route injects the secret server-side. Paths keep
+// their original '/debug/...' shape and are remapped here.
+async function adminFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const rel = path.replace(/^\/debug/, '/api/admin')
+  const res = await fetch(rel, {
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    ...options,
+  })
+  if (!res.ok) {
+    throw new ApiError(res.status, `API error ${res.status}: ${path}`)
+  }
+  if (res.status === 204) return undefined as T
+  const text = await res.text()
+  return (text ? JSON.parse(text) : undefined) as T
+}
 
 export interface UploadURLResponse {
   upload_url: string
@@ -8,7 +25,7 @@ export interface UploadURLResponse {
 }
 
 export function getDebugUploadURL(key: string): Promise<UploadURLResponse> {
-  return apiFetch(`/debug/storage/upload-url?key=${encodeURIComponent(key)}`)
+  return adminFetch(`/debug/storage/upload-url?key=${encodeURIComponent(key)}`)
 }
 
 export function setActiveDailyImage(body: {
@@ -17,37 +34,54 @@ export function setActiveDailyImage(body: {
   height: number
   date?: string
 }) {
-  return apiFetch('/debug/daily-image', {
+  return adminFetch('/debug/daily-image', {
     method: 'POST',
     body: JSON.stringify(body),
   })
 }
 
 export function createPeriod(gameType: 'photo' | 'prompt' = 'photo', prompt = '') {
-  return apiFetch('/debug/period', {
+  return adminFetch('/debug/period', {
     method: 'POST',
     body: JSON.stringify({ game_type: gameType, prompt }),
   })
 }
 
 export function resetPeriod(gameType: 'photo' | 'prompt' = 'photo') {
-  return apiFetch<{ reset: string; message: string }>(
+  return adminFetch<{ reset: string; message: string }>(
     `/debug/period/reset?game_type=${gameType}`,
     { method: 'POST' }
   )
 }
 
 export function resetTile(tileId: string) {
-  return apiFetch<{ reset: string }>(`/debug/tiles/${tileId}/reset`, {
+  return adminFetch<{ reset: string }>(`/debug/tiles/${tileId}/reset`, {
     method: 'POST',
   })
 }
 
 export function drawAllTiles(gameType: 'photo' | 'prompt' = 'photo') {
-  return apiFetch<{ drawn: number; message: string }>(
+  return adminFetch<{ drawn: number; message: string }>(
     `/debug/tiles/draw-all?game_type=${gameType}`,
     { method: 'POST' }
   )
+}
+
+// --- Global period duration ---
+
+export interface PeriodDurationResponse {
+  hours: number | null // null = legacy daily (midnight) cutoff
+}
+
+export function getPeriodDuration(): Promise<PeriodDurationResponse> {
+  return adminFetch<PeriodDurationResponse>('/debug/period-duration')
+}
+
+export function setPeriodDuration(hours: number): Promise<PeriodDurationResponse> {
+  return adminFetch<PeriodDurationResponse>('/debug/period-duration', {
+    method: 'PUT',
+    body: JSON.stringify({ hours }),
+  })
 }
 
 // --- Daily image schedule ---
@@ -67,7 +101,7 @@ export interface ScheduleListResponse {
 }
 
 export function listSchedule(): Promise<ScheduleListResponse> {
-  return apiFetch<ScheduleListResponse>('/debug/schedule')
+  return adminFetch<ScheduleListResponse>('/debug/schedule')
 }
 
 export function upsertSchedule(body: {
@@ -76,14 +110,14 @@ export function upsertSchedule(body: {
   width: number
   height: number
 }): Promise<ScheduleItem> {
-  return apiFetch<ScheduleItem>('/debug/schedule', {
+  return adminFetch<ScheduleItem>('/debug/schedule', {
     method: 'POST',
     body: JSON.stringify(body),
   })
 }
 
 export function deleteSchedule(date: string): Promise<void> {
-  return apiFetch(`/debug/schedule/${date}`, { method: 'DELETE' })
+  return adminFetch(`/debug/schedule/${date}`, { method: 'DELETE' })
 }
 
 // --- Prompt schedule (parallel prompt-based game) ---
@@ -100,21 +134,21 @@ export interface PromptScheduleListResponse {
 }
 
 export function listPromptSchedule(): Promise<PromptScheduleListResponse> {
-  return apiFetch<PromptScheduleListResponse>('/debug/prompt-schedule')
+  return adminFetch<PromptScheduleListResponse>('/debug/prompt-schedule')
 }
 
 export function upsertPromptSchedule(body: {
   date: string
   prompt: string
 }): Promise<PromptScheduleItem> {
-  return apiFetch<PromptScheduleItem>('/debug/prompt-schedule', {
+  return adminFetch<PromptScheduleItem>('/debug/prompt-schedule', {
     method: 'POST',
     body: JSON.stringify(body),
   })
 }
 
 export function deletePromptSchedule(date: string): Promise<void> {
-  return apiFetch(`/debug/prompt-schedule/${date}`, { method: 'DELETE' })
+  return adminFetch(`/debug/prompt-schedule/${date}`, { method: 'DELETE' })
 }
 
 // --- Sessions ---
@@ -157,9 +191,9 @@ export interface SessionDetailResponse {
 }
 
 export function listSessions(): Promise<SessionsListResponse> {
-  return apiFetch<SessionsListResponse>('/debug/sessions')
+  return adminFetch<SessionsListResponse>('/debug/sessions')
 }
 
 export function getSession(id: string): Promise<SessionDetailResponse> {
-  return apiFetch<SessionDetailResponse>(`/debug/sessions/${id}`)
+  return adminFetch<SessionDetailResponse>(`/debug/sessions/${id}`)
 }

@@ -27,6 +27,17 @@
     "es": "Español",
     "da": "Dansk"
   },
+  "settings": {
+    "title": "Ajustes",
+    "theme": "Tema",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "language": "Idioma",
+    "accessibility": "Modo accesible",
+    "accessibility_hint": "Fuente legible, cursor del sistema, sin movimiento ni sonidos.",
+    "on": "Activado",
+    "off": "Desactivado"
+  },
   "common": {
     "loading": "Cargando…",
     "error": "Algo salió mal",

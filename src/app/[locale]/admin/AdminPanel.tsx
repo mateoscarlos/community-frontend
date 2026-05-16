@@ -1,9 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCurrentPeriodQuery, periodQueryKey } from '@/lib/query/period.queries'
-import { resetPeriod, resetTile, drawAllTiles } from '@/lib/api/debug'
+import {
+  resetPeriod,
+  resetTile,
+  drawAllTiles,
+  getPeriodDuration,
+  setPeriodDuration,
+} from '@/lib/api/debug'
 import { RefreshCw } from 'lucide-react'
 import { ScheduleSection } from './ScheduleSection'
 import { PromptScheduleSection } from './PromptScheduleSection'
@@ -33,6 +39,10 @@ export function AdminPanel() {
 
       <Section title="Games">
         <GamesTable />
+      </Section>
+
+      <Section title="Period Duration">
+        <PeriodDurationSection />
       </Section>
 
       <Section title="Schedule">
@@ -142,6 +152,102 @@ function GameRow({ gameType, label }: { gameType: GameType; label: string }) {
           </div>
         </>
       )}
+    </div>
+  )
+}
+
+// --- Period Duration ---
+
+const PRESETS: { label: string; hours: number }[] = [
+  { label: '24h', hours: 24 },
+  { label: '48h', hours: 48 },
+  { label: '72h', hours: 72 },
+  { label: '1 week', hours: 168 },
+]
+
+function PeriodDurationSection() {
+  const queryClient = useQueryClient()
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['debug', 'period-duration'],
+    queryFn: getPeriodDuration,
+    retry: 1,
+  })
+
+  // Server value, with a local override while the admin is editing. `0` /
+  // empty means "legacy daily cutoff".
+  const serverHours = data?.hours ?? 0
+  const [draft, setDraft] = useState<number | null>(null)
+  const hours = draft ?? serverHours
+
+  const dirty = draft !== null && draft !== serverHours
+
+  const save = async (value: number) => {
+    await setPeriodDuration(value)
+    setDraft(null)
+    await refetch()
+    // New duration affects the active period at the next sweep — nudge the
+    // period views to re-read soon.
+    queryClient.invalidateQueries({ queryKey: periodQueryKey })
+  }
+
+  if (isLoading) {
+    return (
+      <p className="text-muted-foreground text-[10px] tracking-[0.2em] uppercase">
+        Loading…
+      </p>
+    )
+  }
+
+  return (
+    <div className="border-foreground space-y-4 border p-4">
+      <p className="text-muted-foreground text-[10px] tracking-[0.15em] uppercase">
+        Current:{' '}
+        <span className="text-foreground font-black">
+          {serverHours > 0 ? `${serverHours}h` : 'Daily (midnight cutoff)'}
+        </span>
+      </p>
+
+      <div className="flex flex-wrap gap-1.5">
+        {PRESETS.map((p) => (
+          <button
+            key={p.hours}
+            type="button"
+            onClick={() => setDraft(p.hours)}
+            className={`flex h-9 min-w-[56px] items-center justify-center border px-3 text-xs font-bold tracking-[0.15em] uppercase transition-all ${
+              hours === p.hours
+                ? 'bg-foreground text-background border-foreground'
+                : 'border-foreground text-foreground hover:bg-foreground hover:text-background'
+            }`}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-muted-foreground text-[10px] tracking-[0.2em] uppercase">
+          Custom (hours)
+        </p>
+        <input
+          type="number"
+          min={0}
+          step={1}
+          value={hours || ''}
+          placeholder="e.g. 96"
+          onChange={(e) => {
+            const n = Number(e.target.value)
+            setDraft(Number.isFinite(n) && n >= 0 ? n : 0)
+          }}
+          className="border-foreground text-foreground w-full border bg-transparent px-3 py-2 text-base outline-none"
+        />
+      </div>
+
+      <SmallButton
+        label={dirty ? 'Save' : 'Saved'}
+        disabled={!dirty}
+        confirm={`Set period duration to ${hours}h? This applies to the active period at the next sweep.`}
+        onClick={() => save(hours)}
+      />
     </div>
   )
 }

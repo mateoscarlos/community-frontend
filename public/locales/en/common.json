@@ -27,6 +27,17 @@
     "es": "Español",
     "da": "Dansk"
   },
+  "settings": {
+    "title": "Settings",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "language": "Language",
+    "accessibility": "Accessibility mode",
+    "accessibility_hint": "Legible font, system cursor, no motion or sounds.",
+    "on": "On",
+    "off": "Off"
+  },
   "common": {
     "loading": "Loading…",
     "error": "Something went wrong",

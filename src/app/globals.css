@@ -283,3 +283,43 @@
     transform: translateX(var(--emoji-drift, 0)) rotate(var(--emoji-spin, 8deg));
   }
 }
+
+/* ─── Accessibility mode (html.a11y, user toggle in Settings) ─────────────── */
+
+/* Swap the decorative display fonts for a legible sans. Scoped to
+   `html.a11y body` so it out-specifies next/font's body-scoped variable. */
+html.a11y body {
+  --font-handwritten: var(--font-geist-sans), system-ui, sans-serif;
+  --font-logo: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Hand back the OS cursor (so large / high-contrast system cursors work). */
+html.a11y body,
+html.a11y .cur-pencil,
+html.a11y .cur-lock,
+html.a11y .cur-no-pencil {
+  cursor: auto;
+}
+html.a11y button:not(:disabled),
+html.a11y [role='button']:not([aria-disabled='true']),
+html.a11y a[href],
+html.a11y summary {
+  cursor: pointer;
+}
+
+/* Kill decorative motion (CSS animations/transitions). framer-motion is
+   handled separately via MotionConfig in A11yProvider. */
+html.a11y *,
+html.a11y *::before,
+html.a11y *::after {
+  animation-duration: 0.001ms !important;
+  animation-delay: 0ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Drop the ambient emoji layer entirely. */
+html.a11y .emoji-particle {
+  display: none !important;
+}

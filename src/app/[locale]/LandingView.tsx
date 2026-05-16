@@ -4,8 +4,11 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { Settings as SettingsIcon } from 'lucide-react'
 import { SketchyBox } from '@/components/ui/SketchyBox'
 import { FloatingEmojis } from '@/components/layout/FloatingEmojis'
+import { SettingsModal } from '@/components/game/SettingsModal'
+import { useUiStore } from '@/lib/store/ui.store'
 import { useLockBodyScroll } from '@/lib/hooks/useLockBodyScroll'
 
 type Mode = 'photo' | 'prompt'
@@ -13,6 +16,8 @@ type Mode = 'photo' | 'prompt'
 export function LandingView({ locale }: { locale: string }) {
   useLockBodyScroll()
   const { t, i18n } = useTranslation()
+  const settingsOpen = useUiStore((s) => s.settingsOpen)
+  const setSettingsOpen = useUiStore((s) => s.setSettingsOpen)
   const [mode, setMode] = useState<Mode>('photo')
   const [now, setNow] = useState<Date | null>(null)
 
@@ -39,6 +44,36 @@ export function LandingView({ locale }: { locale: string }) {
   return (
     <div className="bg-background relative flex h-svh flex-col items-center justify-between overflow-hidden px-6 pt-6 pb-4 sm:pt-12 sm:pb-8">
       <FloatingEmojis />
+
+      {/* Settings entry point — small hand-drawn circle in the top-right,
+          matching the Back/Home button chrome elsewhere. */}
+      <button
+        type="button"
+        onClick={() => setSettingsOpen(true)}
+        aria-label={t('settings.title')}
+        className="text-foreground group fixed top-3 right-3 z-30 inline-flex h-11 w-11 items-center justify-center sm:top-4 sm:right-4 sm:h-12 sm:w-12"
+      >
+        <svg
+          viewBox="0 0 60 60"
+          className="absolute inset-0 h-full w-full"
+          aria-hidden="true"
+        >
+          <path
+            d="M 30 6 C 45 6, 55 17, 54 31 C 53 45, 43 55, 29 54 C 15 53, 6 42, 7 28 C 8 15, 17 6, 30 6 Z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        <SettingsIcon
+          className="relative h-5 w-5 transition-transform group-hover:rotate-45 sm:h-6 sm:w-6"
+          strokeWidth={2.25}
+        />
+      </button>
+
+      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <div className="relative z-10 flex w-full flex-1 flex-col items-center justify-center">
         <CurvedTitle text={t('landing.title')} />
 

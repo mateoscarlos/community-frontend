@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { useA11yStore } from '@/lib/store/a11y.store'
 
 /**
  * Plays a short synthesized mouse-click via Web Audio every time the user
@@ -33,6 +34,9 @@ export function ClickSoundProvider() {
       // Honor an opt-out attribute so we can silence specific elements later
       // (e.g. drag handles, slider thumbs) without ripping out the listener.
       if (interactive.dataset.noClickSound !== undefined) return
+      // Accessibility mode silences the sound. Read non-reactively so we
+      // don't re-bind the listener on every toggle.
+      if (useA11yStore.getState().enabled) return
 
       let ctx = ctxRef.current
       if (!ctx) {

@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { SketchyBox } from '@/components/ui/SketchyBox'
 import { InfoModal } from '@/components/game/InfoModal'
+import { SettingsModal } from '@/components/game/SettingsModal'
+import { useUiStore } from '@/lib/store/ui.store'
 
 interface GameTopTabsProps {
   locale: string
@@ -16,6 +18,8 @@ interface GameTopTabsProps {
 export function GameTopTabs({ locale, gameType, activeTab }: GameTopTabsProps) {
   const { t } = useTranslation()
   const [infoOpen, setInfoOpen] = useState(false)
+  const settingsOpen = useUiStore((s) => s.settingsOpen)
+  const setSettingsOpen = useUiStore((s) => s.setSettingsOpen)
   return (
     <>
       {/* pt-16 on mobile drops the centred tab row below the fixed Back/Home
@@ -32,9 +36,12 @@ export function GameTopTabs({ locale, gameType, activeTab }: GameTopTabsProps) {
         <SketchyTab variant={1} onClick={() => setInfoOpen(true)}>
           {t('nav.info')}
         </SketchyTab>
-        <SketchyTab variant={2}>{t('nav.settings')}</SketchyTab>
+        <SketchyTab variant={2} onClick={() => setSettingsOpen(true)}>
+          {t('nav.settings')}
+        </SketchyTab>
       </div>
       <InfoModal open={infoOpen} onClose={() => setInfoOpen(false)} />
+      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </>
   )
 }

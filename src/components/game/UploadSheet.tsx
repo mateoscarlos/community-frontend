@@ -256,7 +256,7 @@ export function UploadSheet({
 
           <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
             <motion.div
-              className="border-foreground bg-background pointer-events-auto relative flex max-h-[92svh] w-full max-w-3xl flex-col overflow-y-auto rounded-[20px] border px-6 pt-8 pb-8 sm:px-10 lg:max-w-4xl"
+              className="border-foreground bg-background pointer-events-auto relative flex max-h-[92svh] w-full max-w-3xl flex-col overflow-y-auto border px-6 pt-8 pb-8 sm:px-10 lg:max-w-4xl"
               initial={{ opacity: 0, scale: 0.92, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 8 }}
@@ -529,7 +529,6 @@ function ConfirmReleaseDialog({
               style={{
                 background: '#e6e6e6',
                 color: '#111',
-                borderRadius: 20,
                 boxShadow:
                   '0 25px 60px -18px rgba(0,0,0,0.7), 0 14px 32px -16px rgba(0,0,0,0.45)',
               }}

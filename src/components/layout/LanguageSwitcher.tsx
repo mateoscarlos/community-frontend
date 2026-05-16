@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter, usePathname } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
-import { locales, type Locale } from '@/lib/i18n/config'
+import { uiLocales, type Locale } from '@/lib/i18n/config'
 import { useUiStore } from '@/lib/store/ui.store'
 
 interface LanguageSwitcherProps {
@@ -51,7 +51,7 @@ export function LanguageSwitcher({ direction = 'down' }: LanguageSwitcherProps) 
     router.push(segments.join('/') || `/${next}`)
   }
 
-  const others = locales.filter((l) => l !== locale)
+  const others = uiLocales.filter((l) => l !== locale)
   const popoverPos = direction === 'up' ? 'bottom-full mb-1' : 'top-full mt-1'
   const slideFrom = direction === 'up' ? 6 : -6
 

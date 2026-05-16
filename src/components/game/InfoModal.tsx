@@ -59,7 +59,6 @@ export function InfoModal({ open, onClose }: InfoModalProps) {
               style={{
                 background: '#e6e6e6',
                 color: '#111',
-                borderRadius: 20,
                 boxShadow:
                   '0 30px 60px -20px rgba(0,0,0,0.7), 0 18px 36px -18px rgba(0,0,0,0.45)',
               }}

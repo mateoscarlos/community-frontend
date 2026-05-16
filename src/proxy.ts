@@ -25,6 +25,21 @@ export function proxy(request: NextRequest) {
   )
 
   if (pathnameLocale) {
+    // Gate the admin area: without an admin session cookie, bounce to the
+    // unlock screen. This is a UX guard only — the real enforcement is the
+    // BFF (/api/admin/*) re-validating the cookie hash and the backend
+    // re-checking X-Admin-Secret. Edge runtime can't do the crypto compare,
+    // so a presence check here is intentional.
+    const adminBase = `/${pathnameLocale}/admin`
+    const unlockPath = `${adminBase}/unlock`
+    const inAdmin = pathname === adminBase || pathname.startsWith(`${adminBase}/`)
+    const inUnlock = pathname === unlockPath || pathname.startsWith(`${unlockPath}/`)
+    if (inAdmin && !inUnlock && !request.cookies.get('admin_session')?.value) {
+      const url = request.nextUrl.clone()
+      url.pathname = unlockPath
+      return NextResponse.redirect(url)
+    }
+
     // Store locale in cookie for future requests
     const response = NextResponse.next()
     response.cookies.set(COOKIE_NAME, pathnameLocale)

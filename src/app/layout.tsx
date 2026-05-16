@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Schoolbell, Luckiest_Guy } from 'next/font/google'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
+import { A11yProvider } from '@/components/providers/A11yProvider'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -30,7 +31,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${handwritten.variable} ${logo.variable} antialiased`}
       >
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <A11yProvider>{children}</A11yProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

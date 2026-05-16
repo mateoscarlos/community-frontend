@@ -27,6 +27,17 @@
     "es": "Español",
     "da": "Dansk"
   },
+  "settings": {
+    "title": "Indstillinger",
+    "theme": "Tema",
+    "light": "Lys",
+    "dark": "Mørk",
+    "language": "Sprog",
+    "accessibility": "Tilgængelighedstilstand",
+    "accessibility_hint": "Læsbar skrift, systemmarkør, ingen bevægelse eller lyde.",
+    "on": "Til",
+    "off": "Fra"
+  },
   "common": {
     "loading": "Indlæser…",
     "error": "Noget gik galt",
