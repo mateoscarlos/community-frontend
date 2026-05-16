@@ -181,7 +181,7 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
       <GameTopTabs locale={locale} gameType={gameType} />
 
       <div className="flex w-full max-w-md flex-1 flex-col items-center sm:max-w-lg">
-        <div className="mt-4 mb-3 text-center sm:mt-8 sm:mb-6">
+        <div className="mt-2 mb-2 text-center sm:mt-8 sm:mb-6">
           {isPromptGame && promptText && (
             <h1
               className="text-foreground text-3xl leading-tight sm:text-4xl"
@@ -303,7 +303,7 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
         </AnimatePresence>
       </div>
 
-      <div className="pt-3 sm:pt-8">
+      <div className="pt-1 sm:pt-8">
         <DateTimeFooter locale={locale} />
       </div>
 

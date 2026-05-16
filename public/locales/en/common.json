@@ -140,7 +140,14 @@
     "original": "Original picture",
     "draws": "Community draws",
     "phase_label": "Phase {{phase}}",
-    "no_draws_yet": "No draws composed yet for this day"
+    "no_draws_yet": "No draws composed yet for this day",
+    "gallery_hint": "Tap a piece to see how it came to life",
+    "empty_month": "Nothing exhibited this month",
+    "evolution": "How it came to life",
+    "the_subject": "The subject",
+    "this_month": "More from this month",
+    "back_museum": "Back to the museum",
+    "latest": "Final piece"
   },
   "admin": {
     "title": "Admin Panel",

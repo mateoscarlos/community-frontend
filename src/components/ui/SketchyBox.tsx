@@ -16,12 +16,16 @@ export interface SketchyBoxProps {
   variant?: number
   strokeWidth?: number
   className?: string
+  /** Fill the wobbly shape itself (so an "active" highlight follows the
+   *  hand-drawn outline instead of a mismatched rectangle behind it). */
+  filled?: boolean
 }
 
 export function SketchyBox({
   variant = 0,
   strokeWidth = 2.5,
   className,
+  filled = false,
 }: SketchyBoxProps) {
   const d = PATHS[variant % PATHS.length]
   return (
@@ -33,7 +37,7 @@ export function SketchyBox({
     >
       <path
         d={d}
-        fill="none"
+        fill={filled ? 'currentColor' : 'none'}
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"

@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { SketchyBox } from '@/components/ui/SketchyBox'
+import { FloatingEmojis } from '@/components/layout/FloatingEmojis'
 import { useLockBodyScroll } from '@/lib/hooks/useLockBodyScroll'
 
 type Mode = 'photo' | 'prompt'
@@ -37,7 +38,8 @@ export function LandingView({ locale }: { locale: string }) {
 
   return (
     <div className="bg-background relative flex h-svh flex-col items-center justify-between overflow-hidden px-6 pt-6 pb-4 sm:pt-12 sm:pb-8">
-      <div className="flex w-full flex-1 flex-col items-center justify-center">
+      <FloatingEmojis />
+      <div className="relative z-10 flex w-full flex-1 flex-col items-center justify-center">
         <CurvedTitle text={t('landing.title')} />
 
         <p
@@ -62,7 +64,7 @@ export function LandingView({ locale }: { locale: string }) {
         </div>
       </div>
 
-      <div className="text-foreground/80 mt-4 flex flex-col items-center gap-1 font-mono text-sm sm:mt-10">
+      <div className="text-foreground/80 relative z-10 mt-4 flex flex-col items-center gap-1 font-mono text-sm sm:mt-10">
         <span>{dateLabel}</span>
         <span className="tabular-nums">{timeLabel}</span>
       </div>
@@ -85,7 +87,7 @@ function CurvedTitle({ text }: { text: string }) {
   // Lock the rendered word to a fixed run along the arc so the chunky display
   // font can't overflow and clip the first/last glyphs, regardless of its
   // metrics. spacingAndGlyphs lets it scale glyph widths too, not just gaps.
-  const TEXT_LENGTH = 580
+  const TEXT_LENGTH = 660
 
   const renderWord = (extraProps: React.SVGProps<SVGTextPathElement> = {}) => (
     <textPath
@@ -101,9 +103,9 @@ function CurvedTitle({ text }: { text: string }) {
   )
 
   return (
-    <svg viewBox="0 0 680 250" className="w-full max-w-2xl" aria-label={text} role="img">
+    <svg viewBox="0 0 760 250" className="w-full max-w-3xl" aria-label={text} role="img">
       <defs>
-        <path id="community-arc" d="M 40 215 Q 340 -20 640 215" fill="none" />
+        <path id="community-arc" d="M 30 215 Q 380 -25 730 215" fill="none" />
       </defs>
 
       {/* 3D side extrusion — farthest layer first so nearer ones paint on top. */}

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { PanelLeftOpen } from 'lucide-react'
 import { Sidebar } from './Sidebar'
 import { BackButton } from './BackButton'
+import { HomeButton } from './HomeButton'
 import { ClickSoundProvider } from './ClickSoundProvider'
 import { useLayoutStore } from '@/lib/store/layout.store'
 
@@ -23,6 +24,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <ClickSoundProvider />
       <Sidebar />
       <BackButton />
+      <HomeButton />
       <AnimatePresence>
         {collapsed && (
           <motion.button

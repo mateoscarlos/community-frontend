@@ -140,7 +140,14 @@
     "original": "Originalbillede",
     "draws": "Fællesskabets tegninger",
     "phase_label": "Fase {{phase}}",
-    "no_draws_yet": "Ingen tegninger for denne dag endnu"
+    "no_draws_yet": "Ingen tegninger for denne dag endnu",
+    "gallery_hint": "Tryk på et værk for at se, hvordan det blev til",
+    "empty_month": "Intet udstillet denne måned",
+    "evolution": "Hvordan det blev til",
+    "the_subject": "Motivet",
+    "this_month": "Mere fra denne måned",
+    "back_museum": "Tilbage til museet",
+    "latest": "Færdigt værk"
   },
   "admin": {
     "title": "Admin Panel",

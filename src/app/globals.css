@@ -243,3 +243,37 @@
       not-allowed;
   }
 }
+
+/* ─── Ambient floating emojis (landing only) ─────────────────────────────── */
+
+@keyframes emoji-rise {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: var(--emoji-opacity, 0.35);
+  }
+  88% {
+    opacity: var(--emoji-opacity, 0.35);
+  }
+  100% {
+    transform: translateY(-115svh) translateX(var(--emoji-drift, 0))
+      rotate(var(--emoji-spin, 12deg));
+    opacity: 0;
+  }
+}
+
+.emoji-particle {
+  position: absolute;
+  bottom: -8%;
+  will-change: transform, opacity;
+  animation: emoji-rise var(--emoji-dur, 16s) linear var(--emoji-delay, 0s) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .emoji-particle {
+    animation: none;
+    opacity: 0;
+  }
+}

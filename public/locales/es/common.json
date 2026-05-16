@@ -140,7 +140,14 @@
     "original": "Imagen original",
     "draws": "Dibujos de la comunidad",
     "phase_label": "Fase {{phase}}",
-    "no_draws_yet": "Aún no hay dibujos para este día"
+    "no_draws_yet": "Aún no hay dibujos para este día",
+    "gallery_hint": "Toca una obra para ver cómo cobró vida",
+    "empty_month": "Nada expuesto este mes",
+    "evolution": "Cómo cobró vida",
+    "the_subject": "El motivo",
+    "this_month": "Más de este mes",
+    "back_museum": "Volver al museo",
+    "latest": "Obra final"
   },
   "admin": {
     "title": "Panel de Admin",
