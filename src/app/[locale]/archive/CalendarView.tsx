@@ -126,18 +126,34 @@ export function CalendarView() {
         <GameToggle value={gameType} onChange={setGameType} />
       </div>
 
+      {/* A faint hand-drawn flourish + the collection subtitle, for flavour. */}
+      <p
+        className="text-foreground/45 mt-6 text-center text-lg"
+        style={{ fontFamily: 'var(--font-handwritten)' }}
+      >
+        ✦ {t('archive.subtitle')} ✦
+      </p>
+
       {isLoading && (
-        <div className="mt-14 grid w-full max-w-6xl grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-16 grid w-full max-w-6xl grid-cols-2 gap-x-6 gap-y-16 sm:grid-cols-3 sm:gap-x-10 lg:grid-cols-4">
           {Array.from({ length: 8 }, (_, i) => (
-            <Skeleton key={i} className="aspect-[3/4] w-full rounded-none" />
+            <Skeleton key={`s-${i}`} className="aspect-square w-full rounded-none" />
           ))}
         </div>
       )}
 
       {!isLoading && pieces.length === 0 && (
-        <div className="mt-24 flex flex-col items-center gap-3">
+        <div className="mt-24 flex flex-col items-center gap-5">
+          <div className="border-foreground/30 relative aspect-square w-40 border-4 border-dashed">
+            <span
+              className="text-foreground/30 absolute inset-0 flex items-center justify-center text-5xl"
+              style={{ fontFamily: 'var(--font-handwritten)' }}
+            >
+              ?
+            </span>
+          </div>
           <p
-            className="text-foreground/70 text-2xl"
+            className="text-foreground/60 text-2xl"
             style={{ fontFamily: 'var(--font-handwritten)' }}
           >
             {t('archive.empty_month')}
@@ -147,19 +163,23 @@ export function CalendarView() {
 
       {!isLoading && pieces.length > 0 && (
         <>
-          <div className="mt-14 grid w-full max-w-6xl grid-cols-2 gap-x-6 gap-y-12 sm:grid-cols-3 sm:gap-x-10 lg:grid-cols-4">
-            {pieces.map((p, idx) => (
-              <FramedPiece
-                key={p.id}
-                period={p}
-                locale={locale}
-                tilt={TILTS[idx % TILTS.length]}
-                offset={OFFSETS[idx % OFFSETS.length]}
-              />
-            ))}
+          {/* The gallery wall: a faint picture-rail line the pieces hang from. */}
+          <div className="relative mt-16 w-full max-w-6xl">
+            <div className="border-foreground/15 absolute inset-x-0 top-3 border-t" />
+            <div className="relative grid grid-cols-2 gap-x-6 gap-y-20 sm:grid-cols-3 sm:gap-x-12 lg:grid-cols-4">
+              {pieces.map((p, idx) => (
+                <FramedPiece
+                  key={p.id}
+                  period={p}
+                  locale={locale}
+                  tilt={TILTS[idx % TILTS.length]}
+                  offset={OFFSETS[idx % OFFSETS.length]}
+                />
+              ))}
+            </div>
           </div>
           <p
-            className="text-foreground/50 mt-16 text-center text-lg"
+            className="text-foreground/45 mt-20 text-center text-lg"
             style={{ fontFamily: 'var(--font-handwritten)' }}
           >
             {t('archive.gallery_hint')}
@@ -189,44 +209,63 @@ function FramedPiece({
   }).format(date)
 
   return (
-    <motion.div style={{ marginTop: offset }}>
+    <motion.div style={{ marginTop: offset }} className="flex justify-center">
       <Link
         href={`/${locale}/archive/${period.id}`}
-        className="group block"
-        style={{ rotate: `${tilt}deg` }}
+        className="group block w-full max-w-[15rem]"
         title={date.toLocaleDateString(locale)}
       >
+        {/* The whole piece pivots from the nail at the top — a slight resting
+            tilt that swings level when you lean in (hover). */}
         <motion.div
-          whileHover={{ rotate: -tilt, y: -8, scale: 1.03 }}
-          transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-          className="origin-bottom"
+          className="origin-top"
+          style={{ rotate: tilt }}
+          whileHover={{ rotate: 0, y: -6 }}
+          transition={{ type: 'spring', stiffness: 220, damping: 14 }}
         >
-          {/* Frame */}
-          <div className="relative aspect-square w-full p-3">
-            <SketchyBox variant={2} strokeWidth={3} />
-            <div className="bg-foreground/5 absolute inset-3 overflow-hidden rounded-2xl">
+          {/* Hanger: a nail and two taut strings down to the frame corners. */}
+          <svg
+            viewBox="0 0 100 26"
+            className="text-foreground/70 mx-auto block h-6 w-full"
+            aria-hidden="true"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M 8 24 Q 50 -6 92 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            />
+            <circle cx="50" cy="6" r="2.4" className="fill-foreground" />
+          </svg>
+
+          {/* Framed artwork: chunky outer frame + inner mat. */}
+          <div className="border-foreground bg-foreground/5 relative border-[5px] p-2 shadow-[0_14px_30px_-14px_rgba(0,0,0,0.7)] transition-shadow duration-300 group-hover:shadow-[0_22px_44px_-14px_rgba(0,0,0,0.85)] sm:border-[6px] sm:p-3">
+            <div className="border-foreground/25 relative aspect-square w-full border">
               {period.final_image_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={period.final_image_url}
                   alt=""
-                  className="h-full w-full object-cover"
+                  className="absolute inset-0 h-full w-full object-cover"
                   draggable={false}
                   loading="lazy"
                 />
               ) : (
-                <div className="text-foreground/30 flex h-full w-full items-center justify-center">
-                  <span className="bg-foreground/30 h-2 w-2 rounded-full" />
-                </div>
+                <span
+                  className="text-foreground/30 absolute inset-0 flex items-center justify-center text-3xl"
+                  style={{ fontFamily: 'var(--font-handwritten)' }}
+                >
+                  ?
+                </span>
               )}
             </div>
           </div>
 
-          {/* Placard */}
-          <div className="relative mx-auto -mt-1 flex h-9 w-3/4 items-center justify-center">
-            <SketchyBox variant={3} strokeWidth={2.5} />
+          {/* Engraved brass-style plaque, slightly askew for character. */}
+          <div className="mt-3 flex justify-center">
             <span
-              className="text-foreground relative z-10 text-base leading-none"
+              className="bg-foreground text-background inline-block -rotate-1 px-3 py-1 text-sm leading-none shadow-[0_3px_8px_-3px_rgba(0,0,0,0.6)] transition-transform duration-300 group-hover:rotate-0"
               style={{ fontFamily: 'var(--font-handwritten)' }}
             >
               {dayLabel}

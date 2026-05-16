@@ -4,7 +4,6 @@ import { motion } from 'framer-motion'
 import { Sidebar } from './Sidebar'
 import { BackButton } from './BackButton'
 import { HomeButton } from './HomeButton'
-import { ClickSoundProvider } from './ClickSoundProvider'
 import { useLayoutStore } from '@/lib/store/layout.store'
 
 const SIDEBAR_WIDTH = 256
@@ -20,7 +19,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="bg-background min-h-dvh">
-      <ClickSoundProvider />
       <Sidebar />
       <BackButton />
       <HomeButton />
