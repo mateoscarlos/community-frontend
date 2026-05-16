@@ -82,11 +82,28 @@ function CurvedTitle({ text }: { text: string }) {
     fontFamily: 'var(--font-logo)',
     fontSize: 116,
   } as const
+  // Lock the rendered word to a fixed run along the arc so the chunky display
+  // font can't overflow and clip the first/last glyphs, regardless of its
+  // metrics. spacingAndGlyphs lets it scale glyph widths too, not just gaps.
+  const TEXT_LENGTH = 580
+
+  const renderWord = (extraProps: React.SVGProps<SVGTextPathElement> = {}) => (
+    <textPath
+      href="#community-arc"
+      startOffset="50%"
+      textAnchor="middle"
+      textLength={TEXT_LENGTH}
+      lengthAdjust="spacingAndGlyphs"
+      {...extraProps}
+    >
+      {text}
+    </textPath>
+  )
 
   return (
-    <svg viewBox="0 0 600 240" className="w-full max-w-2xl" aria-label={text} role="img">
+    <svg viewBox="0 0 680 250" className="w-full max-w-2xl" aria-label={text} role="img">
       <defs>
-        <path id="community-arc" d="M 40 205 Q 300 -25 560 205" fill="none" />
+        <path id="community-arc" d="M 40 215 Q 340 -20 640 215" fill="none" />
       </defs>
 
       {/* 3D side extrusion — farthest layer first so nearer ones paint on top. */}
@@ -99,9 +116,7 @@ function CurvedTitle({ text }: { text: string }) {
             style={fontStyle}
             transform={`translate(${i * STEP_X}, ${i * STEP_Y})`}
           >
-            <textPath href="#community-arc" startOffset="50%" textAnchor="middle">
-              {text}
-            </textPath>
+            {renderWord()}
           </text>
         )
       })}
@@ -117,9 +132,7 @@ function CurvedTitle({ text }: { text: string }) {
           strokeLinejoin: 'round',
         }}
       >
-        <textPath href="#community-arc" startOffset="50%" textAnchor="middle">
-          {text}
-        </textPath>
+        {renderWord()}
       </text>
     </svg>
   )
