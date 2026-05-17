@@ -80,6 +80,10 @@ export function useTileEvents(
     [queryClient, queryKey]
   )
 
+  const refetchPeriod = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey })
+  }, [queryClient, queryKey])
+
   useEffect(() => {
     let disposed = false
 
@@ -111,6 +115,18 @@ export function useTileEvents(
       es.addEventListener('tile_locked', handleEvent)
       es.addEventListener('tile_freed', handleEvent)
       es.addEventListener('tile_drawn', handleEvent)
+
+      // The active period changed in place (e.g. admin edited today's
+      // prompt). Refetch so the new prompt/metadata shows without a reload.
+      es.addEventListener('period_updated', (e: MessageEvent) => {
+        try {
+          const data = JSON.parse(e.data) as { game_type?: string }
+          if (data.game_type && data.game_type !== gameType) return
+          refetchPeriod()
+        } catch {
+          // ignore
+        }
+      })
 
       es.addEventListener('phase_complete', (e: MessageEvent) => {
         try {
@@ -151,5 +167,5 @@ export function useTileEvents(
       // Restore polling on unmount
       enablePolling(true)
     }
-  }, [updateTileInCache, enablePolling, gameType, unclaimTile])
+  }, [updateTileInCache, enablePolling, refetchPeriod, gameType, unclaimTile])
 }
