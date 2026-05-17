@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { QRCodeSVG } from 'qrcode.react'
 import { useGameStore } from '@/lib/store/game.store'
+import { useSubmitFeedbackMutation } from '@/lib/query/feedback.queries'
 import { useIsMobile } from '@/lib/hooks/useIsMobile'
 import { useCountdown, formatCountdown } from '@/lib/hooks/useCountdown'
 import { SketchyBox } from '@/components/ui/SketchyBox'
@@ -224,11 +225,8 @@ export function UploadSheet({
 
       setStep('done')
       unclaimTile(tile.id)
-
-      setTimeout(() => {
-        onSubmitted()
-        onClose()
-      }, 1500)
+      // DoneStep owns the close timing now — it may hold the sheet open a
+      // little longer to offer a one-tap reaction.
     } catch (err) {
       setStep('error')
       setErrorMsg(err instanceof Error ? err.message : t('common.error'))
@@ -307,7 +305,7 @@ export function UploadSheet({
                     </p>
                   )}
                 </div>
-              ) : (
+              ) : step === 'done' ? null : (
                 <div className="mb-4">
                   <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
                     {t('upload.title')}
@@ -446,19 +444,13 @@ export function UploadSheet({
               )}
 
               {step === 'done' && (
-                <div className="flex flex-col items-center gap-4 py-2">
-                  {preview && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={preview}
-                      alt=""
-                      className="border-foreground aspect-square w-full border-2 object-cover"
-                    />
-                  )}
-                  <p className="text-foreground text-xs font-bold tracking-[0.2em] uppercase">
-                    ✓ {t('upload.success')}
-                  </p>
-                </div>
+                <DoneStep
+                  preview={preview}
+                  onDone={() => {
+                    onSubmitted()
+                    onClose()
+                  }}
+                />
               )}
 
               {step === 'error' && (
@@ -583,6 +575,115 @@ function ConfirmReleaseDialog({
         </div>
       )}
     </AnimatePresence>
+  )
+}
+
+// Success screen. Beyond the "submitted" confirmation it offers an optional
+// one-tap reaction — the highest-emotion moment in the app and the least
+// annoying place to ask. It's shown on every completed upload (no per-device
+// suppression for now). While it's asking, the sheet does NOT auto-close:
+// the user votes, or dismisses it with the ✕ / backdrop. After a vote it
+// shows "Thanks!" and closes on its own a couple of seconds later.
+function DoneStep({ preview, onDone }: { preview: string | null; onDone: () => void }) {
+  const { t } = useTranslation()
+  const feedbackMutation = useSubmitFeedbackMutation()
+  const [thanked, setThanked] = useState(false)
+  const showStrip = !thanked
+
+  // Keep a live ref to the close callback so the timer always calls the
+  // latest one without re-arming on every parent re-render.
+  const onDoneRef = useRef(onDone)
+  useEffect(() => {
+    onDoneRef.current = onDone
+  })
+
+  // Don't auto-close while the reaction is on screen — the sheet must hold
+  // still so the user can vote (or dismiss it themselves via the ✕ button or
+  // backdrop). After a vote, linger a beat on "Thanks!" so the screen doesn't
+  // yank away, then close.
+  useEffect(() => {
+    if (showStrip) return
+    const id = setTimeout(() => onDoneRef.current(), 2600)
+    return () => clearTimeout(id)
+  }, [showStrip])
+
+  const pick = (rating: number) => {
+    setThanked(true)
+    // Fire-and-forget — the rating is captured server-side; the user never
+    // waits on it and an error here must not disrupt the flow.
+    feedbackMutation.mutate({ message: '', rating, context: 'post_upload' })
+  }
+
+  const faces = [
+    { rating: 3, emoji: '🙂', label: t('feedback.rate_good') },
+    { rating: 2, emoji: '😐', label: t('feedback.rate_ok') },
+    { rating: 1, emoji: '🙁', label: t('feedback.rate_bad') },
+  ]
+
+  return (
+    // Success text + the vote come first so they're visible immediately with
+    // no scrolling; the drawing preview sits below as the reward.
+    <div className="flex flex-col items-center gap-4 py-2">
+      <p className="text-foreground text-xs font-bold tracking-[0.2em] uppercase">
+        ✓ {t('upload.success')}
+      </p>
+
+      <AnimatePresence mode="wait">
+        {showStrip ? (
+          <motion.div
+            key="ask"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.2 }}
+            className="flex flex-col items-center gap-3"
+          >
+            <p
+              className="text-foreground text-xl leading-none sm:text-2xl"
+              style={{ fontFamily: 'var(--font-handwritten)' }}
+            >
+              {t('feedback.rate_q')}
+            </p>
+            <div className="flex items-start gap-2 sm:gap-4">
+              {faces.map((f) => (
+                <button
+                  key={f.rating}
+                  type="button"
+                  onClick={() => pick(f.rating)}
+                  aria-label={f.label}
+                  className="hover:bg-foreground/10 flex w-20 flex-col items-center gap-1 px-2 py-2 transition-colors sm:w-24"
+                >
+                  <span className="text-3xl sm:text-4xl">{f.emoji}</span>
+                  <span className="text-muted-foreground text-[10px] tracking-[0.12em] uppercase">
+                    {f.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        ) : thanked ? (
+          <motion.p
+            key="thanks"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: 'spring', damping: 18, stiffness: 320 }}
+            className="text-foreground text-xl leading-none sm:text-2xl"
+            style={{ fontFamily: 'var(--font-handwritten)' }}
+          >
+            {t('feedback.rate_thanks')}
+          </motion.p>
+        ) : null}
+      </AnimatePresence>
+
+      {preview && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={preview}
+          alt=""
+          className="border-foreground aspect-square w-full max-w-xs border-2 object-cover sm:max-w-sm"
+        />
+      )}
+    </div>
   )
 }
 

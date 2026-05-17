@@ -133,6 +133,10 @@ export interface SubmitResponse {
 export interface FeedbackRequest {
   message: string
   contact?: string
+  /** One-tap sentiment: 1 = negative, 2 = neutral, 3 = positive. */
+  rating?: number
+  /** Where the feedback came from, e.g. "post_upload". */
+  context?: string
 }
 
 export interface FeedbackResponse {

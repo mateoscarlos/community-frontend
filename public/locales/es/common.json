@@ -9,8 +9,11 @@
     "settings": "Ajustes"
   },
   "info": {
-    "p1": "Community es donde el mundo dibuja en común. El lienzo se divide en casillas y solo tienes que reclamar una, coger un boli y dibujar tu parte a partir de una idea compartida que cambia cada 24 horas. Cuando se rellenan todas las casillas, el lienzo se amplía — siempre hay sitio para más. Eso sí, recuerda: una casilla por lienzo, así que aprovecha la tuya.",
-    "p2": "En el fondo, Community va de hacer arte juntos a la vieja usanza. Sin herramientas digitales, sin IA. Solo papel, un boli y tú. Una galería global construida dibujo a dibujo.",
+    "title": "Cómo funciona Community",
+    "step1": "Reclama una casilla en el lienzo compartido",
+    "step2": "Dibuja tu parte a partir de la imagen o la idea del día",
+    "step3": "Llena el lienzo — crece a medida que se completan las casillas",
+    "footer": "Una casilla por lienzo. Sin herramientas digitales. Sin IA. Solo papel, un boli y tú.",
     "close": "Cerrar"
   },
   "health": {
@@ -191,6 +194,11 @@
     "placeholder": "Tu mensaje…",
     "contact_placeholder": "Email o red social (opcional)",
     "submit": "Enviar comentario",
-    "success": "¡Gracias por tu comentario!"
+    "success": "¡Gracias por tu comentario!",
+    "rate_q": "¿Qué tal ha ido?",
+    "rate_thanks": "¡Gracias!",
+    "rate_good": "Me encantó",
+    "rate_ok": "Estuvo bien",
+    "rate_bad": "No muy bien"
   }
 }

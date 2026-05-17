@@ -9,8 +9,11 @@
     "settings": "Indstillinger"
   },
   "info": {
-    "p1": "Community er der, hvor verden tegner sammen. Lærredet er delt op i felter, og det eneste, du skal gøre, er at tage et felt, gribe en pen og tegne din del ud fra en fælles idé, der skifter hver 24. time. Når alle felterne er fyldt ud, vokser lærredet — der er altid plads til mere. Husk dog: ét felt pr. lærred, så få det meste ud af dit.",
-    "p2": "I bund og grund handler Community om at lave kunst sammen — på den gammeldags måde. Ingen digitale værktøjer, ingen AI. Bare papir, en pen og dig. Et globalt galleri bygget én lille tegning ad gangen.",
+    "title": "Sådan fungerer Community",
+    "step1": "Tag et felt på det fælles lærred",
+    "step2": "Tegn din del ud fra dagens billede eller idé",
+    "step3": "Fyld lærredet — det vokser, efterhånden som felter bliver færdige",
+    "footer": "Ét felt pr. lærred. Ingen digitale værktøjer. Ingen AI. Kun papir, en pen og dig.",
     "close": "Luk"
   },
   "health": {
@@ -191,6 +194,11 @@
     "placeholder": "Din besked…",
     "contact_placeholder": "Email eller social (valgfrit)",
     "submit": "Send feedback",
-    "success": "Tak for din feedback!"
+    "success": "Tak for din feedback!",
+    "rate_q": "Hvordan gik det?",
+    "rate_thanks": "Tak!",
+    "rate_good": "Elskede det",
+    "rate_ok": "Det var okay",
+    "rate_bad": "Ikke så godt"
   }
 }

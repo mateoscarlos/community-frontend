@@ -9,6 +9,11 @@ import {
   drawAllTiles,
   getPeriodDuration,
   setPeriodDuration,
+  listFeedback,
+  markFeedbackRead,
+  getRetention,
+  setRetention,
+  purgeRetention,
 } from '@/lib/api/debug'
 import { RefreshCw } from 'lucide-react'
 import { ScheduleSection } from './ScheduleSection'
@@ -51,6 +56,14 @@ export function AdminPanel() {
 
       <Section title="Prompt Schedule">
         <PromptScheduleSection />
+      </Section>
+
+      <Section title="Feedback">
+        <FeedbackSection />
+      </Section>
+
+      <Section title="Storage Cleanup">
+        <RetentionSection />
       </Section>
 
       <Section title="Players">
@@ -248,6 +261,241 @@ function PeriodDurationSection() {
         confirm={`Set period duration to ${hours}h? This applies to the active period at the next sweep.`}
         onClick={() => save(hours)}
       />
+    </div>
+  )
+}
+
+// --- Feedback ---
+
+const RATING_EMOJI: Record<number, string> = { 1: '🙁', 2: '😐', 3: '🙂' }
+const RATING_LABEL: Record<number, string> = {
+  1: 'Negative',
+  2: 'Neutral',
+  3: 'Positive',
+}
+
+function FeedbackSection() {
+  const queryClient = useQueryClient()
+  const { data, isLoading } = useQuery({
+    queryKey: ['debug', 'feedback'],
+    queryFn: listFeedback,
+    retry: 1,
+  })
+  const items = data?.feedback ?? []
+  const newCount = items.filter((f) => !f.viewed).length
+
+  const toggle = async (id: string, read: boolean) => {
+    await markFeedbackRead(id, read)
+    queryClient.invalidateQueries({ queryKey: ['debug', 'feedback'] })
+  }
+
+  if (isLoading) {
+    return (
+      <p className="text-muted-foreground text-[10px] tracking-[0.2em] uppercase">
+        Loading…
+      </p>
+    )
+  }
+
+  if (items.length === 0) {
+    return (
+      <p className="text-muted-foreground text-[10px] tracking-[0.2em] uppercase">
+        No feedback yet
+      </p>
+    )
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-muted-foreground text-[10px] tracking-[0.2em] uppercase">
+        {items.length} total ·{' '}
+        <span className="text-foreground font-black">{newCount} new</span>
+      </p>
+      <div className="border-foreground space-y-0 border">
+        {items.map((f, i) => (
+          <div
+            key={f.id}
+            className={`space-y-2 p-4 ${i > 0 ? 'border-foreground/20 border-t' : ''} ${
+              f.viewed ? 'opacity-60' : ''
+            }`}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`px-2 py-0.5 text-[9px] font-black tracking-[0.2em] uppercase ${
+                    f.viewed
+                      ? 'border-foreground/40 text-muted-foreground border'
+                      : 'bg-foreground text-background'
+                  }`}
+                >
+                  {f.viewed ? 'Viewed' : 'New'}
+                </span>
+                {f.rating != null && (
+                  <span
+                    className="border-foreground/30 text-foreground border px-2 py-0.5 text-[11px]"
+                    title={RATING_LABEL[f.rating] ?? `rating ${f.rating}`}
+                  >
+                    {RATING_EMOJI[f.rating] ?? '•'}{' '}
+                    <span className="text-muted-foreground text-[9px] tracking-[0.15em] uppercase">
+                      {RATING_LABEL[f.rating] ?? f.rating}
+                    </span>
+                  </span>
+                )}
+                {f.context && (
+                  <span className="text-muted-foreground font-mono text-[10px]">
+                    {f.context}
+                  </span>
+                )}
+              </div>
+              <span className="text-muted-foreground text-[10px] tracking-[0.15em] uppercase">
+                {new Date(f.created_at).toLocaleString()}
+              </span>
+            </div>
+            {f.message ? (
+              <p className="text-foreground text-sm break-words whitespace-pre-wrap">
+                {f.message}
+              </p>
+            ) : (
+              <p className="text-muted-foreground text-xs italic">
+                {f.rating != null ? 'Quick reaction — no message' : 'No message'}
+              </p>
+            )}
+            {f.contact && (
+              <p className="text-muted-foreground font-mono text-[11px] break-words">
+                {f.contact}
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={() => toggle(f.id, !f.viewed)}
+              className="border-foreground text-foreground hover:bg-foreground hover:text-background flex h-8 items-center justify-center border px-3 text-[10px] font-bold tracking-[0.2em] uppercase transition-all"
+            >
+              {f.viewed ? 'Mark new' : 'Mark viewed'}
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// --- Storage Cleanup (retention) ---
+
+const RETENTION_PRESETS = [7, 30, 90]
+
+function RetentionSection() {
+  const queryClient = useQueryClient()
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['debug', 'retention'],
+    queryFn: getRetention,
+    retry: 1,
+  })
+  const [purging, setPurging] = useState(false)
+
+  const serverDays = data?.retention_days ?? 30
+  const eligible = data?.eligible
+  const [draft, setDraft] = useState<number | null>(null)
+  const days = draft ?? serverDays
+  const dirty = draft !== null && draft !== serverDays
+
+  const save = async (value: number) => {
+    await setRetention(value)
+    setDraft(null)
+    await refetch()
+  }
+
+  const purgeNow = async () => {
+    if (
+      !window.confirm(
+        'Permanently delete tile/claim/submission rows for periods older ' +
+          `than ${serverDays} days? The Museum keeps the final images.`
+      )
+    )
+      return
+    setPurging(true)
+    try {
+      await purgeRetention()
+      await refetch()
+      queryClient.invalidateQueries({ queryKey: periodQueryKey })
+    } finally {
+      setPurging(false)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <p className="text-muted-foreground text-[10px] tracking-[0.2em] uppercase">
+        Loading…
+      </p>
+    )
+  }
+
+  return (
+    <div className="border-foreground space-y-4 border p-4">
+      <p className="text-muted-foreground text-[10px] tracking-[0.15em] uppercase">
+        Retain per-tile data for{' '}
+        <span className="text-foreground font-black">{serverDays} days</span> after a
+        period ends
+      </p>
+
+      <div className="flex flex-wrap gap-1.5">
+        {RETENTION_PRESETS.map((d) => (
+          <button
+            key={d}
+            type="button"
+            onClick={() => setDraft(d)}
+            className={`flex h-9 min-w-[56px] items-center justify-center border px-3 text-xs font-bold tracking-[0.15em] uppercase transition-all ${
+              days === d
+                ? 'bg-foreground text-background border-foreground'
+                : 'border-foreground text-foreground hover:bg-foreground hover:text-background'
+            }`}
+          >
+            {d}d
+          </button>
+        ))}
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-muted-foreground text-[10px] tracking-[0.2em] uppercase">
+          Custom (days)
+        </p>
+        <input
+          type="number"
+          min={1}
+          step={1}
+          value={days || ''}
+          placeholder="e.g. 45"
+          onChange={(e) => {
+            const n = Number(e.target.value)
+            setDraft(Number.isFinite(n) && n >= 1 ? n : 1)
+          }}
+          className="border-foreground text-foreground w-full border bg-transparent px-3 py-2 text-base outline-none"
+        />
+      </div>
+
+      <SmallButton
+        label={dirty ? 'Save' : 'Saved'}
+        disabled={!dirty}
+        confirm={`Keep per-tile data for ${days} days after a period ends?`}
+        onClick={() => save(days)}
+      />
+
+      <div className="border-foreground/20 space-y-3 border-t pt-4">
+        <p className="text-muted-foreground text-[10px] tracking-[0.15em] uppercase">
+          Eligible to purge now:{' '}
+          <span className="text-foreground font-black">
+            {eligible
+              ? `${eligible.periods} periods · ${eligible.tiles} tiles · ${eligible.submissions} submissions`
+              : '—'}
+          </span>
+        </p>
+        <SmallButton
+          label={purging ? 'Purging…' : 'Purge now'}
+          variant="outline"
+          disabled={purging || !eligible || eligible.tiles === 0}
+          onClick={purgeNow}
+        />
+      </div>
     </div>
   )
 }

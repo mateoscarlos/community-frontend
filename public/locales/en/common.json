@@ -9,8 +9,11 @@
     "settings": "Settings"
   },
   "info": {
-    "p1": "Community is where the world draws together. The canvas is split into tiles, and all you need to do is claim one, pick up a pen, and draw your piece based on a shared prompt that updates every 24 hours. Fill all the tiles, and the canvas expands — there's always room for more. Just keep in mind: one tile per canvas, so make yours count.",
-    "p2": "At its heart, Community is about making art together — the old-fashioned way. No digital tools, no AI. Just paper, a pen, and you. A global gallery built one small drawing at a time.",
+    "title": "How Community works",
+    "step1": "Claim a tile on the shared canvas",
+    "step2": "Draw your piece from the day's picture or prompt",
+    "step3": "Fill the canvas — it expands as tiles are completed",
+    "footer": "One tile per canvas. No digital tools. No AI. Just paper, a pen, and you.",
     "close": "Close"
   },
   "health": {
@@ -191,6 +194,11 @@
     "placeholder": "Your message…",
     "contact_placeholder": "Email or social (optional)",
     "submit": "Send feedback",
-    "success": "Thanks for your feedback!"
+    "success": "Thanks for your feedback!",
+    "rate_q": "How was that?",
+    "rate_thanks": "Thanks!",
+    "rate_good": "Loved it",
+    "rate_ok": "It was okay",
+    "rate_bad": "Not great"
   }
 }

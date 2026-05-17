@@ -67,6 +67,67 @@ export function drawAllTiles(gameType: 'photo' | 'prompt' = 'photo') {
   )
 }
 
+// --- Feedback inbox (admin only) ---
+
+export interface FeedbackItem {
+  id: string
+  message: string
+  contact: string
+  rating: number | null
+  context: string
+  created_at: string
+  viewed_at: string | null
+  viewed: boolean
+}
+
+export interface FeedbackListResponse {
+  feedback: FeedbackItem[]
+}
+
+export function listFeedback(): Promise<FeedbackListResponse> {
+  return adminFetch<FeedbackListResponse>('/debug/feedback')
+}
+
+export function markFeedbackRead(
+  id: string,
+  read: boolean
+): Promise<{ viewed: boolean }> {
+  return adminFetch<{ viewed: boolean }>(`/debug/feedback/${id}/read`, {
+    method: read ? 'POST' : 'DELETE',
+  })
+}
+
+// --- Storage / retention cleanup (admin only) ---
+
+export interface RetentionStats {
+  periods: number
+  tiles: number
+  claims: number
+  submissions: number
+}
+
+export interface RetentionResponse {
+  retention_days: number
+  eligible: RetentionStats
+}
+
+export function getRetention(): Promise<RetentionResponse> {
+  return adminFetch<RetentionResponse>('/debug/retention')
+}
+
+export function setRetention(days: number): Promise<{ retention_days: number }> {
+  return adminFetch<{ retention_days: number }>('/debug/retention', {
+    method: 'PUT',
+    body: JSON.stringify({ days }),
+  })
+}
+
+export function purgeRetention(): Promise<{ purged: RetentionStats }> {
+  return adminFetch<{ purged: RetentionStats }>('/debug/retention/purge', {
+    method: 'POST',
+  })
+}
+
 // --- Global period duration ---
 
 export interface PeriodDurationResponse {

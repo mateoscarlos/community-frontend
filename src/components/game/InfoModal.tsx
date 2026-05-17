@@ -69,13 +69,37 @@ export function InfoModal({ open, onClose }: InfoModalProps) {
             >
               <ModalCloseButton onClick={onClose} ariaLabel={t('info.close')} />
 
-              <h2 id="info-modal-title" className="sr-only">
-                {t('nav.info')}
-              </h2>
+              <div className="px-6 pt-14 pb-8 sm:px-10 sm:pt-16 sm:pb-10">
+                <h2
+                  id="info-modal-title"
+                  className="text-2xl leading-tight sm:text-3xl"
+                  style={{ fontFamily: 'var(--font-handwritten)' }}
+                >
+                  {t('info.title')}
+                </h2>
 
-              <div className="space-y-5 px-6 pt-14 pb-8 text-[15px] leading-relaxed sm:px-10 sm:pt-16 sm:pb-10 sm:text-base">
-                <p>{t('info.p1')}</p>
-                <p>{t('info.p2')}</p>
+                <ol className="mt-6 space-y-4 text-[15px] leading-relaxed sm:text-base">
+                  {[t('info.step1'), t('info.step2'), t('info.step3')].map((step, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span
+                        className="flex h-7 w-7 flex-none items-center justify-center rounded-full text-base"
+                        style={{
+                          background: '#111',
+                          color: '#e6e6e6',
+                          fontFamily: 'var(--font-handwritten)',
+                        }}
+                        aria-hidden="true"
+                      >
+                        {i + 1}
+                      </span>
+                      <span className="pt-0.5">{step}</span>
+                    </li>
+                  ))}
+                </ol>
+
+                <p className="mt-7 border-t border-black/15 pt-5 text-sm italic opacity-70">
+                  {t('info.footer')}
+                </p>
               </div>
             </motion.div>
           </div>
