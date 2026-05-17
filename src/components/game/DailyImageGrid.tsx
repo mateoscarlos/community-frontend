@@ -451,6 +451,20 @@ function TileCell({
       disabled={(!isFree && !isMine) || (isFree && disabled)}
       aria-label={`Tile ${tile.row + 1},${tile.col + 1} — ${isMine ? 'yours' : tile.status}`}
     >
+      {/* Empty paper tile (prompt mode): faint ruled lines, like a sheet of
+          notebook paper waiting for a drawing. No box/border so it never
+          reads as another tile. */}
+      {isPromptGame && isFree && (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage:
+              'repeating-linear-gradient(0deg, rgba(0,0,0,0.045) 0 1px, transparent 1px 13px)',
+          }}
+        />
+      )}
+
       {isMine && isLocked && (
         <motion.div
           className="absolute inset-0 flex items-center justify-center"

@@ -1,3 +1,7 @@
+'use client'
+
+import { useA11yStore } from '@/lib/store/a11y.store'
+
 // Pre-traced hand-drawn rectangles. Each variant has its own wobble, corner
 // angle, and edge sag so a row of them doesn't read as identical stamps.
 // All paths target a 200×80 viewBox; the SVG stretches via preserveAspectRatio.
@@ -27,6 +31,21 @@ export function SketchyBox({
   className,
   filled = false,
 }: SketchyBoxProps) {
+  const a11y = useA11yStore((s) => s.enabled)
+
+  // Accessibility mode: a crisp, regular rectangle instead of the wobbly
+  // hand-drawn outline.
+  if (a11y) {
+    return (
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-0 border-2 border-current ${
+          filled ? 'bg-current' : ''
+        } ${className ?? ''}`}
+      />
+    )
+  }
+
   const d = PATHS[variant % PATHS.length]
   return (
     <svg

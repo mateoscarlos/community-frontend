@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react'
-import { usePeriodByIdQuery, useArchiveQuery } from '@/lib/query/period.queries'
+import { usePeriodByIdQuery } from '@/lib/query/period.queries'
 import { GameTopTabs } from '@/components/game/GameTopTabs'
 import { ModalCloseButton } from '@/components/ui/ModalCloseButton'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -23,7 +23,7 @@ interface PeriodDetailProps {
 }
 
 export function PeriodDetail({ id, locale }: PeriodDetailProps) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const { data, isLoading, isError } = usePeriodByIdQuery(id)
 
   const period = data?.period
@@ -44,19 +44,6 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
 
   // Click any phase to view it large in a lightbox.
   const [zoomed, setZoomed] = useState<Mosaic | null>(null)
-
-  // The other days in the same month, for the "more from this month" rail.
-  const { data: archive } = useArchiveQuery(gameType)
-  const monthRail = useMemo(() => {
-    if (!period) return []
-    const d = new Date(period.started_at)
-    return (archive?.periods ?? [])
-      .filter((p) => {
-        const pd = new Date(p.started_at)
-        return pd.getFullYear() === d.getFullYear() && pd.getMonth() === d.getMonth()
-      })
-      .sort((a, b) => new Date(a.started_at).getTime() - new Date(b.started_at).getTime())
-  }, [archive, period])
 
   const dateLabel = period
     ? new Date(period.started_at).toLocaleDateString(locale, {
@@ -199,67 +186,6 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
                 )}
               </div>
             </div>
-
-            {/* More from this month */}
-            {monthRail.length > 1 && (
-              <section className="mt-24">
-                <p
-                  className="text-foreground/60 mb-5 text-lg"
-                  style={{ fontFamily: 'var(--font-handwritten)' }}
-                >
-                  {t('archive.this_month')}
-                </p>
-                <div className="-mx-4 flex gap-5 overflow-x-auto px-4 pb-4 sm:-mx-0 sm:px-0">
-                  {monthRail.map((p) => {
-                    const isCurrent = p.id === id
-                    const d = new Date(p.started_at)
-                    const label = new Intl.DateTimeFormat(i18n.language, {
-                      day: 'numeric',
-                    }).format(d)
-                    return (
-                      <Link
-                        key={p.id}
-                        href={`/${locale}/archive/${p.id}`}
-                        aria-current={isCurrent ? 'page' : undefined}
-                        className="shrink-0"
-                      >
-                        <div
-                          className={`bg-foreground/5 relative h-24 w-24 overflow-hidden border-[3px] sm:h-28 sm:w-28 ${
-                            isCurrent
-                              ? 'border-foreground'
-                              : 'border-foreground/40 opacity-70'
-                          }`}
-                        >
-                          {p.final_image_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={p.final_image_url}
-                              alt=""
-                              className="h-full w-full object-cover"
-                              draggable={false}
-                              loading="lazy"
-                            />
-                          ) : (
-                            <span
-                              className="text-foreground/30 absolute inset-0 flex items-center justify-center text-2xl"
-                              style={{ fontFamily: 'var(--font-handwritten)' }}
-                            >
-                              ?
-                            </span>
-                          )}
-                          <span
-                            className="bg-foreground text-background absolute right-0 bottom-0 px-1.5 py-0.5 text-xs leading-none"
-                            style={{ fontFamily: 'var(--font-handwritten)' }}
-                          >
-                            {label}
-                          </span>
-                        </div>
-                      </Link>
-                    )
-                  })}
-                </div>
-              </section>
-            )}
           </>
         )}
       </div>
