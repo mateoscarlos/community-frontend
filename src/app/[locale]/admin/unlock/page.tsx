@@ -41,10 +41,7 @@ export default function AdminUnlockPage() {
         onSubmit={submit}
         className="flex w-full max-w-sm flex-col items-center gap-6 text-center"
       >
-        <h1
-          className="text-foreground text-4xl leading-tight"
-          style={{ fontFamily: 'var(--font-handwritten)' }}
-        >
+        <h1 className="text-foreground font-handwritten text-4xl leading-tight">
           Team only
         </h1>
         <p className="text-muted-foreground text-sm">
@@ -57,15 +54,11 @@ export default function AdminUnlockPage() {
           value={passphrase}
           onChange={(e) => setPassphrase(e.target.value)}
           placeholder="Passphrase"
-          className="border-foreground/60 text-foreground placeholder:text-muted-foreground focus:border-foreground w-full border bg-transparent px-4 py-3 text-center text-lg outline-none"
-          style={{ fontFamily: 'var(--font-handwritten)' }}
+          className="border-foreground/60 text-foreground placeholder:text-muted-foreground focus:border-foreground font-handwritten w-full border bg-transparent px-4 py-3 text-center text-lg outline-none"
         />
 
         {error && (
-          <p
-            className="text-foreground text-lg"
-            style={{ fontFamily: 'var(--font-handwritten)' }}
-          >
+          <p className="text-foreground font-handwritten text-lg">
             Wrong passphrase — try again.
           </p>
         )}
@@ -76,10 +69,7 @@ export default function AdminUnlockPage() {
           className="text-foreground relative inline-flex h-16 w-44 items-center justify-center disabled:opacity-40"
         >
           <SketchyBox variant={3} />
-          <span
-            className="relative z-10 text-2xl leading-none"
-            style={{ fontFamily: 'var(--font-handwritten)' }}
-          >
+          <span className="font-handwritten relative z-10 text-2xl leading-none">
             {busy ? '…' : 'Unlock'}
           </span>
         </button>

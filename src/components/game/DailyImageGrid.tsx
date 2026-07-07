@@ -8,13 +8,14 @@ import { Lock, Check, Pencil } from 'lucide-react'
 import { useCurrentPeriodQuery } from '@/lib/query/period.queries'
 import { useTileEvents } from '@/lib/hooks/useTileEvents'
 import { PhaseCompleteOverlay } from '@/components/game/PhaseCompleteOverlay'
+import { PhaseIndicator } from '@/components/game/PhaseIndicator'
 import { useGameStore } from '@/lib/store/game.store'
 import { Skeleton } from '@/components/ui/skeleton'
 import { UploadSheet } from '@/components/game/UploadSheet'
 import { PreviewSheet } from '@/components/game/PreviewSheet'
 import { IdlePrompt } from '@/components/game/IdlePrompt'
 import { CanvasZoom } from '@/components/game/CanvasZoom'
-import { GameTopTabs } from '@/components/game/GameTopTabs'
+import { AppNav } from '@/components/layout/AppNav'
 import { DateTimeFooter } from '@/components/layout/DateTimeFooter'
 import { useLockBodyScroll } from '@/lib/hooks/useLockBodyScroll'
 import {
@@ -60,6 +61,10 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
   const clearAllClaims = useGameStore((s) => s.clearAllClaims)
   const sessionId = useGameStore((s) => s.sessionId)
   const claimTileLocal = useGameStore((s) => s.claimTile)
+  const setLastGameType = useGameStore((s) => s.setLastGameType)
+  useEffect(() => {
+    setLastGameType(gameType)
+  }, [gameType, setLastGameType])
   const claimMutation = useClaimTileMutation()
   const [claimError, setClaimError] = useState<string | null>(null)
   useTileEvents(gameType, (info) => {
@@ -132,6 +137,7 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
   const isPromptGame = gameType === 'prompt'
   const drawnCount = grid?.drawn_count ?? 0
   const totalTiles = grid?.total_tiles ?? 0
+  const currentPhase = data?.period?.phase ?? 0
 
   // Prompt game has no source image, so the canvas-load gate doesn't apply.
   // Derive the gate as truthy whenever there's no image to wait for —
@@ -178,23 +184,20 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
 
   return (
     <div className="bg-background flex h-svh flex-col items-center overflow-hidden px-4 pb-3 sm:px-6 sm:pb-8">
-      <GameTopTabs locale={locale} gameType={gameType} />
+      <AppNav />
 
       <div className="flex w-full max-w-md flex-1 flex-col items-center sm:max-w-lg">
-        <div className="mt-2 mb-2 text-center sm:mt-8 sm:mb-6">
+        <div className="mt-2 mb-2 flex flex-col items-center gap-2 text-center sm:mt-8 sm:mb-6">
+          {currentPhase > 0 && (
+            <PhaseIndicator phase={currentPhase} columns={cols} rows={rows} />
+          )}
           {isPromptGame && promptText && (
-            <h1
-              className="text-foreground text-3xl leading-tight sm:text-4xl"
-              style={{ fontFamily: 'var(--font-handwritten)' }}
-            >
+            <h1 className="text-foreground font-handwritten text-3xl leading-tight sm:text-4xl">
               {promptText}
             </h1>
           )}
           {totalTiles > 0 && (
-            <p
-              className="text-foreground/90 mt-2 text-lg sm:text-xl"
-              style={{ fontFamily: 'var(--font-handwritten)' }}
-            >
+            <p className="text-foreground/90 font-handwritten text-lg sm:text-xl">
               {drawnCount}/{totalTiles} {t('game.complete')}
             </p>
           )}
@@ -291,8 +294,7 @@ export function DailyImageGrid({ gameType = 'photo', initialData }: DailyImageGr
         <AnimatePresence>
           {imageLoaded && (
             <motion.p
-              className="text-muted-foreground mt-3 text-center text-base leading-none tracking-wide uppercase sm:mt-6 sm:text-xl"
-              style={{ fontFamily: 'var(--font-handwritten)' }}
+              className="text-muted-foreground font-handwritten mt-3 text-center text-base leading-none tracking-wide uppercase sm:mt-6 sm:text-xl"
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.4 }}

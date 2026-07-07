@@ -157,10 +157,7 @@ function ClaimButton({
       style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}
     >
       <SketchyBox variant={2} />
-      <span
-        className="relative z-10 text-2xl leading-none sm:text-3xl"
-        style={{ fontFamily: 'var(--font-handwritten)' }}
-      >
+      <span className="font-handwritten relative z-10 text-2xl leading-none sm:text-3xl">
         {label}
       </span>
     </button>

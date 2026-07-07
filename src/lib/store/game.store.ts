@@ -18,6 +18,9 @@ interface GameState {
   sessionId: string
   nickname: string
   claimedTiles: ClaimedTile[]
+  /** Which game the user last played — powers the global Play chrome button
+   *  so a jump-back lands on the same mode they left. */
+  lastGameType: GameType
   setNickname: (nickname: string) => void
   claimTile: (tileId: string, expiresAt: string, gameType: GameType) => void
   /** Updates the local expires_at after a successful extend or heartbeat sync. */
@@ -25,6 +28,7 @@ interface GameState {
   unclaimTile: (tileId: string) => void
   /** Clears claims for a specific game, or all if `gameType` is omitted. */
   clearAllClaims: (gameType?: GameType) => void
+  setLastGameType: (gameType: GameType) => void
 }
 
 function generateSessionId(): string {
@@ -38,6 +42,7 @@ export const useGameStore = create<GameState>()(
         sessionId: generateSessionId(),
         nickname: '',
         claimedTiles: [],
+        lastGameType: 'photo',
         setNickname: (nickname) => set({ nickname }, false, 'setNickname'),
         claimTile: (tileId, expiresAt, gameType) =>
           set(
@@ -83,6 +88,8 @@ export const useGameStore = create<GameState>()(
             false,
             'clearAllClaims'
           ),
+        setLastGameType: (gameType) =>
+          set({ lastGameType: gameType }, false, 'setLastGameType'),
       }),
       {
         name: 'community-game',
@@ -90,6 +97,7 @@ export const useGameStore = create<GameState>()(
           sessionId: state.sessionId,
           nickname: state.nickname,
           claimedTiles: state.claimedTiles,
+          lastGameType: state.lastGameType,
         }),
         // Backfill gameType on persisted claims from before the prompt game
         // existed so we don't lose them on first load after upgrade.
@@ -99,7 +107,12 @@ export const useGameStore = create<GameState>()(
             ...c,
             gameType: (c.gameType ?? 'photo') as GameType,
           }))
-          return { ...current, ...p, claimedTiles: tiles }
+          return {
+            ...current,
+            ...p,
+            claimedTiles: tiles,
+            lastGameType: p?.lastGameType ?? current.lastGameType,
+          }
         },
       }
     ),

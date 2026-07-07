@@ -137,7 +137,9 @@
     "advance_title": "Phase complete!",
     "advance_subtitle": "The grid is now subdividing into phase {{phase}}",
     "completed_title": "Masterpiece complete!",
-    "completed_subtitle": "Every tile has been drawn. Amazing work, everyone!"
+    "completed_subtitle": "Every tile has been drawn. Amazing work, everyone!",
+    "current_label": "Phase {{phase}}",
+    "current_aria": "Currently in phase {{phase}}, {{columns}} by {{rows}} grid"
   },
   "archive": {
     "title": "Museum",

@@ -137,7 +137,9 @@
     "advance_title": "Fase fuldført!",
     "advance_subtitle": "Gitteret opdeles nu i fase {{phase}}",
     "completed_title": "Mesterværk fuldført!",
-    "completed_subtitle": "Alle felter er tegnet. Fantastisk arbejde, alle sammen!"
+    "completed_subtitle": "Alle felter er tegnet. Fantastisk arbejde, alle sammen!",
+    "current_label": "Fase {{phase}}",
+    "current_aria": "Er i fase {{phase}}, {{columns}} gange {{rows}} gitter"
   },
   "archive": {
     "title": "Museum",

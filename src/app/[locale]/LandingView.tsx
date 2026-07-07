@@ -43,10 +43,7 @@ export function LandingView({ locale }: { locale: string }) {
       <div className="relative z-10 flex w-full flex-1 flex-col items-center justify-center">
         <CurvedTitle text={t('landing.title')} />
 
-        <p
-          className="text-foreground mt-1 max-w-xl text-center text-base leading-snug sm:mt-2 sm:text-xl md:text-2xl"
-          style={{ fontFamily: 'var(--font-handwritten)' }}
-        >
+        <p className="text-foreground font-handwritten mt-1 max-w-xl text-center text-base leading-snug sm:mt-2 sm:text-xl md:text-2xl">
           {t('landing.description')}
         </p>
 
@@ -81,10 +78,7 @@ function CurvedTitle({ text }: { text: string }) {
   const EXTRUDE_LAYERS = 9
   const STEP_X = 0.9
   const STEP_Y = 1.5
-  const fontStyle = {
-    fontFamily: 'var(--font-logo)',
-    fontSize: 116,
-  } as const
+  const fontStyle = { fontSize: 116 } as const
   // Lock the rendered word to a fixed run along the arc so the chunky display
   // font can't overflow and clip the first/last glyphs, regardless of its
   // metrics. spacingAndGlyphs lets it scale glyph widths too, not just gaps.
@@ -115,7 +109,7 @@ function CurvedTitle({ text }: { text: string }) {
         return (
           <text
             key={i}
-            className="fill-foreground"
+            className="fill-foreground font-logo"
             style={fontStyle}
             transform={`translate(${i * STEP_X}, ${i * STEP_Y})`}
           >
@@ -126,6 +120,7 @@ function CurvedTitle({ text }: { text: string }) {
 
       {/* Front face: background fill, foreground outline. */}
       <text
+        className="font-logo"
         style={{
           ...fontStyle,
           fill: 'var(--background)',
@@ -171,10 +166,9 @@ function ModeToggle({
             role="radio"
             aria-checked={active}
             onClick={() => onChange(opt.value)}
-            className={`relative px-5 py-1 text-xl leading-none sm:text-2xl ${
+            className={`font-handwritten relative px-5 py-1 text-xl leading-none sm:text-2xl ${
               active ? 'text-background' : 'text-foreground hover:bg-foreground/10'
             }`}
-            style={{ fontFamily: 'var(--font-handwritten)' }}
           >
             {active && (
               <motion.span
@@ -219,10 +213,7 @@ function PlayButton({ href, label, mode }: { href: string; label: string; mode: 
         transition={{ duration: 0.45, ease: 'easeOut' }}
         aria-hidden="true"
       />
-      <span
-        className="relative z-10 text-3xl leading-none"
-        style={{ fontFamily: 'var(--font-handwritten)' }}
-      >
+      <span className="font-handwritten relative z-10 text-3xl leading-none">
         {label}
       </span>
     </Link>

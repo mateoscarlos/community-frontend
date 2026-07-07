@@ -98,10 +98,7 @@ function IdleContent({
         >
           <div className="flex flex-col items-center gap-5 px-6 pt-8 pb-7 text-center sm:px-10 sm:pt-10 sm:pb-9">
             <WavingHand />
-            <h2
-              className="text-3xl leading-none sm:text-4xl"
-              style={{ fontFamily: 'var(--font-handwritten)' }}
-            >
+            <h2 className="font-handwritten text-3xl leading-none sm:text-4xl">
               {t('idle.title')}
             </h2>
             <p className="text-[15px] leading-relaxed text-zinc-700 sm:text-base">
@@ -156,10 +153,7 @@ function StillHereButton({ onClick, label }: { onClick: () => void; label: strin
       className="relative inline-flex h-14 w-40 items-center justify-center text-zinc-900 sm:h-16 sm:w-48"
     >
       <SketchyBox variant={3} />
-      <span
-        className="relative z-10 text-2xl leading-none sm:text-3xl"
-        style={{ fontFamily: 'var(--font-handwritten)' }}
-      >
+      <span className="font-handwritten relative z-10 text-2xl leading-none sm:text-3xl">
         {label}
       </span>
     </button>

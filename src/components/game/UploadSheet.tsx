@@ -269,19 +269,13 @@ export function UploadSheet({
                       <p className="text-muted-foreground text-[10px] font-bold tracking-[0.25em] uppercase">
                         {t('upload.time_left')}
                       </p>
-                      <p
-                        className="text-foreground mt-1 text-3xl leading-none tabular-nums sm:text-4xl"
-                        style={{ fontFamily: 'var(--font-handwritten)' }}
-                      >
+                      <p className="text-foreground font-handwritten mt-1 text-3xl leading-none tabular-nums sm:text-4xl">
                         {formatCountdown(secondsLeft)}
                       </p>
                     </>
                   )}
                   {prompt && (
-                    <h2
-                      className="text-foreground mt-4 text-2xl leading-tight sm:text-3xl"
-                      style={{ fontFamily: 'var(--font-handwritten)' }}
-                    >
+                    <h2 className="text-foreground font-handwritten mt-4 text-2xl leading-tight sm:text-3xl">
                       {prompt}
                     </h2>
                   )}
@@ -297,10 +291,7 @@ export function UploadSheet({
                       </button>
                     )}
                   {expiresAt && secondsLeft === 0 && (
-                    <p
-                      className="text-foreground mt-3 text-lg"
-                      style={{ fontFamily: 'var(--font-handwritten)' }}
-                    >
+                    <p className="text-foreground font-handwritten mt-3 text-lg">
                       {t('upload.expired')}
                     </p>
                   )}
@@ -530,10 +521,7 @@ function ConfirmReleaseDialog({
               transition={{ type: 'spring', damping: 24, stiffness: 320 }}
             >
               <div className="flex flex-col items-center gap-4 px-6 pt-8 pb-7 text-center sm:px-9 sm:pt-10 sm:pb-9">
-                <h3
-                  className="text-2xl leading-none sm:text-3xl"
-                  style={{ fontFamily: 'var(--font-handwritten)' }}
-                >
+                <h3 className="font-handwritten text-2xl leading-none sm:text-3xl">
                   {t('upload.confirm_release_title')}
                 </h3>
                 <p className="text-[14px] leading-relaxed text-zinc-700 sm:text-[15px]">
@@ -547,10 +535,7 @@ function ConfirmReleaseDialog({
                     className="relative inline-flex h-12 w-32 items-center justify-center text-zinc-900 disabled:opacity-40 sm:h-14 sm:w-36"
                   >
                     <SketchyBox variant={1} />
-                    <span
-                      className="relative z-10 text-xl leading-none sm:text-2xl"
-                      style={{ fontFamily: 'var(--font-handwritten)' }}
-                    >
+                    <span className="font-handwritten relative z-10 text-xl leading-none sm:text-2xl">
                       {t('upload.confirm_release_yes')}
                     </span>
                   </button>
@@ -561,10 +546,7 @@ function ConfirmReleaseDialog({
                     className="relative inline-flex h-12 w-32 items-center justify-center text-zinc-900 disabled:opacity-40 sm:h-14 sm:w-36"
                   >
                     <SketchyBox variant={3} />
-                    <span
-                      className="relative z-10 text-xl leading-none sm:text-2xl"
-                      style={{ fontFamily: 'var(--font-handwritten)' }}
-                    >
+                    <span className="font-handwritten relative z-10 text-xl leading-none sm:text-2xl">
                       {t('upload.confirm_release_no')}
                     </span>
                   </button>
@@ -638,10 +620,7 @@ function DoneStep({ preview, onDone }: { preview: string | null; onDone: () => v
             transition={{ duration: 0.2 }}
             className="flex flex-col items-center gap-3"
           >
-            <p
-              className="text-foreground text-xl leading-none sm:text-2xl"
-              style={{ fontFamily: 'var(--font-handwritten)' }}
-            >
+            <p className="text-foreground font-handwritten text-xl leading-none sm:text-2xl">
               {t('feedback.rate_q')}
             </p>
             <div className="flex items-start gap-2 sm:gap-4">
@@ -667,8 +646,7 @@ function DoneStep({ preview, onDone }: { preview: string | null; onDone: () => v
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ type: 'spring', damping: 18, stiffness: 320 }}
-            className="text-foreground text-xl leading-none sm:text-2xl"
-            style={{ fontFamily: 'var(--font-handwritten)' }}
+            className="text-foreground font-handwritten text-xl leading-none sm:text-2xl"
           >
             {t('feedback.rate_thanks')}
           </motion.p>
@@ -706,10 +684,7 @@ function SketchyActionButton({
       className="text-foreground relative inline-flex h-14 w-24 items-center justify-center disabled:opacity-40 sm:h-16 sm:w-32"
     >
       <SketchyBox variant={variant} />
-      <span
-        className="relative z-10 text-xl leading-none sm:text-2xl"
-        style={{ fontFamily: 'var(--font-handwritten)' }}
-      >
+      <span className="font-handwritten relative z-10 text-xl leading-none sm:text-2xl">
         {children}
       </span>
     </button>

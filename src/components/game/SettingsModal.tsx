@@ -84,8 +84,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
               <div className="px-6 pt-14 pb-8 sm:px-10 sm:pt-16 sm:pb-10">
                 <h2
                   id="settings-modal-title"
-                  className="mb-8 text-3xl leading-none"
-                  style={{ fontFamily: 'var(--font-handwritten)' }}
+                  className="font-handwritten mb-8 text-3xl leading-none"
                 >
                   {t('settings.title')}
                 </h2>
@@ -143,12 +142,11 @@ function ThemeRow() {
               type="button"
               onClick={() => apply(o.value)}
               aria-pressed={active}
-              className={`flex items-center gap-2 px-5 py-2.5 text-base transition-colors ${
+              className={`font-handwritten flex items-center gap-2 px-5 py-2.5 text-base transition-colors ${
                 active
                   ? 'bg-zinc-900 text-zinc-100'
                   : 'text-zinc-800 hover:bg-zinc-900/10'
               }`}
-              style={{ fontFamily: 'var(--font-handwritten)' }}
             >
               <Icon className="h-4 w-4" strokeWidth={2} />
               {o.label}
@@ -168,7 +166,7 @@ function LanguageRow() {
 
   // Note: changing locale soft-navigates (locale is in the URL path). The
   // modal stays open because its open state lives in the ui store, which
-  // survives the navigation — see GameTopTabs / ui.store.
+  // survives the navigation — see AppNav / ui.store.
   const switchLocale = (next: Locale) => {
     if (next === locale) return
     setLocale(next)
@@ -191,12 +189,11 @@ function LanguageRow() {
               type="button"
               onClick={() => switchLocale(l)}
               aria-pressed={active}
-              className={`rounded-xl border px-4 py-2 text-base transition-colors ${
+              className={`font-handwritten rounded-xl border px-4 py-2 text-base transition-colors ${
                 active
                   ? 'border-zinc-900 bg-zinc-900 text-zinc-100'
                   : 'border-zinc-900/30 text-zinc-800 hover:bg-zinc-900/10'
               }`}
-              style={{ fontFamily: 'var(--font-handwritten)' }}
             >
               {t(`language.${l}`)}
             </button>
@@ -231,12 +228,11 @@ function AccessibilityRow() {
               type="button"
               onClick={() => setEnabled(o.value)}
               aria-pressed={active}
-              className={`px-5 py-2.5 text-base transition-colors ${
+              className={`font-handwritten px-5 py-2.5 text-base transition-colors ${
                 active
                   ? 'bg-zinc-900 text-zinc-100'
                   : 'text-zinc-800 hover:bg-zinc-900/10'
               }`}
-              style={{ fontFamily: 'var(--font-handwritten)' }}
             >
               {o.label}
             </button>

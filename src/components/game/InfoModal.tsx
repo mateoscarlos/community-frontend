@@ -72,8 +72,7 @@ export function InfoModal({ open, onClose }: InfoModalProps) {
               <div className="px-6 pt-14 pb-8 sm:px-10 sm:pt-16 sm:pb-10">
                 <h2
                   id="info-modal-title"
-                  className="text-2xl leading-tight sm:text-3xl"
-                  style={{ fontFamily: 'var(--font-handwritten)' }}
+                  className="font-handwritten text-2xl leading-tight sm:text-3xl"
                 >
                   {t('info.title')}
                 </h2>
@@ -82,12 +81,8 @@ export function InfoModal({ open, onClose }: InfoModalProps) {
                   {[t('info.step1'), t('info.step2'), t('info.step3')].map((step, i) => (
                     <li key={i} className="flex items-start gap-3">
                       <span
-                        className="flex h-7 w-7 flex-none items-center justify-center rounded-full text-base"
-                        style={{
-                          background: '#111',
-                          color: '#e6e6e6',
-                          fontFamily: 'var(--font-handwritten)',
-                        }}
+                        className="font-handwritten flex h-7 w-7 flex-none items-center justify-center rounded-full text-base"
+                        style={{ background: '#111', color: '#e6e6e6' }}
                         aria-hidden="true"
                       >
                         {i + 1}

@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react'
 import { usePeriodByIdQuery } from '@/lib/query/period.queries'
-import { GameTopTabs } from '@/components/game/GameTopTabs'
+import { AppNav } from '@/components/layout/AppNav'
 import { ModalCloseButton } from '@/components/ui/ModalCloseButton'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -27,7 +27,6 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
   const { data, isLoading, isError } = usePeriodByIdQuery(id)
 
   const period = data?.period
-  const gameType = period?.game_type ?? 'photo'
   const mosaics = useMemo(
     () => [...(period?.phase_mosaics ?? [])].sort((a, b) => a.phase - b.phase),
     [period]
@@ -56,13 +55,12 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
 
   return (
     <div className="bg-background flex min-h-svh flex-col items-center px-4 pb-20 sm:px-6">
-      <GameTopTabs locale={locale} gameType={gameType} activeTab="museum" />
+      <AppNav />
 
       <div className="mt-6 w-full max-w-6xl">
         <Link
           href={`/${locale}/archive`}
-          className="text-foreground/70 hover:text-foreground inline-flex items-center gap-2 text-base transition-colors"
-          style={{ fontFamily: 'var(--font-handwritten)' }}
+          className="text-foreground/70 hover:text-foreground font-handwritten inline-flex items-center gap-2 text-base transition-colors"
         >
           <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
           {t('archive.back_museum')}
@@ -77,10 +75,7 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
 
         {isError && (
           <div className="mt-20 text-center">
-            <p
-              className="text-foreground/70 text-2xl"
-              style={{ fontFamily: 'var(--font-handwritten)' }}
-            >
+            <p className="text-foreground/70 font-handwritten text-2xl">
               {t('archive.detail_error')}
             </p>
           </div>
@@ -90,17 +85,11 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
           <>
             {/* Title placard */}
             <div className="mt-8 mb-12 text-center">
-              <h1
-                className="text-foreground text-4xl leading-tight sm:text-5xl"
-                style={{ fontFamily: 'var(--font-handwritten)' }}
-              >
+              <h1 className="text-foreground font-handwritten text-4xl leading-tight sm:text-5xl">
                 {dateLabel}
               </h1>
               {period.game_type === 'prompt' && period.prompt && (
-                <p
-                  className="text-foreground/70 mt-2 text-xl sm:text-2xl"
-                  style={{ fontFamily: 'var(--font-handwritten)' }}
-                >
+                <p className="text-foreground/70 font-handwritten mt-2 text-xl sm:text-2xl">
                   “{period.prompt}”
                 </p>
               )}
@@ -113,10 +102,7 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
             <div className="flex flex-col gap-14 lg:flex-row lg:items-start">
               {period.game_type === 'photo' && original?.image_url && (
                 <div className="lg:w-72 lg:shrink-0">
-                  <p
-                    className="text-foreground/60 mb-4 text-center text-lg lg:text-left"
-                    style={{ fontFamily: 'var(--font-handwritten)' }}
-                  >
+                  <p className="text-foreground/60 font-handwritten mb-4 text-center text-lg lg:text-left">
                     {t('archive.the_subject')}
                   </p>
                   <div className="group mx-auto w-full max-w-xs lg:mx-0">
@@ -130,10 +116,7 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
 
               <div className="min-w-0 flex-1">
                 <div className="mb-5 flex items-center justify-between gap-4">
-                  <p
-                    className="text-foreground/60 text-lg"
-                    style={{ fontFamily: 'var(--font-handwritten)' }}
-                  >
+                  <p className="text-foreground/60 font-handwritten text-lg">
                     {t('archive.evolution')}
                   </p>
                   {mosaics.length > 1 && (
@@ -177,10 +160,7 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
                     </div>
                   </div>
                 ) : (
-                  <p
-                    className="text-foreground/60 py-12 text-center text-xl"
-                    style={{ fontFamily: 'var(--font-handwritten)' }}
-                  >
+                  <p className="text-foreground/60 font-handwritten py-12 text-center text-xl">
                     {t('archive.no_draws_yet')}
                   </p>
                 )}
@@ -316,10 +296,7 @@ function MattedFrame({ src }: { src?: string }) {
             loading="lazy"
           />
         ) : (
-          <span
-            className="absolute inset-0 flex items-center justify-center text-3xl text-black/20"
-            style={{ fontFamily: 'var(--font-handwritten)' }}
-          >
+          <span className="font-handwritten absolute inset-0 flex items-center justify-center text-3xl text-black/20">
             ?
           </span>
         )}

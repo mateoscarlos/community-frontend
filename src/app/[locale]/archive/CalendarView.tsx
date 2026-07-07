@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ChevronDown } from 'lucide-react'
 import { useArchiveQuery } from '@/lib/query/period.queries'
-import { GameTopTabs } from '@/components/game/GameTopTabs'
+import { AppNav } from '@/components/layout/AppNav'
 import { SketchyBox } from '@/components/ui/SketchyBox'
 import type { ArchivePeriodResponse, GameType } from '@/types/api'
 
@@ -97,7 +97,7 @@ export function CalendarView() {
 
   return (
     <div className="bg-background flex min-h-svh flex-col items-center px-4 pb-20 sm:px-6">
-      <GameTopTabs locale={locale} gameType={gameType} activeTab="museum" />
+      <AppNav />
 
       {/* Controls — month / year + the photo·prompt toggle. */}
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:mt-10 sm:gap-4">
@@ -147,10 +147,7 @@ export function CalendarView() {
         {!isLoading && pieces.length === 0 && (
           <div className="flex flex-col items-center gap-4 py-20">
             <div className="border-foreground/20 bg-foreground/[0.04] aspect-square w-40 border" />
-            <p
-              className="text-foreground/60 text-2xl"
-              style={{ fontFamily: 'var(--font-handwritten)' }}
-            >
+            <p className="text-foreground/60 font-handwritten text-2xl">
               {t('archive.empty_month')}
             </p>
           </div>
@@ -215,10 +212,7 @@ function WallPiece({
               loading="lazy"
             />
           ) : (
-            <span
-              className="absolute inset-0 flex items-center justify-center text-2xl text-black/20"
-              style={{ fontFamily: 'var(--font-handwritten)' }}
-            >
+            <span className="font-handwritten absolute inset-0 flex items-center justify-center text-2xl text-black/20">
               ?
             </span>
           )}
@@ -280,10 +274,7 @@ function SketchySelect({
         }`}
       >
         <SketchyBox variant={variant} />
-        <span
-          className="relative z-10 flex items-center gap-2 text-xl leading-none sm:text-2xl"
-          style={{ fontFamily: 'var(--font-handwritten)' }}
-        >
+        <span className="font-handwritten relative z-10 flex items-center gap-2 text-xl leading-none sm:text-2xl">
           {current}
           <ChevronDown
             className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`}
@@ -313,12 +304,11 @@ function SketchySelect({
                       onChange(o.value)
                       setOpen(false)
                     }}
-                    className={`flex w-full items-center justify-center rounded-xl px-3 py-2 text-lg leading-none transition-colors sm:text-xl ${
+                    className={`font-handwritten flex w-full items-center justify-center rounded-xl px-3 py-2 text-lg leading-none transition-colors sm:text-xl ${
                       selected
                         ? 'bg-zinc-900 text-zinc-100'
                         : 'text-zinc-800 hover:bg-zinc-900/10'
                     }`}
-                    style={{ fontFamily: 'var(--font-handwritten)' }}
                   >
                     {o.label}
                   </button>
@@ -358,10 +348,9 @@ function GameToggle({
             role="tab"
             aria-selected={active}
             onClick={() => onChange(o.v)}
-            className={`relative px-4 py-2 text-lg leading-none sm:text-xl ${
+            className={`font-handwritten relative px-4 py-2 text-lg leading-none sm:text-xl ${
               active ? 'text-background' : 'text-foreground hover:bg-foreground/10'
             }`}
-            style={{ fontFamily: 'var(--font-handwritten)' }}
           >
             {active && (
               <motion.span
