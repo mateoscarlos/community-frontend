@@ -76,6 +76,12 @@ export interface PeriodInfo {
   final_grid_size: number
   /** Side length of the currently-unlocked window, e.g. 5 at phase 2. */
   phase_grid_size: number
+  /**
+   * The full ring progression this period was seeded with, e.g. [3,5,7,9].
+   * Length = total phases. Drives the PhaseIndicator pip count so it stays
+   * accurate when the admin changes the app-setting.
+   */
+  phase_grid_sizes: number[]
   started_at: string
   /** Set only when `status === 'completed'` — the resting-state countdown target. */
   next_period_starts_at?: string

@@ -22,6 +22,7 @@ export const mockCurrentPeriodResponse: CurrentPeriodResponse = {
     phase: 1,
     final_grid_size: FINAL_GRID,
     phase_grid_size: PHASE_GRID,
+    phase_grid_sizes: [3, 5, 7, 9],
     started_at: new Date().toISOString(),
     image: {
       id: 'mock-daily-image',
@@ -36,7 +37,8 @@ export const mockCurrentPeriodResponse: CurrentPeriodResponse = {
     outer_tile_display: 'blocked',
     columns: FINAL_GRID,
     rows: FINAL_GRID,
-    total_tiles: FINAL_GRID * FINAL_GRID,
+    // Scoped to the currently-playable window — matches drawn_count's scope.
+    total_tiles: tiles.filter((t) => t.status !== 'future_locked').length,
     drawn_count: 0,
     tiles,
   },

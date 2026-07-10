@@ -321,29 +321,86 @@ export function UploadSheet({
 
               {step === 'choose' && (
                 <div className="flex flex-col items-center gap-6 sm:gap-8">
-                  <TileNeighborhood
-                    imageUrl={imageUrl}
-                    tiles={tiles}
-                    gridColumns={gridColumns}
-                    gridRows={gridRows}
-                    row={tile.row}
-                    col={tile.col}
-                    className="mx-auto w-full max-w-md sm:max-w-lg"
-                  />
+                  {/* Desktop's Done click swaps the neighborhood for the QR
+                      panel instead of appending it below — that way the QR
+                      never needs a scroll to reach on short viewports. */}
+                  <AnimatePresence mode="wait" initial={false}>
+                    {showQr && !isMobile ? (
+                      <motion.div
+                        key="qr"
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 6 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex w-full flex-col items-center gap-6 sm:flex-row sm:items-start sm:justify-center sm:gap-10"
+                      >
+                        <div className="flex flex-col items-center gap-2">
+                          <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
+                            {t('upload.scan_qr')}
+                          </p>
+                          <div className="bg-background border-foreground border p-2">
+                            <QRCodeSVG value={uploadUrl} size={192} />
+                          </div>
+                          <p className="text-muted-foreground text-[10px] tracking-[0.15em] uppercase">
+                            {t('upload.scan_qr_hint')}
+                          </p>
+                        </div>
+                        <div className="flex flex-col items-center gap-2 sm:pt-6">
+                          <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
+                            {t('common.or')}
+                          </p>
+                          <SketchyActionButton
+                            onClick={() => fileInputRef.current?.click()}
+                            variant={2}
+                          >
+                            {t('upload.upload')}
+                          </SketchyActionButton>
+                        </div>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="neighborhood"
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 6 }}
+                        transition={{ duration: 0.2 }}
+                        className="w-full"
+                      >
+                        <TileNeighborhood
+                          imageUrl={imageUrl}
+                          tiles={tiles}
+                          gridColumns={gridColumns}
+                          gridRows={gridRows}
+                          row={tile.row}
+                          col={tile.col}
+                          className="mx-auto w-full max-w-md sm:max-w-lg"
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6">
-                    <SketchyActionButton
-                      onClick={() => {
-                        if (isMobile) {
-                          cameraInputRef.current?.click()
-                        } else {
-                          setShowQr((v) => !v)
-                        }
-                      }}
-                      variant={0}
-                    >
-                      {t('upload.done')}
-                    </SketchyActionButton>
+                    {showQr && !isMobile ? (
+                      <SketchyActionButton
+                        onClick={() => setShowQr(false)}
+                        variant={0}
+                      >
+                        {t('upload.back')}
+                      </SketchyActionButton>
+                    ) : (
+                      <SketchyActionButton
+                        onClick={() => {
+                          if (isMobile) {
+                            cameraInputRef.current?.click()
+                          } else {
+                            setShowQr(true)
+                          }
+                        }}
+                        variant={0}
+                      >
+                        {t('upload.done')}
+                      </SketchyActionButton>
+                    )}
                     <SketchyActionButton
                       onClick={() => setConfirmReleaseOpen(true)}
                       disabled={releaseMutation.isPending}
@@ -352,44 +409,6 @@ export function UploadSheet({
                       {t('upload.cancel')}
                     </SketchyActionButton>
                   </div>
-
-                  <AnimatePresence initial={false}>
-                    {showQr && !isMobile && (
-                      <motion.div
-                        key="qr-panel"
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.25, ease: 'easeOut' }}
-                        className="w-full overflow-hidden"
-                      >
-                        <div className="flex flex-col items-center justify-center gap-6 pt-2 sm:flex-row sm:items-start sm:gap-10">
-                          <div className="flex flex-col items-center gap-2">
-                            <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
-                              {t('upload.scan_qr')}
-                            </p>
-                            <div className="bg-background border-foreground border p-2">
-                              <QRCodeSVG value={uploadUrl} size={140} />
-                            </div>
-                            <p className="text-muted-foreground text-[10px] tracking-[0.15em] uppercase">
-                              {t('upload.scan_qr_hint')}
-                            </p>
-                          </div>
-                          <div className="flex flex-col items-center gap-2 sm:pt-6">
-                            <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">
-                              {t('common.or')}
-                            </p>
-                            <SketchyActionButton
-                              onClick={() => fileInputRef.current?.click()}
-                              variant={2}
-                            >
-                              {t('upload.upload')}
-                            </SketchyActionButton>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
                 </div>
               )}
 

@@ -124,6 +124,7 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
   const currentPhase = data?.period?.phase ?? 0
   const finalGridSize = data?.period?.final_grid_size ?? cols
   const phaseGridSize = data?.period?.phase_grid_size ?? cols
+  const phaseGridSizes = data?.period?.phase_grid_sizes ?? []
   const outerDisplay = grid?.outer_tile_display ?? 'blocked'
   const isHidden = outerDisplay === 'hidden'
 
@@ -140,8 +141,9 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
   const tiles = isHidden
     ? allTiles.filter((t) => t.status !== 'future_locked')
     : allTiles
-  // Total the score line reports: drawable tiles in the current window.
-  const totalTiles = allTiles.filter((t) => t.status !== 'future_locked').length
+  // Score line uses the wire-format total, which the backend scopes to the
+  // currently-playable window (matches drawn_count).
+  const totalTiles = grid?.total_tiles ?? 0
 
   // In hidden mode the reference photo has to be zoomed so its center
   // `phaseGridSize / finalGridSize` fraction fills the viewport, otherwise
@@ -217,6 +219,7 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
               phase={currentPhase}
               phaseGridSize={phaseGridSize}
               finalGridSize={finalGridSize}
+              phaseGridSizes={phaseGridSizes}
             />
           )}
           {totalTiles > 0 && (
