@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { motion, useMotionValue, useSpring } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { SketchyBox } from '@/components/ui/SketchyBox'
 import { FloatingEmojis } from '@/components/layout/FloatingEmojis'
@@ -124,22 +124,58 @@ function CurvedTitle({ text }: { text: string }) {
 }
 
 function PlayButton({ href, label }: { href: string; label: string }) {
+  const ref = useRef<HTMLAnchorElement>(null)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  // Spring the raw mouse offset so the button "chases" the cursor with a bit
+  // of lag — feels magnetic instead of stiff. Damping is high enough to
+  // settle quickly on mouseleave.
+  const springX = useSpring(x, { stiffness: 220, damping: 18, mass: 0.6 })
+  const springY = useSpring(y, { stiffness: 220, damping: 18, mass: 0.6 })
+
+  const handleMove = (e: React.PointerEvent<HTMLAnchorElement>) => {
+    if (e.pointerType !== 'mouse') return // no pull on touch — feels weird
+    const rect = ref.current?.getBoundingClientRect()
+    if (!rect) return
+    // Cap the pull so a fast wide swipe doesn't fling the button off-screen.
+    const pullX = clamp((e.clientX - (rect.left + rect.width / 2)) * 0.25, -14, 14)
+    const pullY = clamp((e.clientY - (rect.top + rect.height / 2)) * 0.25, -10, 10)
+    x.set(pullX)
+    y.set(pullY)
+  }
+
+  const reset = () => {
+    x.set(0)
+    y.set(0)
+  }
+
   return (
-    <Link
-      href={href}
-      className="text-foreground group relative inline-flex h-20 w-52 items-center justify-center"
-    >
-      <motion.span
-        className="absolute inset-0"
-        initial={{ scale: 0.94, opacity: 0.6 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 380, damping: 18 }}
+    <motion.div style={{ x: springX, y: springY }} className="inline-block">
+      <Link
+        ref={ref}
+        href={href}
+        onPointerMove={handleMove}
+        onPointerLeave={reset}
+        className="text-foreground group relative inline-flex h-20 w-52 items-center justify-center"
       >
-        <SketchyBox variant={3} />
-      </motion.span>
-      <span className="font-handwritten relative z-10 text-3xl leading-none">
-        {label}
-      </span>
-    </Link>
+        <motion.span
+          className="absolute inset-0"
+          initial={{ scale: 0.94, opacity: 0.6 }}
+          animate={{ scale: 1, opacity: 1 }}
+          whileHover={{ scale: 1.04, transition: { duration: 0.2 } }}
+          whileTap={{ scale: 0.96 }}
+          transition={{ type: 'spring', stiffness: 380, damping: 18 }}
+        >
+          <SketchyBox variant={3} />
+        </motion.span>
+        <span className="font-handwritten relative z-10 text-3xl leading-none">
+          {label}
+        </span>
+      </Link>
+    </motion.div>
   )
+}
+
+function clamp(v: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, v))
 }

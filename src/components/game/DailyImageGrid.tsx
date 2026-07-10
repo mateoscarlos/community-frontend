@@ -219,9 +219,15 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
             />
           )}
           {totalTiles > 0 && (
-            <p className="text-foreground/90 font-handwritten text-lg sm:text-xl">
+            <motion.p
+              key={drawnCount}
+              className="text-foreground/90 font-handwritten text-lg sm:text-xl"
+              initial={{ scale: 1 }}
+              animate={{ scale: [1, 1.15, 1] }}
+              transition={{ duration: 0.45, ease: 'easeOut' }}
+            >
               {drawnCount}/{totalTiles} {t('game.complete')}
-            </p>
+            </motion.p>
           )}
         </div>
 
