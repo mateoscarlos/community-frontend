@@ -30,9 +30,6 @@ import type { TileResponse } from '@/types/api'
 interface UploadSheetProps {
   tile: TileResponse | null
   imageUrl?: string
-  /** Optional prompt text — shown for prompt-game tiles in place of the reference image. */
-  prompt?: string
-  gameType?: 'photo' | 'prompt'
   gridColumns: number
   gridRows: number
   /** All tiles in the current phase — used to render the neighbourhood context. */
@@ -51,8 +48,6 @@ const EXTEND_THRESHOLD_SECONDS = 120
 export function UploadSheet({
   tile,
   imageUrl,
-  prompt,
-  gameType = 'photo',
   gridColumns,
   gridRows,
   tiles,
@@ -170,7 +165,7 @@ export function UploadSheet({
 
   const uploadUrl =
     typeof window !== 'undefined'
-      ? `${window.location.origin}/${locale}/upload?tile=${tile.id}&session=${sessionId}&game=${gameType}`
+      ? `${window.location.origin}/${locale}/upload?tile=${tile.id}&session=${sessionId}`
       : ''
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -274,11 +269,6 @@ export function UploadSheet({
                       </p>
                     </>
                   )}
-                  {prompt && (
-                    <h2 className="text-foreground font-handwritten mt-4 text-2xl leading-tight sm:text-3xl">
-                      {prompt}
-                    </h2>
-                  )}
                   {expiresAt &&
                     secondsLeft > 0 &&
                     secondsLeft <= EXTEND_THRESHOLD_SECONDS && (
@@ -338,7 +328,6 @@ export function UploadSheet({
                     gridRows={gridRows}
                     row={tile.row}
                     col={tile.col}
-                    promptMode={gameType === 'prompt'}
                     className="mx-auto w-full max-w-md sm:max-w-lg"
                   />
 

@@ -2,18 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ChevronDown } from 'lucide-react'
 import { useArchiveQuery } from '@/lib/query/period.queries'
 import { AppNav } from '@/components/layout/AppNav'
 import { SketchyBox } from '@/components/ui/SketchyBox'
-import type { ArchivePeriodResponse, GameType } from '@/types/api'
-
-function parseGameParam(raw: string | null): GameType {
-  return raw === 'prompt' ? 'prompt' : 'photo'
-}
+import type { ArchivePeriodResponse } from '@/types/api'
 
 // Art densely clustered at varied sizes (mostly similar with a few larger
 // anchor pieces), each flat-mounted with a slim border + soft shadow. Fixed
@@ -24,11 +20,7 @@ export function CalendarView() {
   const { t, i18n } = useTranslation()
   const params = useParams()
   const locale = (params?.locale as string) ?? 'en'
-  const searchParams = useSearchParams()
-  const [gameType, setGameType] = useState<GameType>(() =>
-    parseGameParam(searchParams?.get('game') ?? null)
-  )
-  const { data, isLoading } = useArchiveQuery(gameType)
+  const { data, isLoading } = useArchiveQuery()
 
   // Group every period under its year/month so the selectors only ever offer
   // months that actually have something on the wall.
@@ -99,7 +91,7 @@ export function CalendarView() {
     <div className="bg-background flex min-h-svh flex-col items-center px-4 pb-20 sm:px-6">
       <AppNav />
 
-      {/* Controls — month / year + the photo·prompt toggle. */}
+      {/* Month / year controls. */}
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:mt-10 sm:gap-4">
         <SketchySelect
           variant={0}
@@ -122,7 +114,6 @@ export function CalendarView() {
           onChange={(v) => setYear(Number(v))}
           options={years.map((y) => ({ value: String(y), label: String(y) }))}
         />
-        <GameToggle value={gameType} onChange={setGameType} />
       </div>
 
       <div className="mt-8 w-full max-w-6xl">
@@ -322,48 +313,3 @@ function SketchySelect({
   )
 }
 
-function GameToggle({
-  value,
-  onChange,
-}: {
-  value: GameType
-  onChange: (g: GameType) => void
-}) {
-  const { t } = useTranslation()
-  const opts: { v: GameType; label: string }[] = [
-    { v: 'photo', label: t('archive.tab_photo') },
-    { v: 'prompt', label: t('archive.tab_prompt') },
-  ]
-  return (
-    <div
-      role="tablist"
-      aria-label="Game"
-      className="border-foreground/60 inline-flex border"
-    >
-      {opts.map((o) => {
-        const active = o.v === value
-        return (
-          <button
-            key={o.v}
-            role="tab"
-            aria-selected={active}
-            onClick={() => onChange(o.v)}
-            className={`font-handwritten relative px-4 py-2 text-lg leading-none sm:text-xl ${
-              active ? 'text-background' : 'text-foreground hover:bg-foreground/10'
-            }`}
-          >
-            {active && (
-              <motion.span
-                layoutId="museum-game-pill"
-                className="bg-foreground absolute inset-0 z-0"
-                transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-                aria-hidden="true"
-              />
-            )}
-            <span className="relative z-10">{o.label}</span>
-          </button>
-        )
-      })}
-    </div>
-  )
-}

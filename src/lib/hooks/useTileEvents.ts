@@ -2,21 +2,20 @@
 
 import { useEffect, useRef, useCallback } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { periodQueryKeyFor } from '@/lib/query/period.queries'
+import { periodQueryKey } from '@/lib/query/period.queries'
 import { useGameStore } from '@/lib/store/game.store'
-import type { CurrentPeriodResponse, GameType } from '@/types/api'
+import type { CurrentPeriodResponse, TileStatus } from '@/types/api'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
 const SSE_URL = `${API_URL}/api/v1/periods/current/events`
 
 interface TileEvent {
   tile_id: string
-  status: 'free' | 'locked' | 'drawn'
+  status: TileStatus
   image_url?: string
 }
 
 interface PhaseCompleteEvent {
-  game_type: string
   phase: number
   next_phase: number
   completed: boolean
@@ -29,14 +28,14 @@ export interface PhaseCompleteInfo {
 }
 
 /**
- * Connects to the SSE endpoint and updates the TanStack Query cache
- * in real time when tile states change. Falls back to polling if SSE
- * is unavailable or disconnects.
+ * Connects to the SSE endpoint and updates the TanStack Query cache in real
+ * time when tile states change. Falls back to polling if SSE is unavailable
+ * or disconnects.
  *
- * Returns `onPhaseComplete` callback ref — set it to handle phase transitions.
+ * Pass `onPhaseComplete` to react to phase transitions (typically the
+ * DailyImageGrid showing its celebration overlay).
  */
 export function useTileEvents(
-  gameType: GameType,
   onPhaseComplete?: (info: PhaseCompleteInfo) => void
 ) {
   const onPhaseCompleteRef = useRef(onPhaseComplete)
@@ -47,12 +46,11 @@ export function useTileEvents(
   const unclaimTile = useGameStore((s) => s.unclaimTile)
   const eventSourceRef = useRef<EventSource | null>(null)
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  const queryKey = periodQueryKeyFor(gameType)
 
   const updateTileInCache = useCallback(
-    (tileId: string, newStatus: 'free' | 'locked' | 'drawn', imageUrl?: string) => {
+    (tileId: string, newStatus: TileStatus, imageUrl?: string) => {
       queryClient.setQueryData<CurrentPeriodResponse & { isMock?: boolean }>(
-        queryKey,
+        periodQueryKey,
         (old) => {
           if (!old?.grid?.tiles) return old
           const tiles = old.grid.tiles.map((t) =>
@@ -68,21 +66,21 @@ export function useTileEvents(
         }
       )
     },
-    [queryClient, queryKey]
+    [queryClient]
   )
 
   const enablePolling = useCallback(
     (enabled: boolean) => {
-      queryClient.setQueryDefaults(queryKey, {
+      queryClient.setQueryDefaults(periodQueryKey, {
         refetchInterval: enabled ? 10_000 : false,
       })
     },
-    [queryClient, queryKey]
+    [queryClient]
   )
 
   const refetchPeriod = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey })
-  }, [queryClient, queryKey])
+    queryClient.invalidateQueries({ queryKey: periodQueryKey })
+  }, [queryClient])
 
   useEffect(() => {
     let disposed = false
@@ -116,24 +114,14 @@ export function useTileEvents(
       es.addEventListener('tile_freed', handleEvent)
       es.addEventListener('tile_drawn', handleEvent)
 
-      // The active period changed in place (e.g. admin edited today's
-      // prompt). Refetch so the new prompt/metadata shows without a reload.
-      es.addEventListener('period_updated', (e: MessageEvent) => {
-        try {
-          const data = JSON.parse(e.data) as { game_type?: string }
-          if (data.game_type && data.game_type !== gameType) return
-          refetchPeriod()
-        } catch {
-          // ignore
-        }
+      // The active period changed in place — refetch so the new metadata shows.
+      es.addEventListener('period_updated', () => {
+        refetchPeriod()
       })
 
       es.addEventListener('phase_complete', (e: MessageEvent) => {
         try {
           const data: PhaseCompleteEvent = JSON.parse(e.data)
-          // Both games share one SSE channel — only react when this event
-          // belongs to the game this hook is watching.
-          if (data.game_type && data.game_type !== gameType) return
           onPhaseCompleteRef.current?.({
             completedPhase: data.phase,
             nextPhase: data.next_phase,
@@ -150,7 +138,6 @@ export function useTileEvents(
         es.close()
         eventSourceRef.current = null
 
-        // Reconnect after a short delay
         if (!disposed) {
           reconnectTimeoutRef.current = setTimeout(connect, 3000)
         }
@@ -164,8 +151,7 @@ export function useTileEvents(
       clearTimeout(reconnectTimeoutRef.current)
       eventSourceRef.current?.close()
       eventSourceRef.current = null
-      // Restore polling on unmount
       enablePolling(true)
     }
-  }, [updateTileInCache, enablePolling, refetchPeriod, gameType, unclaimTile])
+  }, [updateTileInCache, enablePolling, refetchPeriod, unclaimTile])
 }

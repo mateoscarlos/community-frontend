@@ -88,11 +88,6 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
               <h1 className="text-foreground font-handwritten text-4xl leading-tight sm:text-5xl">
                 {dateLabel}
               </h1>
-              {period.game_type === 'prompt' && period.prompt && (
-                <p className="text-foreground/70 font-handwritten mt-2 text-xl sm:text-2xl">
-                  “{period.prompt}”
-                </p>
-              )}
               <p className="text-muted-foreground mt-3 text-[10px] font-bold tracking-[0.25em] uppercase">
                 {t('archive.detail_count', { count: mosaics.length })}
               </p>
@@ -100,7 +95,7 @@ export function PeriodDetail({ id, locale }: PeriodDetailProps) {
 
             {/* Subject + evolution side by side on desktop, stacked on mobile */}
             <div className="flex flex-col gap-14 lg:flex-row lg:items-start">
-              {period.game_type === 'photo' && original?.image_url && (
+              {original?.image_url && (
                 <div className="lg:w-72 lg:shrink-0">
                   <p className="text-foreground/60 font-handwritten mb-4 text-center text-lg lg:text-left">
                     {t('archive.the_subject')}

@@ -14,7 +14,6 @@ interface PreviewSheetProps {
   imageUrl?: string
   gridColumns: number
   gridRows: number
-  gameType?: 'photo' | 'prompt'
   /** True while the parent's claim mutation is in flight. */
   claiming?: boolean
   /** True when the user already holds another claim — disables the button. */
@@ -24,16 +23,14 @@ interface PreviewSheetProps {
 }
 
 /**
- * Confirm-claim modal. Picture mode shows the tile crop the user is about to
- * draw; prompt mode skips the crop since there's no reference image. Both
- * surface the same intro copy and a single sketchy "Claim tile" CTA.
+ * Confirm-claim modal. Shows the tile crop the user is about to draw, the
+ * shared intro copy, and a single sketchy "Claim tile" CTA.
  */
 export function PreviewSheet({
   tile,
   imageUrl,
   gridColumns,
   gridRows,
-  gameType = 'photo',
   claiming = false,
   blocked = false,
   onClose,
@@ -41,7 +38,6 @@ export function PreviewSheet({
 }: PreviewSheetProps) {
   const { t } = useTranslation()
   const open = !!tile
-  const isPromptGame = gameType === 'prompt'
 
   useEffect(() => {
     if (!open) return
@@ -107,7 +103,7 @@ export function PreviewSheet({
                   {t('preview.intro')}
                 </p>
 
-                {!isPromptGame && imageUrl && (
+                {imageUrl && (
                   <TilePreview
                     imageUrl={imageUrl}
                     gridColumns={gridColumns}

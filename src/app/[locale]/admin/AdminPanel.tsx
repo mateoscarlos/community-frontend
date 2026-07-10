@@ -17,14 +17,8 @@ import {
 } from '@/lib/api/debug'
 import { RefreshCw } from 'lucide-react'
 import { ScheduleSection } from './ScheduleSection'
-import { PromptScheduleSection } from './PromptScheduleSection'
 import { SessionsSection } from './SessionsSection'
-import type { GameType, TileResponse } from '@/types/api'
-
-const GAMES: { type: GameType; label: string }[] = [
-  { type: 'photo', label: 'Photo' },
-  { type: 'prompt', label: 'Prompt' },
-]
+import type { TileResponse } from '@/types/api'
 
 export function AdminPanel() {
   const queryClient = useQueryClient()
@@ -42,8 +36,8 @@ export function AdminPanel() {
         </p>
       </header>
 
-      <Section title="Games">
-        <GamesTable />
+      <Section title="Game">
+        <GameRow label="Photo" />
       </Section>
 
       <Section title="Period Duration">
@@ -52,10 +46,6 @@ export function AdminPanel() {
 
       <Section title="Schedule">
         <ScheduleSection />
-      </Section>
-
-      <Section title="Prompt Schedule">
-        <PromptScheduleSection />
       </Section>
 
       <Section title="Feedback">
@@ -81,22 +71,10 @@ export function AdminPanel() {
   )
 }
 
-// --- Games Table ---
+// --- Game Row ---
 
-function GamesTable() {
-  return (
-    <div className="border-foreground space-y-0 border">
-      {GAMES.map((g, i) => (
-        <div key={g.type} className={i > 0 ? 'border-foreground/20 border-t' : ''}>
-          <GameRow gameType={g.type} label={g.label} />
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function GameRow({ gameType, label }: { gameType: GameType; label: string }) {
-  const { data, refetch } = useCurrentPeriodQuery(gameType)
+function GameRow({ label }: { label: string }) {
+  const { data, refetch } = useCurrentPeriodQuery()
 
   const isMock = data?.isMock
   const period = isMock ? undefined : data?.period
@@ -106,7 +84,7 @@ function GameRow({ gameType, label }: { gameType: GameType; label: string }) {
   const drawnTiles = tiles.filter((t) => t.status === 'drawn')
 
   return (
-    <div className="space-y-3 p-4">
+    <div className="border-foreground space-y-3 border p-4">
       <div className="flex items-center justify-between">
         <h3 className="text-foreground text-lg font-black tracking-tight uppercase">
           {label}
@@ -122,7 +100,10 @@ function GameRow({ gameType, label }: { gameType: GameType; label: string }) {
         <>
           <div className="border-foreground/30 grid grid-cols-4 border">
             <Stat label="Phase" value={`${period.phase}`} />
-            <Stat label="Grid" value={`${grid.columns}×${grid.rows}`} />
+            <Stat
+              label="Grid"
+              value={`${period.phase_grid_size}/${period.final_grid_size}`}
+            />
             <Stat label="Drawn" value={`${grid.drawn_count}/${grid.total_tiles}`} />
             <Stat label="Status" value={period.status} />
           </div>
@@ -146,19 +127,19 @@ function GameRow({ gameType, label }: { gameType: GameType; label: string }) {
             <SmallButton
               label="Reset"
               variant="outline"
-              confirm={`Reset the ${label.toLowerCase()} period? All claims and submissions will be cleared.`}
+              confirm="Reset the period? All claims and submissions will be cleared."
               onClick={async () => {
-                await resetPeriod(gameType)
+                await resetPeriod()
                 refetch()
               }}
             />
             <SmallButton
               label="Draw All"
               variant="outline"
-              confirm={`Draw all remaining ${label.toLowerCase()} tiles?`}
+              confirm="Draw all remaining tiles?"
               disabled={tiles.every((t) => t.status === 'drawn')}
               onClick={async () => {
-                await drawAllTiles(gameType)
+                await drawAllTiles()
                 refetch()
               }}
             />

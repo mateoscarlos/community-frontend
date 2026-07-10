@@ -20,8 +20,6 @@ export interface ApiError {
 
 // --- Period / Grid ---
 
-export type GameType = 'photo' | 'prompt'
-
 export interface PeriodImageResponse {
   id: string
   date: string
@@ -31,15 +29,30 @@ export interface PeriodImageResponse {
   expires_in_seconds: number
 }
 
+/**
+ * Tile wire status. `future_locked` marks tiles whose concentric ring hasn't
+ * unlocked yet — distinct from `locked` (which means another player is
+ * currently claiming this tile). See community-backend/docs/game-model-rework.md.
+ */
+export type TileStatus = 'free' | 'locked' | 'drawn' | 'future_locked'
+
 export interface TileResponse {
   id: string
   row: number
   col: number
-  status: 'free' | 'locked' | 'drawn'
+  status: TileStatus
   image_url?: string
 }
 
+export type OuterTileDisplay = 'blocked' | 'hidden'
+
 export interface GridResponse {
+  /**
+   * How the frontend should render tiles whose phase > current phase.
+   * `blocked` = render inert; `hidden` = don't render. Backend-configurable
+   * via app_settings.outer_tile_display (M5 admin toggle).
+   */
+  outer_tile_display: OuterTileDisplay
   columns: number
   rows: number
   total_tiles: number
@@ -55,12 +68,18 @@ export interface PhaseMosaicResponse {
 
 export interface PeriodInfo {
   id: string
-  game_type: GameType
+  /** Retained for archive compatibility. Always `"photo"` on new periods. */
+  game_type: string
   status: 'active' | 'completed' | 'archived'
   phase: number
+  /** Side length of the fully-revealed grid, e.g. 9 for a 9×9. */
+  final_grid_size: number
+  /** Side length of the currently-unlocked window, e.g. 5 at phase 2. */
+  phase_grid_size: number
   started_at: string
+  /** Set only when `status === 'completed'` — the resting-state countdown target. */
+  next_period_starts_at?: string
   image?: PeriodImageResponse
-  prompt?: string
   phase_mosaics?: PhaseMosaicResponse[]
 }
 
@@ -71,7 +90,7 @@ export interface CurrentPeriodResponse {
 
 export interface ArchivePeriodResponse {
   id: string
-  game_type: GameType
+  game_type: string
   phase: number
   started_at: string
   ended_at?: string

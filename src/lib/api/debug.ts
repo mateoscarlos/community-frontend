@@ -40,18 +40,14 @@ export function setActiveDailyImage(body: {
   })
 }
 
-export function createPeriod(gameType: 'photo' | 'prompt' = 'photo', prompt = '') {
-  return adminFetch('/debug/period', {
-    method: 'POST',
-    body: JSON.stringify({ game_type: gameType, prompt }),
-  })
+export function createPeriod() {
+  return adminFetch('/debug/period', { method: 'POST' })
 }
 
-export function resetPeriod(gameType: 'photo' | 'prompt' = 'photo') {
-  return adminFetch<{ reset: string; message: string }>(
-    `/debug/period/reset?game_type=${gameType}`,
-    { method: 'POST' }
-  )
+export function resetPeriod() {
+  return adminFetch<{ reset: string; message: string }>('/debug/period/reset', {
+    method: 'POST',
+  })
 }
 
 export function resetTile(tileId: string) {
@@ -60,9 +56,9 @@ export function resetTile(tileId: string) {
   })
 }
 
-export function drawAllTiles(gameType: 'photo' | 'prompt' = 'photo') {
+export function drawAllTiles() {
   return adminFetch<{ drawn: number; message: string }>(
-    `/debug/tiles/draw-all?game_type=${gameType}`,
+    `/debug/tiles/draw-all`,
     { method: 'POST' }
   )
 }
@@ -179,37 +175,6 @@ export function upsertSchedule(body: {
 
 export function deleteSchedule(date: string): Promise<void> {
   return adminFetch(`/debug/schedule/${date}`, { method: 'DELETE' })
-}
-
-// --- Prompt schedule (parallel prompt-based game) ---
-
-export interface PromptScheduleItem {
-  date: string // YYYY-MM-DD
-  prompt: string
-}
-
-export interface PromptScheduleListResponse {
-  from: string
-  to: string
-  items: PromptScheduleItem[]
-}
-
-export function listPromptSchedule(): Promise<PromptScheduleListResponse> {
-  return adminFetch<PromptScheduleListResponse>('/debug/prompt-schedule')
-}
-
-export function upsertPromptSchedule(body: {
-  date: string
-  prompt: string
-}): Promise<PromptScheduleItem> {
-  return adminFetch<PromptScheduleItem>('/debug/prompt-schedule', {
-    method: 'POST',
-    body: JSON.stringify(body),
-  })
-}
-
-export function deletePromptSchedule(date: string): Promise<void> {
-  return adminFetch(`/debug/prompt-schedule/${date}`, { method: 'DELETE' })
 }
 
 // --- Sessions ---

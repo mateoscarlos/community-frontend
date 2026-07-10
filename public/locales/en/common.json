@@ -11,7 +11,7 @@
   "info": {
     "title": "How Community works",
     "step1": "Claim a tile on the shared canvas",
-    "step2": "Draw your piece from the day's picture or prompt",
+    "step2": "Draw your piece from the day's picture",
     "step3": "Fill the canvas — it expands as tiles are completed",
     "footer": "One tile per canvas. No digital tools. No AI. Just paper, a pen, and you.",
     "close": "Close"
@@ -51,12 +51,6 @@
     "title": "Community",
     "description": "Grab a piece of paper and something to draw with — a pen, pencil, crayon, whatever you've got. Here you'll team up with people from around the world to create one drawing together. Ready? Let's make something awesome.",
     "play": "Play",
-    "mode_picture": "Picture",
-    "mode_prompt": "Prompt",
-    "play_photo": "Play Photo",
-    "play_photo_sub": "copy a daily picture",
-    "play_prompt": "Play Prompt",
-    "play_prompt_sub": "draw from a daily prompt",
     "tagline": "A daily collaborative drawing"
   },
   "blog": {
@@ -145,8 +139,6 @@
     "title": "Museum",
     "subtitle": "The permanent collection",
     "kicker": "Daily exhibitions",
-    "tab_photo": "Photo",
-    "tab_prompt": "Prompt",
     "empty": "No completed images yet",
     "phases": "{{count}} phases",
     "tap_hint": "Tap a day to see all the drawings",

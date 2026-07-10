@@ -11,7 +11,7 @@
   "info": {
     "title": "Sådan fungerer Community",
     "step1": "Tag et felt på det fælles lærred",
-    "step2": "Tegn din del ud fra dagens billede eller idé",
+    "step2": "Tegn din del ud fra dagens billede",
     "step3": "Fyld lærredet — det vokser, efterhånden som felter bliver færdige",
     "footer": "Ét felt pr. lærred. Ingen digitale værktøjer. Ingen AI. Kun papir, en pen og dig.",
     "close": "Luk"
@@ -51,12 +51,6 @@
     "title": "Community",
     "description": "Tag et stykke papir og noget at tegne med — en kuglepen, blyant, farveblyant, hvad du end har. Her samarbejder du med folk fra hele verden om at lave én tegning sammen. Klar? Lad os lave noget fantastisk.",
     "play": "Spil",
-    "mode_picture": "Billede",
-    "mode_prompt": "Idé",
-    "play_photo": "Foto-spil",
-    "play_photo_sub": "kopiér et dagligt billede",
-    "play_prompt": "Idé-spil",
-    "play_prompt_sub": "tegn ud fra en daglig idé",
     "tagline": "En daglig fælles tegning"
   },
   "blog": {
@@ -145,8 +139,6 @@
     "title": "Museum",
     "subtitle": "Den permanente samling",
     "kicker": "Daglige udstillinger",
-    "tab_photo": "Foto",
-    "tab_prompt": "Idé",
     "empty": "Ingen færdige billeder endnu",
     "phases": "{{count}} faser",
     "tap_hint": "Tryk på en dag for at se alle tegningerne",

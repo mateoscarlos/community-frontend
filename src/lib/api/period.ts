@@ -1,26 +1,23 @@
-import type { CurrentPeriodResponse, ArchiveListResponse, GameType } from '@/types/api'
+import type { CurrentPeriodResponse, ArchiveListResponse } from '@/types/api'
 import { apiFetch } from './client'
 import { mockCurrentPeriodResponse } from './mock/period'
 
-export async function fetchCurrentPeriod(
-  gameType: GameType = 'photo'
-): Promise<CurrentPeriodResponse & { isMock?: boolean }> {
+export async function fetchCurrentPeriod(): Promise<
+  CurrentPeriodResponse & { isMock?: boolean }
+> {
   try {
-    return await apiFetch<CurrentPeriodResponse>(
-      `/api/v1/periods/current?game_type=${gameType}`
-    )
+    return await apiFetch<CurrentPeriodResponse>(`/api/v1/periods/current`)
   } catch {
     return { ...mockCurrentPeriodResponse, isMock: true }
   }
 }
 
 export async function fetchArchive(
-  gameType: GameType = 'photo',
   page = 1,
   perPage = 20
 ): Promise<ArchiveListResponse> {
   return apiFetch<ArchiveListResponse>(
-    `/api/v1/periods/archive?game_type=${gameType}&page=${page}&per_page=${perPage}`
+    `/api/v1/periods/archive?page=${page}&per_page=${perPage}`
   )
 }
 

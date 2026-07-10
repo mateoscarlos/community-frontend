@@ -11,7 +11,7 @@
   "info": {
     "title": "Cómo funciona Community",
     "step1": "Reclama una casilla en el lienzo compartido",
-    "step2": "Dibuja tu parte a partir de la imagen o la idea del día",
+    "step2": "Dibuja tu parte a partir de la imagen del día",
     "step3": "Llena el lienzo — crece a medida que se completan las casillas",
     "footer": "Una casilla por lienzo. Sin herramientas digitales. Sin IA. Solo papel, un boli y tú.",
     "close": "Cerrar"
@@ -51,12 +51,6 @@
     "title": "Community",
     "description": "Coge un papel y algo para dibujar — un boli, un lápiz, una cera, lo que tengas a mano. Aquí harás equipo con gente de todo el mundo para crear un dibujo juntos. ¿Listo? Vamos a hacer algo increíble.",
     "play": "Jugar",
-    "mode_picture": "Imagen",
-    "mode_prompt": "Idea",
-    "play_photo": "Modo foto",
-    "play_photo_sub": "copia una foto diaria",
-    "play_prompt": "Modo idea",
-    "play_prompt_sub": "dibuja a partir de una idea",
     "tagline": "Un dibujo colaborativo diario"
   },
   "blog": {
@@ -145,8 +139,6 @@
     "title": "Museo",
     "subtitle": "La colección permanente",
     "kicker": "Exposiciones diarias",
-    "tab_photo": "Foto",
-    "tab_prompt": "Idea",
     "empty": "Aún no hay imágenes completadas",
     "phases": "{{count}} fases",
     "tap_hint": "Toca un día para ver todos los dibujos",
