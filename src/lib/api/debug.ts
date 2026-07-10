@@ -141,6 +141,44 @@ export function setPeriodDuration(hours: number): Promise<PeriodDurationResponse
   })
 }
 
+// --- Phase progression (concentric-ring reveal) ---
+
+export interface PhaseGridSizesResponse {
+  sizes: number[]
+}
+
+export function getPhaseGridSizes(): Promise<PhaseGridSizesResponse> {
+  return adminFetch<PhaseGridSizesResponse>('/debug/phase-grid-sizes')
+}
+
+export function setPhaseGridSizes(sizes: number[]): Promise<PhaseGridSizesResponse> {
+  return adminFetch<PhaseGridSizesResponse>('/debug/phase-grid-sizes', {
+    method: 'PUT',
+    body: JSON.stringify({ sizes }),
+  })
+}
+
+// --- Outer-tile display mode ---
+
+export type OuterTileDisplayMode = 'blocked' | 'hidden'
+
+export interface OuterTileDisplayResponse {
+  mode: OuterTileDisplayMode
+}
+
+export function getOuterTileDisplay(): Promise<OuterTileDisplayResponse> {
+  return adminFetch<OuterTileDisplayResponse>('/debug/outer-tile-display')
+}
+
+export function setOuterTileDisplay(
+  mode: OuterTileDisplayMode
+): Promise<OuterTileDisplayResponse> {
+  return adminFetch<OuterTileDisplayResponse>('/debug/outer-tile-display', {
+    method: 'PUT',
+    body: JSON.stringify({ mode }),
+  })
+}
+
 // --- Daily image schedule ---
 
 export interface ScheduleItem {

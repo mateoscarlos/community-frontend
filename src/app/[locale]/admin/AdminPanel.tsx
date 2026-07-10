@@ -18,6 +18,7 @@ import {
 import { RefreshCw } from 'lucide-react'
 import { ScheduleSection } from './ScheduleSection'
 import { SessionsSection } from './SessionsSection'
+import { PhaseProgressionSection } from './PhaseProgressionSection'
 import type { TileResponse } from '@/types/api'
 
 export function AdminPanel() {
@@ -42,6 +43,10 @@ export function AdminPanel() {
 
       <Section title="Period Duration">
         <PeriodDurationSection />
+      </Section>
+
+      <Section title="Phase Progression">
+        <PhaseProgressionSection />
       </Section>
 
       <Section title="Schedule">
