@@ -123,9 +123,7 @@ function GameRow({ label }: { label: string }) {
                     (someone's holding a claim) or drawn (a submission).
                     Future-locked and free tiles have no state to clear. */}
                 {tiles
-                  .filter(
-                    (t) => t.status === 'locked' || t.status === 'drawn'
-                  )
+                  .filter((t) => t.status === 'locked' || t.status === 'drawn')
                   .map((tile) => (
                     <TileResetButton key={tile.id} tile={tile} onDone={refetch} />
                   ))}

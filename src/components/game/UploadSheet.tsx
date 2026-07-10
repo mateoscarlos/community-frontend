@@ -381,10 +381,7 @@ export function UploadSheet({
 
                   <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6">
                     {showQr && !isMobile ? (
-                      <SketchyActionButton
-                        onClick={() => setShowQr(false)}
-                        variant={0}
-                      >
+                      <SketchyActionButton onClick={() => setShowQr(false)} variant={0}>
                         {t('upload.back')}
                       </SketchyActionButton>
                     ) : (

@@ -12,10 +12,7 @@ export async function fetchCurrentPeriod(): Promise<
   }
 }
 
-export async function fetchArchive(
-  page = 1,
-  perPage = 20
-): Promise<ArchiveListResponse> {
+export async function fetchArchive(page = 1, perPage = 20): Promise<ArchiveListResponse> {
   return apiFetch<ArchiveListResponse>(
     `/api/v1/periods/archive?page=${page}&per_page=${perPage}`
   )

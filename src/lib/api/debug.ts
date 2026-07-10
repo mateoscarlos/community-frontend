@@ -57,10 +57,9 @@ export function resetTile(tileId: string) {
 }
 
 export function drawAllTiles() {
-  return adminFetch<{ drawn: number; message: string }>(
-    `/debug/tiles/draw-all`,
-    { method: 'POST' }
-  )
+  return adminFetch<{ drawn: number; message: string }>(`/debug/tiles/draw-all`, {
+    method: 'POST',
+  })
 }
 
 // --- Feedback inbox (admin only) ---

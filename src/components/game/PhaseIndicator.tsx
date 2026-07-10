@@ -17,18 +17,7 @@ interface PhaseIndicatorProps {
   phaseGridSizes: number[]
 }
 
-const ROMAN = [
-  'I',
-  'II',
-  'III',
-  'IV',
-  'V',
-  'VI',
-  'VII',
-  'VIII',
-  'IX',
-  'X',
-]
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X']
 
 /**
  * Persistent header caption that tells the player which refinement phase the

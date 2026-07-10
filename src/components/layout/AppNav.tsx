@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
 import { SketchyBox } from '@/components/ui/SketchyBox'
 import { InfoModal } from '@/components/game/InfoModal'
 
@@ -75,6 +76,15 @@ function NavTab({
 }) {
   const className =
     'group text-foreground relative inline-flex h-10 min-w-[72px] items-center justify-center px-2.5 sm:h-14 sm:min-w-[120px] sm:px-6'
+  // Hover pop: the tab rises a hair; tap pushes back down. Feels like
+  // pressing a physical stamp. Active tabs stay planted so the pill doesn't
+  // wobble when you accidentally hover over your current page.
+  const motionProps = active
+    ? {}
+    : {
+        whileHover: { y: -2, transition: { duration: 0.15 } },
+        whileTap: { y: 1, transition: { duration: 0.08 } },
+      }
   const inner = (
     <>
       {/* When active the wobbly shape itself fills, so the highlight follows
@@ -92,14 +102,20 @@ function NavTab({
 
   if (href) {
     return (
-      <Link href={href} className={className} aria-current={active ? 'page' : undefined}>
-        {inner}
-      </Link>
+      <motion.div {...motionProps} className="inline-block">
+        <Link
+          href={href}
+          className={className}
+          aria-current={active ? 'page' : undefined}
+        >
+          {inner}
+        </Link>
+      </motion.div>
     )
   }
   return (
-    <button type="button" onClick={onClick} className={className}>
+    <motion.button type="button" onClick={onClick} className={className} {...motionProps}>
       {inner}
-    </button>
+    </motion.button>
   )
 }

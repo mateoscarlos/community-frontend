@@ -78,15 +78,13 @@ function RingProgressionCard() {
       <div>
         <p className="text-muted-foreground text-[10px] tracking-[0.15em] uppercase">
           Ring progression{' '}
-          <span className="text-muted-foreground/60 normal-case tracking-normal">
+          <span className="text-muted-foreground/60 tracking-normal normal-case">
             (odd ints, strictly increasing, first ≥ 3)
           </span>
         </p>
         <p className="text-muted-foreground mt-1 text-[10px] tracking-[0.15em] uppercase">
           Current:{' '}
-          <span className="text-foreground font-black">
-            {serverValue || '(none)'}
-          </span>
+          <span className="text-foreground font-black">{serverValue || '(none)'}</span>
         </p>
       </div>
 
@@ -118,8 +116,7 @@ function RingProgressionCard() {
       </button>
 
       <p className="text-muted-foreground text-[10px] tracking-[0.15em] uppercase">
-        Only applies to the next period. Running periods keep their seeded
-        shape.
+        Only applies to the next period. Running periods keep their seeded shape.
       </p>
     </div>
   )
@@ -166,8 +163,7 @@ function GridAppearanceCard() {
           Grid appearance
         </p>
         <p className="text-muted-foreground mt-1 text-[10px] tracking-[0.15em] uppercase">
-          Current:{' '}
-          <span className="text-foreground font-black">{current ?? '?'}</span>
+          Current: <span className="text-foreground font-black">{current ?? '?'}</span>
         </p>
       </div>
 
@@ -185,9 +181,7 @@ function GridAppearanceCard() {
                   : 'border-foreground text-foreground hover:bg-foreground/10'
               }`}
             >
-              <p className="text-xs font-bold tracking-[0.15em] uppercase">
-                {m.label}
-              </p>
+              <p className="text-xs font-bold tracking-[0.15em] uppercase">{m.label}</p>
               <p
                 className={`text-[10px] leading-tight ${active ? 'text-background/70' : 'text-muted-foreground'}`}
               >

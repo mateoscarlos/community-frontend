@@ -133,14 +133,10 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
   // Earlier phases' drawings still sit at their absolute (row, col) — we
   // subtract `windowOffset` so they land at the right cell of the smaller
   // grid.
-  const windowOffset = isHidden
-    ? Math.floor((finalGridSize - phaseGridSize) / 2)
-    : 0
+  const windowOffset = isHidden ? Math.floor((finalGridSize - phaseGridSize) / 2) : 0
   const renderCols = isHidden ? phaseGridSize : cols
   const renderRows = isHidden ? phaseGridSize : rows
-  const tiles = isHidden
-    ? allTiles.filter((t) => t.status !== 'future_locked')
-    : allTiles
+  const tiles = isHidden ? allTiles.filter((t) => t.status !== 'future_locked') : allTiles
   // Score line uses the wire-format total, which the backend scopes to the
   // currently-playable window (matches drawn_count).
   const totalTiles = grid?.total_tiles ?? 0
@@ -229,7 +225,7 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
           )}
         </div>
 
-        <div className="relative aspect-square w-full overflow-hidden border-foreground border">
+        <div className="border-foreground relative aspect-square w-full overflow-hidden border">
           <AnimatePresence>
             {(!imageLoaded || isLoading) && !isError && (
               <motion.div

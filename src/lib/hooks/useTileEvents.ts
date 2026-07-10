@@ -35,9 +35,7 @@ export interface PhaseCompleteInfo {
  * Pass `onPhaseComplete` to react to phase transitions (typically the
  * DailyImageGrid showing its celebration overlay).
  */
-export function useTileEvents(
-  onPhaseComplete?: (info: PhaseCompleteInfo) => void
-) {
+export function useTileEvents(onPhaseComplete?: (info: PhaseCompleteInfo) => void) {
   const onPhaseCompleteRef = useRef(onPhaseComplete)
   useEffect(() => {
     onPhaseCompleteRef.current = onPhaseComplete

@@ -67,8 +67,7 @@ export const useGameStore = create<GameState>()(
             false,
             'unclaimTile'
           ),
-        clearAllClaims: () =>
-          set({ claimedTiles: [] }, false, 'clearAllClaims'),
+        clearAllClaims: () => set({ claimedTiles: [] }, false, 'clearAllClaims'),
       }),
       {
         name: 'community-game',

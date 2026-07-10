@@ -12,10 +12,7 @@ export default async function PlayPage({ params }: PlayPageProps) {
   const { locale } = await params
   if (!isValidLocale(locale)) notFound()
 
-  const [periodData] = await Promise.all([
-    fetchCurrentPeriod(),
-    getTranslations(locale),
-  ])
+  const [periodData] = await Promise.all([fetchCurrentPeriod(), getTranslations(locale)])
 
   return (
     <div className="flex flex-col">
