@@ -5,7 +5,6 @@ import { Sidebar } from './Sidebar'
 import { BackButton } from './BackButton'
 import { HomeButton } from './HomeButton'
 import { SettingsButton } from './SettingsButton'
-import { PageFrame } from './PageFrame'
 import { useLayoutStore } from '@/lib/store/layout.store'
 
 const SIDEBAR_WIDTH = 256
@@ -21,7 +20,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="bg-background min-h-dvh">
-      <PageFrame />
       <Sidebar />
       <BackButton />
       <HomeButton />
