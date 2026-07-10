@@ -70,7 +70,10 @@
     "legend_locked": "Claimed",
     "legend_yours": "Yours",
     "legend_drawn": "Done",
-    "complete": "complete"
+    "complete": "complete",
+    "masterpiece_complete_title": "Masterpiece complete",
+    "masterpiece_complete_body": "That's a wrap on today's picture. Come back for the next one.",
+    "next_picture_in": "Next picture in"
   },
   "claim": {
     "conflict": "Someone just claimed this tile!",

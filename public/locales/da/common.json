@@ -70,7 +70,10 @@
     "legend_locked": "Taget",
     "legend_yours": "Dit",
     "legend_drawn": "Færdig",
-    "complete": "færdige"
+    "complete": "færdige",
+    "masterpiece_complete_title": "Mesterværket er færdigt",
+    "masterpiece_complete_body": "Det er slut på dagens billede. Kom tilbage til det næste.",
+    "next_picture_in": "Næste billede om"
   },
   "claim": {
     "conflict": "Nogen tog lige dette felt!",

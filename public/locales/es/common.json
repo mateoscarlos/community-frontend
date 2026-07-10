@@ -70,7 +70,10 @@
     "legend_locked": "Reclamada",
     "legend_yours": "Tuya",
     "legend_drawn": "Hecha",
-    "complete": "completadas"
+    "complete": "completadas",
+    "masterpiece_complete_title": "Obra maestra completa",
+    "masterpiece_complete_body": "Terminamos el dibujo de hoy. Vuelve para el siguiente.",
+    "next_picture_in": "Próxima imagen en"
   },
   "claim": {
     "conflict": "¡Alguien acaba de reclamar esta casilla!",

@@ -9,6 +9,7 @@ import { useCurrentPeriodQuery } from '@/lib/query/period.queries'
 import { useTileEvents } from '@/lib/hooks/useTileEvents'
 import { PhaseCompleteOverlay } from '@/components/game/PhaseCompleteOverlay'
 import { PhaseIndicator } from '@/components/game/PhaseIndicator'
+import { MasterpieceCompleteView } from '@/components/game/MasterpieceCompleteView'
 import { useGameStore } from '@/lib/store/game.store'
 import { Skeleton } from '@/components/ui/skeleton'
 import { UploadSheet } from '@/components/game/UploadSheet'
@@ -148,6 +149,24 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
   const imageZoom = isHidden && phaseGridSize > 0 ? finalGridSize / phaseGridSize : 1
 
   const imageLoaded = imageReady
+
+  const periodStatus = data?.period?.status
+  const nextPeriodStartsAt = data?.period?.next_period_starts_at
+  const phaseMosaics = data?.period?.phase_mosaics ?? []
+  // Latest phase mosaic = the composed masterpiece for a completed period.
+  const masterpieceUrl = phaseMosaics.length
+    ? (phaseMosaics[phaseMosaics.length - 1].image_url ?? '')
+    : ''
+
+  if (periodStatus === 'completed') {
+    return (
+      <MasterpieceCompleteView
+        imageUrl={masterpieceUrl}
+        nextStartsAt={nextPeriodStartsAt}
+        onCountdownDone={() => refetch()}
+      />
+    )
+  }
 
   const handleTileClick = (tile: TileResponse) => {
     // Already-mine tile → straight to upload sheet (resume drawing).
