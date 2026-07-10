@@ -133,7 +133,7 @@
     "completed_title": "Masterpiece complete!",
     "completed_subtitle": "Every tile has been drawn. Amazing work, everyone!",
     "current_label": "Phase {{phase}}",
-    "current_aria": "Currently in phase {{phase}}, {{columns}} by {{rows}} grid"
+    "current_aria": "Phase {{phase}}, {{phaseGridSize}} by {{phaseGridSize}} unlocked out of {{finalGridSize}} by {{finalGridSize}}"
   },
   "archive": {
     "title": "Museum",

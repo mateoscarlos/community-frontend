@@ -133,7 +133,7 @@
     "completed_title": "Mesterværk fuldført!",
     "completed_subtitle": "Alle felter er tegnet. Fantastisk arbejde, alle sammen!",
     "current_label": "Fase {{phase}}",
-    "current_aria": "Er i fase {{phase}}, {{columns}} gange {{rows}} gitter"
+    "current_aria": "Fase {{phase}}, {{phaseGridSize}} gange {{phaseGridSize}} låst op af {{finalGridSize}} gange {{finalGridSize}}"
   },
   "archive": {
     "title": "Museum",

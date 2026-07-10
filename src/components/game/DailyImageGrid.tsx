@@ -117,11 +117,35 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
   const grid = data?.grid
   const cols = grid?.columns ?? 3
   const rows = grid?.rows ?? 3
-  const tiles = grid?.tiles ?? []
+  const allTiles = grid?.tiles ?? []
   const imageUrl = data?.period?.image?.image_url
   const drawnCount = grid?.drawn_count ?? 0
-  const totalTiles = grid?.total_tiles ?? 0
   const currentPhase = data?.period?.phase ?? 0
+  const finalGridSize = data?.period?.final_grid_size ?? cols
+  const phaseGridSize = data?.period?.phase_grid_size ?? cols
+  const outerDisplay = grid?.outer_tile_display ?? 'blocked'
+  const isHidden = outerDisplay === 'hidden'
+
+  // In "hidden" mode the viewport shrinks to just the currently-unlocked
+  // window, so future_locked tiles are dropped and the grid re-centers.
+  // Earlier phases' drawings still sit at their absolute (row, col) — we
+  // subtract `windowOffset` so they land at the right cell of the smaller
+  // grid.
+  const windowOffset = isHidden
+    ? Math.floor((finalGridSize - phaseGridSize) / 2)
+    : 0
+  const renderCols = isHidden ? phaseGridSize : cols
+  const renderRows = isHidden ? phaseGridSize : rows
+  const tiles = isHidden
+    ? allTiles.filter((t) => t.status !== 'future_locked')
+    : allTiles
+  // Total the score line reports: drawable tiles in the current window.
+  const totalTiles = allTiles.filter((t) => t.status !== 'future_locked').length
+
+  // In hidden mode the reference photo has to be zoomed so its center
+  // `phaseGridSize / finalGridSize` fraction fills the viewport, otherwise
+  // each visible tile would show the wrong crop.
+  const imageZoom = isHidden && phaseGridSize > 0 ? finalGridSize / phaseGridSize : 1
 
   const imageLoaded = imageReady
 
@@ -170,7 +194,11 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
       <div className="flex w-full max-w-md flex-1 flex-col items-center sm:max-w-lg">
         <div className="mt-2 mb-2 flex flex-col items-center gap-2 text-center sm:mt-8 sm:mb-6">
           {currentPhase > 0 && (
-            <PhaseIndicator phase={currentPhase} columns={cols} rows={rows} />
+            <PhaseIndicator
+              phase={currentPhase}
+              phaseGridSize={phaseGridSize}
+              finalGridSize={finalGridSize}
+            />
           )}
           {totalTiles > 0 && (
             <p className="text-foreground/90 font-handwritten text-lg sm:text-xl">
@@ -191,9 +219,9 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
                 <Skeleton className="h-full w-full rounded-none" />
                 <div
                   className="absolute inset-0 grid"
-                  style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+                  style={{ gridTemplateColumns: `repeat(${renderCols}, 1fr)` }}
                 >
-                  {Array.from({ length: cols * rows }, (_, i) => (
+                  {Array.from({ length: renderCols * renderRows }, (_, i) => (
                     <div key={i} className="border-foreground/10 border" />
                   ))}
                 </div>
@@ -226,7 +254,17 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
                 ref={setImgRef}
                 src={imageUrl}
                 alt={t('nav.game')}
-                className="absolute inset-0 h-full w-full object-cover"
+                className="absolute h-full w-full object-cover"
+                style={{
+                  // In "blocked" mode imageZoom=1 and the photo covers the
+                  // whole viewport. In "hidden" mode it's scaled up and
+                  // centered so only the currently-unlocked crop shows.
+                  width: `${100 * imageZoom}%`,
+                  height: `${100 * imageZoom}%`,
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                }}
                 onLoad={() => setImageReady(true)}
                 animate={{ opacity: imageLoaded ? 1 : 0 }}
                 transition={{ duration: 0.5, ease: 'easeOut' }}
@@ -239,7 +277,7 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
                 <motion.div
                   key="grid"
                   className="absolute inset-0 grid"
-                  style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+                  style={{ gridTemplateColumns: `repeat(${renderCols}, 1fr)` }}
                   variants={gridVariants}
                   initial="hidden"
                   animate="visible"
@@ -249,6 +287,12 @@ export function DailyImageGrid({ initialData }: DailyImageGridProps) {
                       key={tile.id}
                       tile={tile}
                       isMine={myTileIds.has(tile.id)}
+                      // Place tiles by absolute (row, col) minus the offset
+                      // so hidden-mode's smaller grid re-centers correctly.
+                      style={{
+                        gridColumnStart: tile.col - windowOffset + 1,
+                        gridRowStart: tile.row - windowOffset + 1,
+                      }}
                       disabled={
                         tile.status === 'free' &&
                         (hasActiveClaim || claimMutation.isPending)
@@ -347,11 +391,13 @@ function TileCell({
   isMine,
   disabled = false,
   onClick,
+  style,
 }: {
   tile: TileResponse
   isMine: boolean
   disabled?: boolean
   onClick: () => void
+  style?: React.CSSProperties
 }) {
   const isFree = tile.status === 'free'
   const isLocked = tile.status === 'locked'
@@ -393,6 +439,7 @@ function TileCell({
       className={`relative overflow-hidden transition-colors focus:outline-none ${baseBg} ${borderClass} ${cursorClass} ${
         clickable ? 'hover:bg-foreground/15' : ''
       }`}
+      style={style}
       variants={tileVariants}
       transition={{ type: 'spring', stiffness: 300, damping: 22 }}
       whileHover={

@@ -133,7 +133,7 @@
     "completed_title": "¡Obra maestra completada!",
     "completed_subtitle": "Todas las casillas han sido dibujadas. ¡Increíble trabajo!",
     "current_label": "Fase {{phase}}",
-    "current_aria": "En la fase {{phase}}, cuadrícula de {{columns}} por {{rows}}"
+    "current_aria": "Fase {{phase}}, {{phaseGridSize}} por {{phaseGridSize}} desbloqueadas de {{finalGridSize}} por {{finalGridSize}}"
   },
   "archive": {
     "title": "Museo",
