@@ -66,10 +66,30 @@ export function ScheduleSection() {
   )
 }
 
+/** Local calendar date as YYYY-MM-DD — toISOString() would shift to UTC and
+ *  land on the wrong day for part of the evening in Copenhagen. */
+function toISODate(d: Date): string {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
+/** Whole days from `from` to `to`; negative when `to` is earlier. */
+function daysBetween(from: string, to: string): number {
+  const a = Date.parse(`${from}T00:00:00Z`)
+  const b = Date.parse(`${to}T00:00:00Z`)
+  return Math.round((b - a) / 86_400_000)
+}
+
 /**
  * Place own rows first, then span each forward `daysPerPeriod - 1` days.
  * Own rows always win — a later-dated upload overrides an earlier span so
  * the admin sees what they explicitly scheduled.
+ *
+ * Rows dated *before* the window span into it too: with a multi-day period the
+ * picture showing today may have been scheduled weeks ago, and dropping those
+ * rows left the calendar blank while the game was still running that image.
  */
 function buildSlots(
   items: ScheduleItem[],
@@ -79,33 +99,31 @@ function buildSlots(
 ): DaySlot[] {
   const byDate = new Map(items.map((it) => [it.date, it]))
   const slots: DaySlot[] = []
-  const dateToIdx = new Map<string, number>()
   for (let i = 0; i < visibleDays; i++) {
     const d = new Date(today)
     d.setDate(today.getDate() + i)
-    const iso = d.toISOString().slice(0, 10)
-    slots.push({ date: iso, item: byDate.get(iso), isOwn: !!byDate.get(iso) })
-    dateToIdx.set(iso, i)
+    const iso = toISODate(d)
+    const item = byDate.get(iso)
+    slots.push({ date: iso, item, isOwn: !!item })
   }
   if (daysPerPeriod <= 1) return slots
 
-  const sortedOwn = items
-    .map((it) => it.date)
-    .filter((d) => dateToIdx.has(d))
-    .sort()
-  for (const ownDate of sortedOwn) {
-    const ownItem = byDate.get(ownDate)!
-    const startIdx = dateToIdx.get(ownDate)!
+  const firstVisible = slots[0].date
+  const sorted = [...items].sort((a, b) => a.date.localeCompare(b.date))
+  for (const item of sorted) {
+    const startIdx = daysBetween(firstVisible, item.date)
+    if (startIdx >= slots.length) continue
     for (let offset = 1; offset < daysPerPeriod; offset++) {
       const spanIdx = startIdx + offset
       if (spanIdx >= slots.length) break
+      if (spanIdx < 0) continue // still before the visible window
       const spanSlot = slots[spanIdx]
       if (spanSlot.isOwn) break // hit the next own row → stop spanning
       slots[spanIdx] = {
         date: spanSlot.date,
-        item: ownItem,
+        item,
         isOwn: false,
-        sourceDate: ownDate,
+        sourceDate: item.date,
       }
     }
   }
