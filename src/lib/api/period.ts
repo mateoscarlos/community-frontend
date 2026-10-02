@@ -7,7 +7,14 @@ export async function fetchCurrentPeriod(): Promise<
 > {
   try {
     return await apiFetch<CurrentPeriodResponse>(`/api/v1/periods/current`)
-  } catch {
+  } catch (err) {
+    // Outside local dev, never fabricate a period: painting a placeholder photo
+    // as if it were today's picture reads as a glitch when the real one lands a
+    // moment later. Let it throw so the grid shows its retry state instead.
+    if (process.env.NODE_ENV === 'production') throw err
+    // The fallback used to swallow this silently, which hid real backend
+    // outages behind a stock photo.
+    console.error('fetchCurrentPeriod failed — using mock period (dev only)', err)
     return { ...mockCurrentPeriodResponse, isMock: true }
   }
 }

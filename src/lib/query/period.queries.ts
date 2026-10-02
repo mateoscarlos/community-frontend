@@ -17,7 +17,9 @@ export function useCurrentPeriodQuery(
     staleTime: 5_000,
     refetchInterval: 10_000, // Poll every 10s to see other users' claims
     retry: 1,
-    initialData,
+    // Mock data must never seed the cache: it would paint the placeholder
+    // picture and then visibly swap to the real one on the first refetch.
+    initialData: initialData?.isMock ? undefined : initialData,
   })
 }
 

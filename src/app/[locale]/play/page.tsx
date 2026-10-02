@@ -12,7 +12,12 @@ export default async function PlayPage({ params }: PlayPageProps) {
   const { locale } = await params
   if (!isValidLocale(locale)) notFound()
 
-  const [periodData] = await Promise.all([fetchCurrentPeriod(), getTranslations(locale)])
+  // A failed server-side fetch must not block the page: hand the client no
+  // seed data and let it render the skeleton while it fetches for itself.
+  const [periodData] = await Promise.all([
+    fetchCurrentPeriod().catch(() => undefined),
+    getTranslations(locale),
+  ])
 
   return (
     <div className="flex flex-col">
