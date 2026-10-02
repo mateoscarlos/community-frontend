@@ -15,7 +15,7 @@ export class ApiError extends Error {
 
 // The backend returns {"error": "..."} for every failure (httpserver.WriteError),
 // so prefer that over a generic string — callers surface it to the user.
-async function readErrorMessage(res: Response, path: string): Promise<string> {
+export async function readErrorMessage(res: Response, path: string): Promise<string> {
   try {
     const body = (await res.json()) as { error?: unknown }
     if (typeof body.error === 'string' && body.error !== '') return body.error

@@ -1,4 +1,4 @@
-import { ApiError } from './client'
+import { ApiError, readErrorMessage } from './client'
 
 // Admin calls go through the same-origin BFF (/api/admin/*), never straight
 // to the backend — the Next route injects the secret server-side. Paths keep
@@ -6,11 +6,11 @@ import { ApiError } from './client'
 async function adminFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const rel = path.replace(/^\/debug/, '/api/admin')
   const res = await fetch(rel, {
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
     ...options,
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
   })
   if (!res.ok) {
-    throw new ApiError(res.status, `API error ${res.status}: ${path}`)
+    throw new ApiError(res.status, await readErrorMessage(res, path))
   }
   if (res.status === 204) return undefined as T
   const text = await res.text()

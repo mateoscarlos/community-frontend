@@ -29,7 +29,8 @@ type DaySlot = {
  *
  * When period_duration_hours > 24 a single scheduled picture keeps running
  * for multiple days — we render those spanned days with the same image
- * (dimmed, read-only) so the admin can see what will actually be showing.
+ * (dimmed) so the admin can see what will actually be showing. Any cell can
+ * be clicked to upload a replacement; on a spanned day that starts a new run.
  */
 export function ScheduleSection() {
   const { data, isLoading } = useQuery({
@@ -158,11 +159,12 @@ function DayCell({ slot, index }: { slot: DaySlot; index: number }) {
     try {
       const key = `schedule/${date}-${Date.now()}-${file.name.replace(/\s+/g, '-')}`
       const { upload_url } = await getDebugUploadURL(key)
-      await fetch(upload_url, {
+      const put = await fetch(upload_url, {
         method: 'PUT',
         body: file,
         headers: { 'Content-Type': file.type },
       })
+      if (!put.ok) throw new Error(`image upload failed (${put.status})`)
       const dims = await getImageDimensions(file)
       await upsertSchedule({
         date,
@@ -175,6 +177,8 @@ function DayCell({ slot, index }: { slot: DaySlot; index: number }) {
       await queryClient.refetchQueries({ queryKey: SCHEDULE_KEY })
     } catch (err) {
       console.error('schedule upload failed', err)
+      // e.g. 409 when the running period already has drawings on it
+      window.alert(err instanceof Error ? err.message : 'Upload failed')
     } finally {
       setUploading(false)
     }
@@ -194,6 +198,18 @@ function DayCell({ slot, index }: { slot: DaySlot; index: number }) {
             draggable={false}
             loading="lazy"
           />
+          <label
+            htmlFor={fileInputId}
+            className="text-background hover:bg-foreground/40 absolute inset-0 flex cursor-pointer items-center justify-center text-[10px] font-bold tracking-[0.15em] uppercase opacity-0 transition hover:opacity-100"
+            aria-label={`Replace picture for ${date}`}
+          >
+            Replace
+          </label>
+          {uploading && (
+            <span className="bg-foreground/40 text-background absolute inset-0 flex items-center justify-center text-[10px] font-bold">
+              ...
+            </span>
+          )}
           {isOwn && (
             <button
               type="button"
@@ -210,7 +226,7 @@ function DayCell({ slot, index }: { slot: DaySlot; index: number }) {
             </button>
           )}
           {!isOwn && (
-            <span className="text-background absolute top-1 right-1 z-10 font-mono text-[9px] font-bold tracking-tight mix-blend-difference drop-shadow">
+            <span className="text-background pointer-events-none absolute top-1 right-1 z-10 font-mono text-[9px] font-bold tracking-tight mix-blend-difference drop-shadow">
               cont.
             </span>
           )}
@@ -224,18 +240,17 @@ function DayCell({ slot, index }: { slot: DaySlot; index: number }) {
         </label>
       )}
 
-      {!item && (
-        <input
-          id={fileInputId}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          onChange={handleFileChange}
-          className="hidden"
-        />
-      )}
+      <input
+        id={fileInputId}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        onChange={handleFileChange}
+        disabled={uploading}
+        className="hidden"
+      />
 
       <span
-        className={`absolute bottom-1 left-1 font-mono text-[10px] font-bold tracking-tight ${
+        className={`pointer-events-none absolute bottom-1 left-1 font-mono text-[10px] font-bold tracking-tight ${
           item?.image_url
             ? 'text-background mix-blend-difference drop-shadow'
             : 'text-muted-foreground'
