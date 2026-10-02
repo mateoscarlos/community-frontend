@@ -126,7 +126,10 @@ function DayCell({ slot, index }: { slot: DaySlot; index: number }) {
 
   const removeMutation = useMutation({
     mutationFn: () => deleteSchedule(date),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: SCHEDULE_KEY }),
+    // refetch (not just invalidate) so the calendar cell empties out
+    // synchronously — invalidate alone marks stale, but a background refetch
+    // races with the closed spinner and the admin sees stale content briefly.
+    onSuccess: () => queryClient.refetchQueries({ queryKey: SCHEDULE_KEY }),
   })
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -149,7 +152,9 @@ function DayCell({ slot, index }: { slot: DaySlot; index: number }) {
         width: dims.width,
         height: dims.height,
       })
-      await queryClient.invalidateQueries({ queryKey: SCHEDULE_KEY })
+      // Force a fresh fetch (not just an invalidation) so the cell paints
+      // the newly-scheduled picture as soon as the spinner clears.
+      await queryClient.refetchQueries({ queryKey: SCHEDULE_KEY })
     } catch (err) {
       console.error('schedule upload failed', err)
     } finally {
