@@ -9,14 +9,14 @@ export default function AdminUnlockPage() {
   const router = useRouter()
   const locale = (params?.locale as string) ?? 'en'
   const [passphrase, setPassphrase] = useState('')
-  const [error, setError] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!passphrase || busy) return
     setBusy(true)
-    setError(false)
+    setError(null)
     try {
       const res = await fetch('/api/admin/unlock', {
         method: 'POST',
@@ -27,9 +27,13 @@ export default function AdminUnlockPage() {
         router.replace(`/${locale}/admin`)
         return
       }
-      setError(true)
+      setError(
+        res.status === 429
+          ? 'Too many attempts — wait a few minutes.'
+          : 'Wrong passphrase — try again.'
+      )
     } catch {
-      setError(true)
+      setError('Something went wrong — try again.')
     } finally {
       setBusy(false)
     }
@@ -58,9 +62,7 @@ export default function AdminUnlockPage() {
         />
 
         {error && (
-          <p className="text-foreground font-handwritten text-lg">
-            Wrong passphrase — try again.
-          </p>
+          <p className="text-foreground font-handwritten text-lg">{error}</p>
         )}
 
         <button
