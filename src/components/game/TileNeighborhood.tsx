@@ -18,8 +18,10 @@ interface TileNeighborhoodProps {
 /**
  * Target tile sharp in the centre, surrounded by a blurry halo of neighbours
  * so the user can match colours and edges with adjacent drawings while they
- * work. Drawn neighbours show the actual submission; undrawn neighbours fall
- * back to the reference photo; out-of-bounds cells are dimmed.
+ * work. Drawn neighbours show the actual submission; undrawn playable
+ * neighbours fall back to the reference photo; out-of-bounds and
+ * future-locked cells render as an opaque foreground swatch so the reference
+ * photo for rings that haven't unlocked yet never leaks.
  */
 export function TileNeighborhood({
   imageUrl,
@@ -61,6 +63,12 @@ export function TileNeighborhood({
     >
       {cells.map(({ r, c, isCenter, tile }, i) => {
         const inBounds = r >= 0 && r < gridRows && c >= 0 && c < gridColumns
+        // Future-locked tiles belong to rings that haven't unlocked yet.
+        // Showing the reference-photo crop there would leak the picture
+        // ahead of schedule (matters especially in "hidden" mode where the
+        // main grid doesn't even render those positions).
+        const isFutureLocked = tile?.status === 'future_locked'
+        const shouldMask = !inBounds || isFutureLocked
         const drawn = tile?.status === 'drawn' && tile?.image_url
         return (
           <div
@@ -71,8 +79,8 @@ export function TileNeighborhood({
                 : 'border-foreground/15 border opacity-65'
             }`}
           >
-            {!inBounds ? (
-              <div className="bg-foreground/5 absolute inset-0" />
+            {shouldMask ? (
+              <div className="bg-foreground absolute inset-0" />
             ) : isCenter ? (
               imageUrl ? (
                 <div className="absolute inset-0">

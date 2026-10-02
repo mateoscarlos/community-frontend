@@ -440,7 +440,10 @@ function TileCell({
         : ''
 
   let baseBg = ''
-  if (isFutureLocked) baseBg = 'bg-foreground/60'
+  // Fully opaque so the reference photo never peeks through: future-locked
+  // tiles belong to rings that haven't unlocked yet, and any glimpse of the
+  // picture there is a spoiler.
+  if (isFutureLocked) baseBg = 'bg-foreground'
   else if (!isDrawn) {
     if (isMine && isLocked) baseBg = 'bg-foreground/20'
     else if (isLocked) baseBg = 'bg-background/40'
