@@ -61,9 +61,7 @@ export default function AdminUnlockPage() {
           className="border-foreground/60 text-foreground placeholder:text-muted-foreground focus:border-foreground font-handwritten w-full border bg-transparent px-4 py-3 text-center text-lg outline-none"
         />
 
-        {error && (
-          <p className="text-foreground font-handwritten text-lg">{error}</p>
-        )}
+        {error && <p className="text-foreground font-handwritten text-lg">{error}</p>}
 
         <button
           type="submit"
